@@ -2,12 +2,14 @@ package com.example.codeE.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public abstract class User {
     //email, userName, Password, role
     @NonNull

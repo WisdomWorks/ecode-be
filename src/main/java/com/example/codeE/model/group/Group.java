@@ -4,12 +4,14 @@ import java.sql.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Group {
     // groupId, groupName, courseId, dateCreate, description, numberMember   
     //primary key
