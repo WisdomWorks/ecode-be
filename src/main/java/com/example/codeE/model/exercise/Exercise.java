@@ -18,14 +18,10 @@ public class Exercise {
     @NonNull
     private String topicId;
     @NonNull
-    private String name;
+    private String title;
     private String description;
     @NonNull
     private String question;
-    @NonNull
-    private String answer;
-    @NonNull
-    private String password;
     @NonNull
     private Date dateCreate;
     @NonNull
@@ -33,7 +29,7 @@ public class Exercise {
     @NonNull
     private Date dueTo;
     @NonNull
-    private ExerciseType Type;
+    private ExerciseType type;
     @NonNull
     private Boolean isPublic;
 }

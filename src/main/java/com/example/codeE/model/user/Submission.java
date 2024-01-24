@@ -20,6 +20,7 @@ public class Submission {
     @NonNull
     private String submission;
     private float score;
+    private String description ;
     @NonNull
     private Date dateSubmit;
     private Date dateGrade;
