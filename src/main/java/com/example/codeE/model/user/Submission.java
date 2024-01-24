@@ -15,15 +15,15 @@ import lombok.Setter;
 public class Submission {
     @NonNull
     private String studentId;
-    @NonNull 
+    @NonNull
     private String exerciseId;
     @NonNull
     private String submission;
     private float score;
-    private String description ;
+    private String description;
     @NonNull
     private Date dateSubmit;
     private Date dateGrade;
     @NonNull
-    private Boolean Reviewable;
+    private Boolean reviewable;
 }

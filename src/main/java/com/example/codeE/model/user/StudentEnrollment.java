@@ -2,19 +2,23 @@ package com.example.codeE.model.user;
 
 import java.util.Date;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class StudentEnrollment {
-    @NonNull 
+    @NonNull
     private String studentId;
-    @NonNull 
+    @NonNull
     private String courseId;
-    @NonNull 
+    @NonNull
     private Date dateEnroll;
-    @NonNull 
+    @NonNull
     private String description;
 }
