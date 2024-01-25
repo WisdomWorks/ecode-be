@@ -13,7 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Material {
-
     @NonNull
     private String materialId;
     @NonNull

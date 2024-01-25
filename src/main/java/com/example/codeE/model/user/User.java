@@ -11,7 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class User {
-    //email, userName, Password, role
     @NonNull
     private String userId;
     @NonNull

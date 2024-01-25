@@ -13,11 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Group {
-    // groupId, groupName, courseId, dateCreate, description, numberMember   
-    //primary key
     @NonNull
     private String groupId;
-    //foreign key
     @NonNull
     private String courseId;
     @NonNull
