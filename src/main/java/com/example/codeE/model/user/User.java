@@ -15,6 +15,7 @@ import lombok.*;
 public class User {
     @Id
     @NonNull
+    @Column(name = "user_id")
     private String userId;
     @Column(name = "name")
     @NonNull
@@ -22,9 +23,9 @@ public class User {
     @Column(name = "email")
     @NonNull
     private String email;
-/*    @Column(name = "username")
+    @Column(name = "username")
     @NonNull
-    private String username;*/
+    private String username;
     @Column(name = "password")
     @NonNull
     private String password;

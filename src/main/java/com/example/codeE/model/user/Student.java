@@ -8,9 +8,9 @@ import lombok.Setter;
 @Setter
 public class Student extends User{
 
-    public Student(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String userName,
+    public Student(@NonNull String userId, @NonNull String username, @NonNull String name, @NonNull String email, @NonNull String userName,
             @NonNull String password, @NonNull String role) {
-        super(userId, name, email, password, role);
+        super(userId,userName, name, email, password, role);
     }
     
 }
