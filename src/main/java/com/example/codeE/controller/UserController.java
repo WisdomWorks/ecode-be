@@ -1,15 +1,15 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.user.PaginationRequest;
-import com.example.codeE.model.common.Pagination;
 import com.example.codeE.service.user.UserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -29,16 +29,17 @@ public class UserController {
             @RequestParam(defaultValue = "10") Integer pageSize
     ){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        int totalRecords = this.userImplement.getAllUsers().size();
         List<User> listUsers = this.userImplement.paginateUsers(new PaginationRequest(
                 role, searchKeyword, pageable
         ));
         return new ResponseEntity<>(
                 Map.of("users", listUsers,
                         "pagination", new Pagination(
-                                listUsers.size(),
+                                totalRecords,
                                 pageSize,
                                 pageNumber,
-                                (int) Math.ceil((double) this.userImplement.getAllUsers().size() / pageSize)
+                                (int) Math.ceil((double) totalRecords / pageSize)
                         )), HttpStatus.OK);
     }
 
