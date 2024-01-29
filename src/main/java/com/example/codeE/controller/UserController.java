@@ -1,13 +1,18 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.user.PaginationRequest;
+import com.example.codeE.model.common.Pagination;
 import com.example.codeE.service.user.UserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -17,9 +22,24 @@ public class UserController {
 
     @GetMapping
     @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers(){
-        List<User> listaPersona = this.userImplement.getAllUsers();
-        return ResponseEntity.ok(listaPersona);
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(defaultValue = "") String role,
+            @RequestParam(defaultValue = "") String searchKeyword,
+            @RequestParam(defaultValue = "0") Integer pageNumber,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ){
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        List<User> listUsers = this.userImplement.paginateUsers(new PaginationRequest(
+                role, searchKeyword, pageable
+        ));
+        return new ResponseEntity<>(
+                Map.of("users", listUsers,
+                        "pagination", new Pagination(
+                                listUsers.size(),
+                                pageSize,
+                                pageNumber,
+                                (int) Math.ceil((double) this.userImplement.getAllUsers().size() / pageSize)
+                        )), HttpStatus.OK);
     }
 
     @PostMapping
