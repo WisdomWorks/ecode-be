@@ -2,7 +2,7 @@ package com.example.codeE.service.user;
 
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
-import com.example.codeE.request.user.PaginationRequest;
+import com.example.codeE.request.user.GetUsersRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +36,10 @@ public class UserImpl implements UserService {
         return this.userRepository.findById(userId).get();
     }
     @Override
-    public List<User> paginateUsers(PaginationRequest paginationRequest) {
+    public List<User> paginateUsers(GetUsersRequest getUsersRequest) {
         return this.userRepository.findUsersByRoleAndSearchKeyword(
-                paginationRequest.getRole(),
-                paginationRequest.getSearchKeyword(),
-                paginationRequest.getPageable());
+                getUsersRequest.getRole(),
+                getUsersRequest.getSearchKeyword(),
+                getUsersRequest.getPageable());
     }
 }

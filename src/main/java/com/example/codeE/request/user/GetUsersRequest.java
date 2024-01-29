@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaginationRequest {
+public class GetUsersRequest {
     private String role;
     private String searchKeyword;
     private Pageable pageable;

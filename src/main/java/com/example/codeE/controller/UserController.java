@@ -2,7 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
-import com.example.codeE.request.user.PaginationRequest;
+import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +30,7 @@ public class UserController {
     ){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         int totalRecords = this.userImplement.getAllUsers().size();
-        List<User> listUsers = this.userImplement.paginateUsers(new PaginationRequest(
+        List<User> listUsers = this.userImplement.paginateUsers(new GetUsersRequest(
                 role, searchKeyword, pageable
         ));
         return new ResponseEntity<>(
