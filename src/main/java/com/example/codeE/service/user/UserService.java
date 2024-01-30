@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface UserService {
     public List<User> getAllUsers();
+    public List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
     public User createUser(User user);
     public User updateUser(User user);
     public void deleteUser(String userId);

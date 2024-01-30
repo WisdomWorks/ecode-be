@@ -12,9 +12,18 @@ import java.util.List;
 public class UserImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+
     @Override
     public List<User> getAllUsers() {
         return (List<User>) this.userRepository.findAll();
+    }
+
+    @Override
+    public List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest) {
+        return (List<User>) this.userRepository.findUsersByRoleAndSearchKeyword(
+                getUsersRequest.getRole(),
+                getUsersRequest.getSearchKeyword()
+        );
     }
 
     @Override
@@ -37,7 +46,7 @@ public class UserImpl implements UserService {
     }
     @Override
     public List<User> paginateUsers(GetUsersRequest getUsersRequest) {
-        return this.userRepository.findUsersByRoleAndSearchKeyword(
+        return this.userRepository.findUsersByRoleAndSearchKeywordWithPagination(
                 getUsersRequest.getRole(),
                 getUsersRequest.getSearchKeyword(),
                 getUsersRequest.getPageable());

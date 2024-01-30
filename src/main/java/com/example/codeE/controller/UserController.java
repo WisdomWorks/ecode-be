@@ -4,11 +4,11 @@ import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,30 +16,24 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
     @Autowired
     private UserImpl userImplement;
 
     @GetMapping
     @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers(
-            @RequestParam(defaultValue = "") String role,
-            @RequestParam(defaultValue = "") String searchKeyword,
-            @RequestParam(defaultValue = "0") Integer pageNumber,
-            @RequestParam(defaultValue = "10") Integer pageSize
+    public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest
     ){
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        int totalRecords = this.userImplement.getAllUsers().size();
-        List<User> listUsers = this.userImplement.paginateUsers(new GetUsersRequest(
-                role, searchKeyword, pageable
-        ));
+        int totalRecords = this.userImplement.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
+        List<User> listUsers = this.userImplement.paginateUsers(getUsersRequest);
         return new ResponseEntity<>(
                 Map.of("users", listUsers,
                         "pagination", new Pagination(
                                 totalRecords,
-                                pageSize,
-                                pageNumber,
-                                (int) Math.ceil((double) totalRecords / pageSize)
+                                getUsersRequest.getPageSize(),
+                                getUsersRequest.getPageNumber(),
+                                (int) Math.ceil((double) totalRecords / getUsersRequest.getPageSize())
                         )), HttpStatus.OK);
     }
 
