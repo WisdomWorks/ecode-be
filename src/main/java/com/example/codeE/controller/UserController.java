@@ -6,6 +6,7 @@ import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +27,7 @@ public class UserController {
     public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest
     ){
         int totalRecords = this.userImplement.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
+        getUsersRequest.setPageable(PageRequest.of(getUsersRequest.getPageNumber()-1, getUsersRequest.getPageSize()));
         List<User> listUsers = this.userImplement.paginateUsers(getUsersRequest);
         return new ResponseEntity<>(
                 Map.of("users", listUsers,

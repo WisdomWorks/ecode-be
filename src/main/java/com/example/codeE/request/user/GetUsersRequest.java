@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @Getter
@@ -31,6 +30,5 @@ public class GetUsersRequest {
         this.searchKeyword = searchKeyword;
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
-        this.pageable = PageRequest.of(pageNumber-1, pageSize);
     }
 }
