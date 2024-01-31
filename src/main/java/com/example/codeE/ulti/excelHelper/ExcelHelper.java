@@ -10,7 +10,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 public class ExcelHelper {
-    private static final String FILEDIRECT = "C:\\Users\\Admin\\Desktop\\CodeE\\src\\main\\java\\com\\example\\codeE\\ulti\\excelHelper\\";  
     public static FileOutputStream  writeExcel(Workbook workbook, List<T> dataList, String filePath, String sheetName){
         try {
             Sheet sheet = workbook.createSheet(sheetName);
