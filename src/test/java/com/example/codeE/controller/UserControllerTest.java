@@ -28,17 +28,24 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
-//    @Autowired
     @InjectMocks
     private UserController userController;
-//    @Autowired
     @Mock
     private UserImpl userImplement;
     private MockMvc mockMvc;
 
+    private List<User> mockDataUser;
+
     @BeforeEach
     void setUp() {
         this.mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        this.mockDataUser = new ArrayList<>();
+        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+
     }
 
     @AfterEach
@@ -48,15 +55,7 @@ class UserControllerTest {
     @Test
     void getAllUsersSusccessfully() {
         try {
-            //Mocking data
-            List<User> userList = new ArrayList<>();
-            userList.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-            userList.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-            userList.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-            userList.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-            userList.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-
-            when(userImplement.getUsersByRoleAndSearchKeyword(Mockito.any())).thenReturn(userList);
+            when(userImplement.getUsersByRoleAndSearchKeyword(Mockito.any())).thenReturn(mockDataUser);
 
             List<User> paginatedUserList = new ArrayList<>();
             paginatedUserList.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
@@ -85,23 +84,33 @@ class UserControllerTest {
         }
     }
 
-//    @Test
-//    void getAllUsersWithInvalidRole() {
-//        try {
-//            int totalRecords = userImplement.getAllUsers().size();
-//            System.out.println(totalRecords);
-//            mockMvc.perform(MockMvcRequestBuilders
-//                            .get("/users")
-//                            .param("role", "-1")
-//                            .param("searchKeyword", "nyan")
-//                            .param("pageNumber", "0")
-//                            .param("pageSize", "5"))
-//                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
-//                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0].param").value("role"))
-//                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0].message").value("Role should be Teacher, Student, or Admin"))
-//                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors", Matchers.hasSize(1)));
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    @Test
+    void getAllUsersWithInvalidRole() {
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                            .get("/users")
+                            .param("role", "role")
+                            .param("searchKeyword", "name")
+                            .param("pageNumber", "1")
+                            .param("pageSize", "2"))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void getAllUsersWithInvalidPageNumber() {
+        try {
+            mockMvc.perform(MockMvcRequestBuilders
+                            .get("/users")
+                            .param("role", "Teacher")
+                            .param("searchKeyword", "name")
+                            .param("pageNumber", "-1")
+                            .param("pageSize", "2"))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
