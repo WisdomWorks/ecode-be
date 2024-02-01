@@ -1,4 +1,4 @@
-package com.example.codeE.ulti.excelhelper;
+package com.example.codeE.ulti.excelHelper;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +17,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelHelper {
-     public static FileOutputStream  writeExcel(Workbook workbook, List<T> dataList, String filePath, String sheetName){
+
+     public static <T> FileOutputStream writeExcel(Workbook workbook, List<T> dataList, String filePath, String sheetName){
         try {
             Sheet sheet = workbook.createSheet(sheetName);        
             Row headerRow = sheet.createRow(0);
@@ -28,7 +29,7 @@ public class ExcelHelper {
             }
 
             int rowIndex = 1;
-            for (T data : dataList) {
+            for (Object data : dataList) {
                 Row row = sheet.createRow(rowIndex++);
                 cellIndex = 0;
                 for (java.lang.reflect.Field field : data.getClass().getDeclaredFields()) {
