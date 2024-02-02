@@ -1,25 +1,42 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
     @Autowired
     private UserImpl userImplement;
 
     @GetMapping
     @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers(){
-        List<User> listaPersona = this.userImplement.getAllUsers();
-        return ResponseEntity.ok(listaPersona);
+    public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest
+    ){
+        int totalRecords = this.userImplement.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
+        getUsersRequest.setPageable(PageRequest.of(getUsersRequest.getPageNumber()-1, getUsersRequest.getPageSize()));
+        List<User> listUsers = this.userImplement.paginateUsers(getUsersRequest);
+        return new ResponseEntity<>(
+                Map.of("users", listUsers,
+                        "pagination", new Pagination(
+                                totalRecords,
+                                getUsersRequest.getPageSize(),
+                                getUsersRequest.getPageNumber(),
+                                (int) Math.ceil((double) totalRecords / getUsersRequest.getPageSize())
+                        )), HttpStatus.OK);
     }
 
     @PostMapping
