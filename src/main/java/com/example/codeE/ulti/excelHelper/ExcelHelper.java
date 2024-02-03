@@ -13,12 +13,13 @@ import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.example.codeE.ulti.Constant;
 
 public class ExcelHelper {
 
-     public static <T> FileOutputStream writeExcel(Workbook workbook, List<T> dataList, String filePath, String sheetName){
+     public static <T> void writeExcel(XSSFWorkbook workbook, List<T> dataList, String fileName, String sheetName){
         try {
             Sheet sheet = workbook.createSheet(sheetName);        
             Row headerRow = sheet.createRow(0);
@@ -39,17 +40,19 @@ public class ExcelHelper {
                 }
             }
 
-            FileOutputStream fileOut = new FileOutputStream(filePath);
-            return fileOut;
+            FileOutputStream fileOut = new FileOutputStream(Constant.FILE_PATH+ fileName);
+            workbook.write(fileOut);
+            fileOut.close();
         } catch (Exception e) {
+            //need to log this exception
+            //remember delete file after upload into s3
             e.printStackTrace();
-            return null;
         }
     }
     public static List<T> importFromExcel(String filePath, Class<T> clazz) {
         List<T> dataList = new ArrayList<>();
 
-        try (Workbook workbook = new XSSFWorkbook(new FileInputStream(filePath))) {
+        try (var workbook = new XSSFWorkbook(new FileInputStream(filePath))) {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rowIterator = sheet.iterator();
             while (rowIterator.hasNext()) {
