@@ -54,7 +54,7 @@ public class User {
 
     @Column(name = "role")
     @NotBlank(message = "Role is required")
-    @Pattern(regexp = "^(teacher|student|admin)$", message = "Role should be Teacher, Student, or Admin")
+    @Pattern(regexp = "^(teacher|student|admin)$", message = "Role should be teacher, student, or admin")
     private String role;
 
     @Column(name = "created_date")
