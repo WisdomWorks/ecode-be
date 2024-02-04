@@ -1,4 +1,4 @@
-package com.example.codeE.ulti.excelHelper;
+package com.example.codeE.util.excelHelper;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.example.codeE.ulti.Constant;
+import com.example.codeE.util.Constant;
 
 public class ExcelHelper {
      public static <T> void writeExcel(XSSFWorkbook workbook, List<T> dataList, String fileName, String sheetName){

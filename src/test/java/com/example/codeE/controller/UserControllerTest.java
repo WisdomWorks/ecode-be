@@ -3,7 +3,7 @@ package com.example.codeE.controller;
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
-import com.example.codeE.ulti.excelHelper.ExcelHelper;
+import com.example.codeE.util.excelHelper.ExcelHelper;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hamcrest.Matchers;
