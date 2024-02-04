@@ -11,10 +11,11 @@ import org.springframework.data.domain.Pageable;
 @NoArgsConstructor
 @Builder
 public class GetUsersRequest {
-    @Pattern(regexp = "^(teacher|student|admin)$", message = "Role should be Teacher, Student, or Admin")
+    @Pattern(regexp = "^(teacher|student|admin)$", message = "Role should be teacher, student, or admin")
     private String role;
 
-    private String searchKeyword;
+    @Builder.Default
+    private String searchKeyword = null;
 
     @Range(min = 1, message = "Page number must be greater than 0")
     @Builder.Default
