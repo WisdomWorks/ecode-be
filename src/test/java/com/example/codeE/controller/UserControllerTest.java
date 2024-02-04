@@ -3,6 +3,9 @@ package com.example.codeE.controller;
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
+import com.example.codeE.ulti.excelHelper.ExcelHelper;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 
@@ -112,5 +116,17 @@ class UserControllerTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    @Test
+    void testExportExcel(){
+        var wb = new XSSFWorkbook();
+        ArrayList<User> list = new ArrayList<>();    
+        list.add(new User(UUID.randomUUID().toString(), "hieu", "hieu123@email.com", "de123233", "Student", "createdDate", "updatedDate"));
+        list.add(new User(UUID.randomUUID().toString(), "khiem", "khiem123@email.com", "de123123", "Student", "123-23-23", "2323-232-232"));
+        ExcelHelper.writeExcel(wb, list, "test.xlsx", "test");
+    }
+    @Test 
+    void testImportExcel(){
+       
     }
 }
