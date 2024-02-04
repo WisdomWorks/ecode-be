@@ -9,8 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -24,8 +34,7 @@ public class UserController {
 
     @GetMapping
     @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest
-    ){
+    public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest) {
         int totalRecords = this.userImplement.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
         getUsersRequest.setPageable(PageRequest.of(getUsersRequest.getPageNumber()-1, getUsersRequest.getPageSize()));
         List<User> listUsers = this.userImplement.paginateUsers(getUsersRequest);
@@ -58,5 +67,12 @@ public class UserController {
     public ResponseEntity<?> getUser(@PathVariable String userId) {
         User persona = this.userImplement.getUser(userId);
         return ResponseEntity.ok(persona);
+    }
+
+    @PostMapping
+    @RequestMapping(value = "/import-users",method = RequestMethod.POST)
+    public ResponseEntity<?> importUsersByExcel(@RequestParam("file") MultipartFile file) {
+        this.userImplement.saveUserToDatabase(file);
+        return ResponseEntity.ok(Map.of("message" , " Users data uploaded and saved to database successfully"));
     }
 }

@@ -1,14 +1,25 @@
 package com.example.codeE.model.user;
 
+import com.example.codeE.mapper.user.UserFromExcel;
+import com.example.codeE.security.BCryptPassword;
+import com.example.codeE.util.timeFormater.DateTimeUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NonNull;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -54,6 +65,18 @@ public class User {
     @NotBlank(message = "Updated date is required")
     private String updatedDate;
 
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        createdDate = DateTimeUtil.format(now);
+        updatedDate = DateTimeUtil.format(now);
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedDate = DateTimeUtil.format(LocalDateTime.now());
+    }
+
     public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull String createdDate, @NonNull String updatedDate) {
         this.userId = userId;
         this.name = name;
@@ -62,5 +85,26 @@ public class User {
         this.role = role;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
+    }
+
+    public User (UserFromExcel excelUser){
+        this.userId = excelUser.getUserId();
+        this.name = excelUser.getName();
+        this.email = excelUser.getEmail();
+        this.username = excelUser.getUsername();
+        this.password = BCryptPassword.generateRandomPassword();
+        this.role = excelUser.getRole();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", role='" + role + '\'' +
+                '}';
     }
 }
