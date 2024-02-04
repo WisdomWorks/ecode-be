@@ -16,7 +16,8 @@ import org.springframework.data.domain.Pageable;
 @Builder
 public class GetUsersRequest {
     @Pattern(regexp = "^(teacher|student|admin)$", message = "Role should be teacher, student, or admin")
-    private String role;
+    @Builder.Default
+    private String role = null;
 
     @Builder.Default
     private String searchKeyword = null;
