@@ -1,7 +1,11 @@
 package com.example.codeE.request.user;
 
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Builder;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.data.domain.Pageable;
 
