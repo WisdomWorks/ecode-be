@@ -42,8 +42,8 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user){
-        User personaCreada = this.userImplement.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(personaCreada);
+        User createdUser = this.userImplement.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @PutMapping
@@ -56,7 +56,7 @@ public class UserController {
     @GetMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.GET)
     public ResponseEntity<?> getUser(@PathVariable String userId) {
-        User persona = this.userImplement.getUser(userId);
-        return ResponseEntity.ok(persona);
+        User user = this.userImplement.getUser(userId);
+        return ResponseEntity.ok(user);
     }
 }
