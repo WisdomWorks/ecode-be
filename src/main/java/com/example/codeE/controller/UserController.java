@@ -51,8 +51,8 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user){
-        User personaCreada = this.userImplement.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(personaCreada);
+        User personCreate = this.userImplement.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(personCreate);
     }
 
     @PutMapping
