@@ -1,4 +1,4 @@
-package com.example.codeE.util.excelHelper;
+package com.example.codeE.helper;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -19,7 +18,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.codeE.util.Constant;
+import com.example.codeE.constant.Constant;
 
 public class ExcelHelper {
         public static boolean isValidExcelFile(MultipartFile file){
@@ -46,7 +45,7 @@ public class ExcelHelper {
                 }
             }
 
-            FileOutputStream fileOut = new FileOutputStream(Constant.FILE_PATH+ fileName);
+            FileOutputStream fileOut = new FileOutputStream(Constant.EXCEL_FILE_PATH+ fileName);
             workbook.write(fileOut);
             fileOut.close();
         } catch (Exception e) {
