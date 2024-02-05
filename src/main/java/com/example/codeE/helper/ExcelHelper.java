@@ -29,7 +29,7 @@ public class ExcelHelper {
             Sheet sheet = workbook.createSheet(sheetName);        
             Row headerRow = sheet.createRow(0);
             int cellIndex = 0;
-            for (java.lang.reflect.Field field : dataList.get(0).getClass().getDeclaredFields()) {
+            for (Field field : dataList.get(0).getClass().getDeclaredFields()) {
                 Cell cell = headerRow.createCell(cellIndex++);
                 cell.setCellValue(field.getName());
             }
