@@ -21,39 +21,45 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.codeE.constant.Constant;
 
 public class ExcelHelper {
-        public static boolean isValidExcelFile(MultipartFile file){
-        return Objects.equals(file.getContentType(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" );
+    public static boolean isValidExcelFile(MultipartFile file) {
+        return Objects.equals(file.getContentType(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
-     public static <T> void writeExcel(XSSFWorkbook workbook, List<T> dataList, String fileName, String sheetName){
+
+    public static <T> void writeExcel(XSSFWorkbook workbook, List<T> dataList, String fileName, String sheetName) {
         try {
-            Sheet sheet = workbook.createSheet(sheetName);        
+            Sheet sheet = workbook.createSheet(sheetName);
             Row headerRow = sheet.createRow(0);
             int cellIndex = 0;
             for (Field field : dataList.get(0).getClass().getDeclaredFields()) {
-                Cell cell = headerRow.createCell(cellIndex++);
-                cell.setCellValue(field.getName());
+                if (isDisplayColumn(field)) {
+                    Cell cell = headerRow.createCell(cellIndex++);
+                    cell.setCellValue(field.getName());
+                }
             }
-
             int rowIndex = 1;
             for (Object data : dataList) {
                 Row row = sheet.createRow(rowIndex++);
                 cellIndex = 0;
-                for (java.lang.reflect.Field field : data.getClass().getDeclaredFields()) {
-                    field.setAccessible(true);
-                    Cell cell = row.createCell(cellIndex++);
-                    cell.setCellValue(String.valueOf(field.get(data)));
+                for (Field field : data.getClass().getDeclaredFields()) {
+                    if (isDisplayColumn(field)) {
+                        field.setAccessible(true);
+                        Cell cell = row.createCell(cellIndex++);
+                        cell.setCellValue(String.valueOf(field.get(data)));
+                    }
                 }
             }
 
-            FileOutputStream fileOut = new FileOutputStream(Constant.EXCEL_FILE_PATH+ fileName);
+            FileOutputStream fileOut = new FileOutputStream(Constant.EXCEL_FILE_PATH + fileName);
             workbook.write(fileOut);
             fileOut.close();
         } catch (Exception e) {
-            //need to log this exception
-            //remember delete file after upload into s3
+            // need to log this exception
+            // remember delete file after upload into s3
             e.printStackTrace();
         }
     }
+
     public static <T> List<T> importFromExcel(InputStream inputStream, Class<T> clazz) {
         List<T> list = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(inputStream)) {
@@ -101,5 +107,13 @@ public class ExcelHelper {
             e.printStackTrace();
         }
         return list;
+    }
+
+    private static Boolean isDisplayColumn(Field field) {
+        if (field.getName().equalsIgnoreCase("password")) {
+            return false;
+        }
+        //can add more fields to ignore
+        return true;
     }
 }
