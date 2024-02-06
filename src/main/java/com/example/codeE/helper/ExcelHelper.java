@@ -26,7 +26,7 @@ public class ExcelHelper {
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
-    public static <T> void writeExcel(XSSFWorkbook workbook, List<T> dataList, String fileName, String sheetName) {
+    public static <T> String writeExcel(XSSFWorkbook workbook, List<T> dataList, String fileName, String sheetName) {
         try {
             Sheet sheet = workbook.createSheet(sheetName);
             Row headerRow = sheet.createRow(0);
@@ -53,10 +53,12 @@ public class ExcelHelper {
             FileOutputStream fileOut = new FileOutputStream(Constant.EXCEL_FILE_PATH + fileName);
             workbook.write(fileOut);
             fileOut.close();
+            return Constant.EXCEL_FILE_PATH + fileName;
         } catch (Exception e) {
             // need to log this exception
             // remember delete file after upload into s3
             e.printStackTrace();
+            return null;
         }
     }
 

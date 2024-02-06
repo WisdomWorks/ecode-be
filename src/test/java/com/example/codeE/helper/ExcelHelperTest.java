@@ -10,7 +10,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.codeE.constant.Constant;
 import com.example.codeE.model.user.User;
 
 @SpringBootTest
@@ -24,8 +23,8 @@ public class ExcelHelperTest {
                 "createdDate", "updatedDate"));
         list.add(new User(UUID.randomUUID().toString(), "khiem", "khiem123@email.com", "de123123", "Student",
                 "123-23-23", "2323-232-232"));
-        ExcelHelper.writeExcel(wb, list, filePath, "test");
-        assertTrue(new File(Constant.EXCEL_FILE_PATH + filePath).exists());
+        var filePathReturn =ExcelHelper.writeExcel(wb, list, filePath, "test");
+        assert(new File(filePathReturn).exists());
     }
 
     @Test
