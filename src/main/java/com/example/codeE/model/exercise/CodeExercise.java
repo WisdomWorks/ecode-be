@@ -1,7 +1,9 @@
 package com.example.codeE.model.exercise;
 
 import com.example.codeE.model.exercise.common.TestCase;
-import jakarta.validation.constraints.*;
+import com.example.codeE.validator.datatype.DataTypeChecking;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "CodeExercise")
+@DataTypeChecking(targetClasses = {Exercise.class})
 public class CodeExercise extends Exercise{
     @Field
     @NotNull(message = "Programming language is required")
@@ -36,6 +39,7 @@ public class CodeExercise extends Exercise{
 
     @Field
     @NotNull(message = "Testcase is required")
+
     private TestCase testcase;
 
     public CodeExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, String type, Boolean isPublic,
