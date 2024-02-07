@@ -21,7 +21,6 @@ import java.util.Date;
 @NoArgsConstructor
 @DateComparison(targetClasses = {Exercise.class})
 public class Exercise {
-//    @NotBlank
     @Id
     private String exerciseId;
 
@@ -38,12 +37,10 @@ public class Exercise {
     private String key;
 
     @Field
-//    @NotNull(message = "Created date is required")
     @CreatedDate
     private String createdDate;
 
     @Field
-//    @NotNull(message = "Updated date is required")
     @LastModifiedDate
     private String updatedDate;
 
@@ -55,7 +52,6 @@ public class Exercise {
     @Field
     @NotNull(message = "Exercise end time is required")
     @Future(message = "Exercise end time must be in the future")
-//    @AssertTrue(message = "Exercise end time must be greater than start time")
     private Date endTime;
 
     @Field
