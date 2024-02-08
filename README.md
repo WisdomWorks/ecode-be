@@ -2,5 +2,5 @@
 backend code 
 
 # Swagger UI 
-To get swagger UI display, add '../swagger-ui.html' into the url 
-for example: https://localhost:8080/swagger-ui.html
+localhost: http://localhost:8080/swagger-ui/index.html#/
+port can be changed depend on your config in application.properties file
