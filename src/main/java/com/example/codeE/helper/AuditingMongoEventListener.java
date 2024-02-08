@@ -1,7 +1,7 @@
 package com.example.codeE.helper;
 
 import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.util.timeFormater.DateTimeUtil;
+import com.example.codeE.util.DateTimeUtil;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
