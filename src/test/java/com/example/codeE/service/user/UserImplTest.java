@@ -34,11 +34,11 @@ class UserImplTest {
     @BeforeEach
     void setUp() {
         this.mockDataUser = new ArrayList<>();
-        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr1", "user1", "user1@gmail.com", "username1", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr2", "user2", "user2@gmail.com", "username2", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr3", "user3", "user3@gmail.com", "username3", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr4", "user4", "user4@gmail.com", "username4", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr5", "user5", "user5@gmail.com", "username5", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
     }
 
     @AfterEach
@@ -64,5 +64,10 @@ class UserImplTest {
                 .findUsersByRoleAndSearchKeywordWithPagination(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(mockDataUser);
         assertEquals(mockDataUser, userImplement.paginateUsers(new GetUsersRequest("Teacher", "name", 1, 2)));
+    }
+    @Test
+    void getUserByUserName(){
+        when(userRepository.findByUserName(mockDataUser.get(1).getUsername())).thenReturn(mockDataUser.get(1));
+        assertEquals(mockDataUser.get(1), userImplement.getUserByUserName("username1"));
     }
 }

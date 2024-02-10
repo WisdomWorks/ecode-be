@@ -65,7 +65,7 @@ public class UserController {
     @GetMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.GET)
     public ResponseEntity<?> getUser(@PathVariable String userId) {
-        User user = this.userImplement.getUser(userId);
+        User user = this.userImplement.getUserById(userId);
         return ResponseEntity.ok(user);
     }
 

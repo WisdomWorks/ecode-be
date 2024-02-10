@@ -12,7 +12,8 @@ public interface UserService {
     User createUser(User user);
     User updateUser(User user);
     void deleteUser(String userId);
-    User getUser(String userId);
+    User getUserById(String userId);
+    User getUserByUserName(String userName);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
     void saveUserToDatabase(MultipartFile file);
 }
