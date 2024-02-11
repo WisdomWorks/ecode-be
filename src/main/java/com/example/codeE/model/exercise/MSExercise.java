@@ -1,8 +1,8 @@
 package com.example.codeE.model.exercise;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.example.codeE.model.topic.Topic;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +20,14 @@ public class MSExercise {
 
     @Column(name = "topic_id")
     private String topicId;
+
+    @JsonIgnore
+    @ManyToOne(optional=false)
+    @JoinColumn(name = "topic_id", insertable = false, updatable = false)
+    private Topic topic;
+
+    public MSExercise(String exerciseId, String topicId) {
+        this.exerciseId = exerciseId;
+        this.topicId = topicId;
+    }
 }

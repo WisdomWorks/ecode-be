@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/exercises")
 @Validated
@@ -28,5 +31,16 @@ public class ExerciseController {
         MSExercise msExercise = new MSExercise(codeExercise.getExerciseId(), codeExercise.getTopicId());
         this.msExerciseImpl.saveExerciseToMySql(msExercise);
         return ResponseEntity.status(HttpStatus.CREATED).body(codeExercise);
+    }
+
+    @GetMapping
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllExerciseByCourseId(@RequestParam String courseId) {
+        List<MSExercise> exerciseIdList = this.msExerciseImpl.getAllExercisesByCourseId(courseId);
+        List<CodeExercise> exerciseList = new ArrayList<>();
+        for (MSExercise msExercise: exerciseIdList) {
+            CodeExercise codeExercise = this.codeExerciseImpl.getCodeExerciseById(msExercise.getExerciseId()).get();
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(exerciseList);
     }
 }
