@@ -41,7 +41,7 @@ public class ExerciseController {
         List<MSExercise> exerciseIdList = this.msExerciseImpl.getAllExercisesByCourseId(courseId);
         List<CodeExercise> exerciseList = new ArrayList<>();
         for (MSExercise msExercise: exerciseIdList) {
-            CodeExercise codeExercise = this.codeExerciseImpl.getCodeExerciseById(msExercise.getExerciseId()).get();
+            CodeExercise codeExercise = this.codeExerciseImpl.getCodeExerciseById(msExercise.getExerciseId());
         }
         return ResponseEntity.status(HttpStatus.OK).body(exerciseList);
     }
