@@ -5,7 +5,6 @@ import com.example.codeE.repository.CodeExerciseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -14,11 +13,16 @@ public class CodeExerciseImpl implements CodeExerciseService{
     private CodeExerciseRepository codeExerciseRepository;
     @Override
     public CodeExercise createCodeExercise(CodeExercise codeExercise) {
-        return codeExerciseRepository.save(codeExercise);
+        return this.codeExerciseRepository.save(codeExercise);
     }
 
     @Override
     public Optional<CodeExercise> getCodeExerciseById(String exerciseId) {
-        return codeExerciseRepository.findById(exerciseId);
+        return this.codeExerciseRepository.findById(exerciseId);
+    }
+
+    @Override
+    public void deleteCodeExerciseById(String exerciseId) {
+        this.codeExerciseRepository.deleteById(exerciseId);
     }
 }

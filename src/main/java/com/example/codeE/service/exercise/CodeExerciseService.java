@@ -5,7 +5,9 @@ import com.example.codeE.model.exercise.CodeExercise;
 import java.util.Optional;
 
 public interface CodeExerciseService {
-    public CodeExercise createCodeExercise (CodeExercise codeExercise);
+    CodeExercise createCodeExercise (CodeExercise codeExercise);
 
-    public Optional<CodeExercise> getCodeExerciseById(String exerciseId);
+    Optional<CodeExercise> getCodeExerciseById(String exerciseId);
+
+    void deleteCodeExerciseById(String exerciseId);
 }

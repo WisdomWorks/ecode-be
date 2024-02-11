@@ -2,6 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.MSExercise;
+import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.service.exercise.CodeExerciseImpl;
 import com.example.codeE.service.exercise.MSExerciseImpl;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/exercises")
@@ -41,6 +43,18 @@ public class ExerciseController {
         for (MSExercise msExercise: exerciseIdList) {
             CodeExercise codeExercise = this.codeExerciseImpl.getCodeExerciseById(msExercise.getExerciseId()).get();
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(exerciseList);
+        return ResponseEntity.status(HttpStatus.OK).body(exerciseList);
+    }
+
+    @DeleteMapping
+    @RequestMapping(value = "", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteExerciseById(@Valid @ModelAttribute DeleteExerciseRequest request) {
+        switch (request.getType()) {
+            case "code":
+                this.codeExerciseImpl.deleteCodeExerciseById(request.getExerciseId());
+                break;
+        }
+        this.msExerciseImpl.deleteExerciseInMySql(request.getExerciseId());
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true));
     }
 }

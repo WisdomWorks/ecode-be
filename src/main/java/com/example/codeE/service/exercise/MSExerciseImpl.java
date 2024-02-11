@@ -21,4 +21,9 @@ public class MSExerciseImpl implements MSExerciseService {
     public List<MSExercise> getAllExercisesByCourseId(String courseId) {
         return this.msExerciseRepository.getAllExercisesByCourseId(courseId);
     }
+
+    @Override
+    public void deleteExerciseInMySql(String exerciseId) {
+        this.msExerciseRepository.deleteById(exerciseId);
+    }
 }

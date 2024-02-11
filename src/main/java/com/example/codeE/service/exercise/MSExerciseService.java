@@ -5,7 +5,9 @@ import com.example.codeE.model.exercise.MSExercise;
 import java.util.List;
 
 public interface MSExerciseService {
-    public MSExercise saveExerciseToMySql(MSExercise msExercise);
+    MSExercise saveExerciseToMySql(MSExercise msExercise);
 
-    public List<MSExercise> getAllExercisesByCourseId(String courseId);
+    List<MSExercise> getAllExercisesByCourseId(String courseId);
+
+    void deleteExerciseInMySql(String exerciseId);
 }
