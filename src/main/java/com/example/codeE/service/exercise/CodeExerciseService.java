@@ -10,4 +10,6 @@ public interface CodeExerciseService {
     Optional<CodeExercise> getCodeExerciseById(String exerciseId);
 
     void deleteCodeExerciseById(String exerciseId);
+
+    CodeExercise updateCodeExercise(CodeExercise codeExercise);
 }

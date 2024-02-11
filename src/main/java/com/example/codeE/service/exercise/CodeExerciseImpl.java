@@ -25,4 +25,9 @@ public class CodeExerciseImpl implements CodeExerciseService{
     public void deleteCodeExerciseById(String exerciseId) {
         this.codeExerciseRepository.deleteById(exerciseId);
     }
+
+    @Override
+    public CodeExercise updateCodeExercise(CodeExercise codeExercise) {
+        return this.codeExerciseRepository.save(codeExercise);
+    }
 }

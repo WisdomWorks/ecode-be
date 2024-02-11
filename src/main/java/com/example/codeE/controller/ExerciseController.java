@@ -57,4 +57,10 @@ public class ExerciseController {
         this.msExerciseImpl.deleteExerciseInMySql(request.getExerciseId());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true));
     }
+
+    @PutMapping
+    @RequestMapping(value = "code", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExercise exercise) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseImpl.updateCodeExercise(exercise));
+    }
 }
