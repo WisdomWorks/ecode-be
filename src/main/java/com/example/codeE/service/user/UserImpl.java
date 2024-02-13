@@ -1,9 +1,11 @@
 package com.example.codeE.service.user;
 
+import com.example.codeE.controller.exception.ResourceNotFoundException;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.helper.ExcelHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,18 +46,37 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User updateUser(User user) {
-        return this.userRepository.save(user);
+    public User updateById(String userId, UpdateUserRequest updatedUser) {
+        User existingUser = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        if (updatedUser.getUpdatedName() != null) {
+            existingUser.setName(updatedUser.getUpdatedName());
+        }
+        if (updatedUser.getUpdatedEmail() != null) {
+            existingUser.setEmail(updatedUser.getUpdatedEmail());
+        }
+        if (updatedUser.getUpdatedUsername() != null) {
+            existingUser.setUsername(updatedUser.getUpdatedUsername());
+        }
+        if (updatedUser.getUpdatedPassword() != null){
+            existingUser.setPassword(updatedUser.getUpdatedPassword());
+        }
+        if (updatedUser.getUpdatedRole() != null) {
+            existingUser.setRole(updatedUser.getUpdatedRole());
+        }
+
+        return userRepository.save(existingUser);
     }
 
     @Override
-    public void deleteUser(String userId) {
+    public void deleteById(String userId) {
         this.userRepository.deleteById(userId);
     }
 
     @Override
-    public User getUser(String userId) {
-        return this.userRepository.findById(userId).get();
+    public User getById(String userId) {
+        Optional<User> userOptional = this.userRepository.findById(userId);
+        return userOptional.orElse(null);
     }
 
     @Override
@@ -77,7 +99,7 @@ public class UserImpl implements UserService {
                 for(User user : users){
                     System.out.println(user.toString());
                 }
-//                this.userRepository.saveAll(users);
+                this.userRepository.saveAll(users);
             } catch (IOException e) {
                 throw new IllegalArgumentException("The file is not a valid excel file");
             }

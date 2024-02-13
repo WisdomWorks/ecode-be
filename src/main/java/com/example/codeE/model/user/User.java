@@ -1,6 +1,7 @@
 package com.example.codeE.model.user;
 
 import com.example.codeE.mapper.user.UserFromExcel;
+import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.util.DateTimeUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -94,6 +95,16 @@ public class User {
         this.username = excelUser.getUsername();
         this.password = BCryptPassword.generateRandomPassword();
         this.role = excelUser.getRole();
+    }
+
+    public User (String userId, UpdateUserRequest updateUser, String createdDate){
+        this.userId = userId;
+        this.name = updateUser.getUpdatedName();
+        this.email = updateUser.getUpdatedEmail();
+        this.username = updateUser.getUpdatedUsername();
+        this.password = updateUser.getUpdatedPassword();
+        this.role = updateUser.getUpdatedRole();
+        this.createdDate = createdDate;
     }
 
     @Override

@@ -3,22 +3,14 @@ package com.example.codeE.controller;
 import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.user.GetUsersRequest;
-import com.example.codeE.service.user.UserImpl;
+import com.example.codeE.request.user.UpdateUserRequest;
+import com.example.codeE.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,14 +22,14 @@ import java.util.Map;
 @Validated
 public class UserController {
     @Autowired
-    private UserImpl userImplement;
+    private UserService userService;
 
     @GetMapping
     @RequestMapping(value = "",method = RequestMethod.GET)
     public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest) {
-        int totalRecords = this.userImplement.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
+        int totalRecords = this.userService.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
         getUsersRequest.setPageable(PageRequest.of(getUsersRequest.getPageNumber()-1, getUsersRequest.getPageSize()));
-        List<User> listUsers = this.userImplement.paginateUsers(getUsersRequest);
+        List<User> listUsers = this.userService.paginateUsers(getUsersRequest);
         return new ResponseEntity<>(
                 Map.of("users", listUsers,
                         "pagination", new Pagination(
@@ -51,28 +43,42 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user){
-        User createdUser = this.userImplement.createUser(user);
+        User createdUser = this.userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @PutMapping
-    @RequestMapping(value = "",method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@RequestBody User user){
-        User updatedUser = this.userImplement.updateUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(updatedUser);
+    @PatchMapping
+    @RequestMapping(value = "{userId}",method = RequestMethod.PATCH)
+    public ResponseEntity<?> updateById(@PathVariable String userId,@Valid @RequestBody UpdateUserRequest updatedUser){
+        User user = this.userService.updateById(userId, updatedUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @GetMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.GET)
-    public ResponseEntity<?> getUser(@PathVariable String userId) {
-        User user = this.userImplement.getUser(userId);
+    public ResponseEntity<?> getById(@PathVariable String userId) {
+        User user = this.userService.getById(userId);
+        if(user == null){
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
     @RequestMapping(value = "/import-users",method = RequestMethod.POST)
     public ResponseEntity<?> importUsersByExcel(@RequestParam("file") MultipartFile file) {
-        this.userImplement.saveUserToDatabase(file);
+        this.userService.saveUserToDatabase(file);
         return ResponseEntity.ok(Map.of("message" , " Users data uploaded and saved to database successfully"));
+    }
+
+    @DeleteMapping
+    @RequestMapping(value = "{userId}",method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteById(@PathVariable String userId){
+        User user = this.userService.getById(userId);
+        if(user == null){
+            return ResponseEntity.notFound().build();
+        }
+        this.userService.deleteById(userId);
+        return ResponseEntity.ok(Map.of("message" , " Users is deleted successfully"));
     }
 }
