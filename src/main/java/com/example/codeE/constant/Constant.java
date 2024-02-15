@@ -11,5 +11,5 @@ public class Constant {
 
     //file path
     public static final String EXCEL_FILE_PATH = "src/main/resources/excel/";
-
+    public static final String SECRET_KEY = "6DDF1685CCA6A580C10024304C591178BCC90AA283E00E0CB340E9416A073157";
 }
