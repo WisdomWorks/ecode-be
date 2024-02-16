@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UserImplTest {
     @InjectMocks
-    private UserImpl userImplement;
+    private UserService userService;
     @Mock
     private UserRepository userRepository;
 
@@ -48,13 +48,13 @@ class UserImplTest {
     @Test
     void getAllUsers() {
         when(userRepository.findAll()).thenReturn(mockDataUser);
-        assertEquals(mockDataUser, userImplement.getAllUsers());
+        assertEquals(mockDataUser, userService.getAllUsers());
     }
 
     @Test
     void getUsersByRoleAndSearchKeyword() {
         when(userRepository.findUsersByRoleAndSearchKeyword(Mockito.any(), Mockito.any())).thenReturn(mockDataUser);
-        assertEquals(mockDataUser, userImplement
+        assertEquals(mockDataUser, userService
                 .getUsersByRoleAndSearchKeyword(new GetUsersRequest("Teacher", "name", 1, 2)));
     }
 
@@ -63,6 +63,6 @@ class UserImplTest {
         when(userRepository
                 .findUsersByRoleAndSearchKeywordWithPagination(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(mockDataUser);
-        assertEquals(mockDataUser, userImplement.paginateUsers(new GetUsersRequest("Teacher", "name", 1, 2)));
+        assertEquals(mockDataUser, userService.paginateUsers(new GetUsersRequest("Teacher", "name", 1, 2)));
     }
 }

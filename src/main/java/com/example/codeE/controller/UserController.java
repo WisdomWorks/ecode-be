@@ -89,6 +89,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
         this.userService.deleteById(userId);
-        return ResponseEntity.ok(Map.of("message" , " Users is deleted successfully"));
+        return ResponseEntity.ok(Map.of("message" , "Users is deleted successfully"));
     }
 }
