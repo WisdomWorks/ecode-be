@@ -39,9 +39,9 @@ public class CodeExercise extends Exercise{
     @NotNull(message = "Testcase is required")
     private List<String> testcases;
 
-    public CodeExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, String type, Boolean isPublic,
+    public CodeExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, String type, List<String> publicGroupIds,
                         String language, String functionName, String template, String description, List<String> testcases) {
-        super(topicId, exerciseName, key, startTime, endTime, type, isPublic);
+        super(topicId, exerciseName, key, startTime, endTime, type, publicGroupIds);
         this.language = language;
         this.functionName = functionName;
         this.template = template;
