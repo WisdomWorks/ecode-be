@@ -18,6 +18,6 @@ public class DeleteExerciseRequest {
     private String exerciseId;
 
     @NotBlank(message = "Exercise type is required")
-    @Pattern(regexp = "^(quizz|essay|code)$", message = "Exercise type should be quizz, essay, or code")
+    @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
     private String type;
 }

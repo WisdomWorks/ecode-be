@@ -13,7 +13,7 @@ public class MSExerciseImpl implements MSExerciseService {
     private MSExerciseRepository msExerciseRepository;
 
     @Override
-    public MSExercise saveExerciseToMySql(MSExercise msExercise) {
+    public MSExercise saveExercise(MSExercise msExercise) {
         return this.msExerciseRepository.save(msExercise);
     }
 

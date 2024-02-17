@@ -41,11 +41,9 @@ public class Topic {
     private Boolean isPublic;
 
     @Column(name = "created_date")
-    @NotBlank(message = "Created date is required")
     private String createdDate;
 
     @Column(name = "updated_date")
-    @NotBlank(message = "Updated date is required")
     private String updatedDate;
 
     @JsonIgnore
@@ -56,18 +54,6 @@ public class Topic {
     @JsonIgnore
     @OneToMany(mappedBy = "topic")
     private List<MSExercise> exercises;
-
-    @PrePersist
-    protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        createdDate = DateTimeUtil.format(now);
-        updatedDate = DateTimeUtil.format(now);
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedDate = DateTimeUtil.format(LocalDateTime.now());
-    }
 
     public Topic(String topicId) {
         this.topicId = topicId;

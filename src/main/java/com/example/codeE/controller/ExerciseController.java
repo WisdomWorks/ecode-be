@@ -31,7 +31,7 @@ public class ExerciseController {
     public ResponseEntity<?> createCodeExercise(@Valid @RequestBody CodeExercise exercise){
         CodeExercise codeExercise = this.codeExerciseImpl.createCodeExercise(exercise);
         MSExercise msExercise = new MSExercise(codeExercise.getExerciseId(), codeExercise.getTopicId());
-        this.msExerciseImpl.saveExerciseToMySql(msExercise);
+        this.msExerciseImpl.saveExercise(msExercise);
         return ResponseEntity.status(HttpStatus.CREATED).body(codeExercise);
     }
 
