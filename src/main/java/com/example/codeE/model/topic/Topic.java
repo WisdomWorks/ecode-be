@@ -1,8 +1,6 @@
 package com.example.codeE.model.topic;
 
 import com.example.codeE.model.course.Course;
-import com.example.codeE.model.exercise.MSExercise;
-import com.example.codeE.util.DateTimeUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,9 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -50,10 +45,6 @@ public class Topic {
     @ManyToOne(optional=false)
     @JoinColumn(name = "course_id", insertable=false, updatable=false)
     private Course course;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "topic")
-    private List<MSExercise> exercises;
 
     public Topic(String topicId) {
         this.topicId = topicId;

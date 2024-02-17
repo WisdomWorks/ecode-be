@@ -2,10 +2,7 @@ package com.example.codeE.model.course;
 
 import com.example.codeE.model.topic.Topic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,6 +44,6 @@ public class Course {
     private String description;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Topic> topics;
 }
