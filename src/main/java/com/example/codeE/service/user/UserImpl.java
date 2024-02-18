@@ -1,6 +1,5 @@
 package com.example.codeE.service.user;
 
-import com.example.codeE.controller.exception.ResourceNotFoundException;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
@@ -47,7 +46,10 @@ public class UserImpl implements UserService {
 
     @Override
     public User updateById(String userId, UpdateUserRequest updatedUser) {
-        User existingUser = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User existingUser = userRepository.findById(userId).orElse(null);
+        if(existingUser == null){
+            return null;
+        }
 
         if (updatedUser.getUpdatedName() != null) {
             existingUser.setName(updatedUser.getUpdatedName());

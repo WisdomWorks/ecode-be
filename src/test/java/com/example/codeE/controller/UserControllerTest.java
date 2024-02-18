@@ -22,8 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
@@ -31,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.codeE.helper.ConvertHelper.asJsonString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -162,6 +161,58 @@ class UserControllerTest {
 
         Mockito.verify(userService, Mockito.times(1)).getById(userId);
     }
+
+    @Test
+    void updateById_UserFound_ReturnsUpdatedUser() throws Exception {
+        // Mock user ID and update request
+        String userId = "usr1";
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
+        updateUserRequest.setUpdatedName("Updated Name");
+        updateUserRequest.setUpdatedEmail("updated.email@example.com");
+        updateUserRequest.setUpdatedUsername("updated_username");
+        updateUserRequest.setUpdatedRole("admin");
+
+        User existingUser = new User("usr1", "Updated Name", "updated.email@example.com", "updated_username", "123", "admin", "2024-01-28 05:10:52", DateTimeUtil.format(LocalDateTime.now()));
+
+        // Mock behavior for userService.updateById method
+        Mockito.when(userService.updateById(Mockito.eq(userId), Mockito.any(UpdateUserRequest.class))).thenReturn(existingUser);
+
+        // Perform PATCH request
+        mockMvc.perform(patch("/users/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(updateUserRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userId").value(userId)) // Ensure the userId is returned in the response
+                .andExpect(jsonPath("$.name").value("Updated Name")) // Ensure the updated fields are returned in the response
+                .andExpect(jsonPath("$.email").value("updated.email@example.com"))
+                .andExpect(jsonPath("$.username").value("updated_username"))
+                .andExpect(jsonPath("$.role").value("admin"));
+
+        Mockito.verify(userService, Mockito.times(1)).updateById(Mockito.eq(userId), Mockito.any(UpdateUserRequest.class));
+    }
+
+    @Test
+    void updateById_UserNotFound_ReturnsNotFound() throws Exception {
+        // Mock userId and update request
+        String nonExistingUserId = "non_existing_user_id";
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
+        updateUserRequest.setUpdatedName("Updated Name");
+        updateUserRequest.setUpdatedEmail("updated.email@example.com");
+        updateUserRequest.setUpdatedUsername("updated_username");
+        updateUserRequest.setUpdatedPassword("!Sjqi12Sa");
+        updateUserRequest.setUpdatedRole("admin");
+
+        // Adjust the stubbing to match the arguments exactly
+        when(userService.updateById(Mockito.eq(nonExistingUserId), Mockito.any(UpdateUserRequest.class))).thenReturn(null);
+
+        // Perform PATCH request
+        mockMvc.perform(patch("/users/{userId}", nonExistingUserId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(updateUserRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User not found with ID: " + nonExistingUserId));
+    }
+
 
     @Test
     public void testImportUsersByExcel() throws Exception {

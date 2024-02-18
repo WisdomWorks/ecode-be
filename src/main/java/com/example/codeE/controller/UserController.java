@@ -58,9 +58,12 @@ public class UserController {
     }
 
     @PatchMapping
-    @RequestMapping(value = "{userId}",method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateById(@PathVariable String userId,@Valid @RequestBody UpdateUserRequest updatedUser){
+    @RequestMapping(value = "{userId}", method = RequestMethod.PATCH)
+    public ResponseEntity<?> updateById(@PathVariable String userId, @Valid @RequestBody UpdateUserRequest updatedUser) {
         User user = this.userService.updateById(userId, updatedUser);
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
