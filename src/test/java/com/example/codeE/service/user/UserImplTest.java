@@ -3,6 +3,7 @@ package com.example.codeE.service.user;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.request.user.UpdateUserRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -25,10 +28,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UserImplTest {
     @InjectMocks
-    private UserService userService;
+    private UserImpl userImplement;
     @Mock
     private UserRepository userRepository;
-
     private List<User> mockDataUser;
 
     @BeforeEach
@@ -48,13 +50,13 @@ class UserImplTest {
     @Test
     void getAllUsers() {
         when(userRepository.findAll()).thenReturn(mockDataUser);
-        assertEquals(mockDataUser, userService.getAllUsers());
+        assertEquals(mockDataUser, userImplement.getAllUsers());
     }
 
     @Test
     void getUsersByRoleAndSearchKeyword() {
         when(userRepository.findUsersByRoleAndSearchKeyword(Mockito.any(), Mockito.any())).thenReturn(mockDataUser);
-        assertEquals(mockDataUser, userService
+        assertEquals(mockDataUser, userImplement
                 .getUsersByRoleAndSearchKeyword(new GetUsersRequest("Teacher", "name", 1, 2)));
     }
 
@@ -63,6 +65,6 @@ class UserImplTest {
         when(userRepository
                 .findUsersByRoleAndSearchKeywordWithPagination(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(mockDataUser);
-        assertEquals(mockDataUser, userService.paginateUsers(new GetUsersRequest("Teacher", "name", 1, 2)));
+        assertEquals(mockDataUser, userImplement.paginateUsers(new GetUsersRequest("Teacher", "name", 1, 2)));
     }
 }
