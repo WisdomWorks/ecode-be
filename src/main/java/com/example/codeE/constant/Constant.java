@@ -11,5 +11,5 @@ public class Constant {
 
     //file path
     public static final String EXCEL_FILE_PATH = "src/main/resources/excel/";
-
+    public static final String CODE_EXERCISE_FILE_PATH = "src/main/resources/codeExercise/";
 }
