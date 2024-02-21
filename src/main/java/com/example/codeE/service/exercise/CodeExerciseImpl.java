@@ -37,10 +37,8 @@ public class CodeExerciseImpl implements CodeExerciseService{
         if(!FileStreamHelper.OverrideFileContent(pathfile, fileCodeContent)){
             return "cant override file";
         }
-        if (result != null) {
-            // log here "cant create file"
-            return result;
-        }
+        //run code
+
         // push file in to container
         //run code
         //get result from container 
