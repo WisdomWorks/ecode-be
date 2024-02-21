@@ -8,6 +8,8 @@ public class Constant {
 
     //time format
     public static final String DATE_TIME_FORMAT_SECOND = "yyyy-MM-dd HH:mm:ss.SSSSSS";
+    public static final String DATE_TIME_FORMAT_MINUTE = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_TIME_IN_FILE_NAME = "yyyy_MM_dd_HH_mm_ss";
 
     //file path
     public static final String EXCEL_FILE_PATH = "src/main/resources/excel/";

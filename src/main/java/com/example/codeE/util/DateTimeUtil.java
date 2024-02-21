@@ -11,4 +11,7 @@ public class DateTimeUtil {
     public static String format(LocalDateTime dateTime) {
         return dateTime.format(formatter);
     }
+    public static String getDateNowbyformat(String format){
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(format));
+    }
 }

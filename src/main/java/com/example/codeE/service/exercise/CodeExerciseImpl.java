@@ -1,5 +1,6 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.helper.FileStreamHelper;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.repository.CodeExerciseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +28,22 @@ public class CodeExerciseImpl implements CodeExerciseService{
     @Override
     public CodeExercise updateCodeExercise(CodeExercise codeExercise) {
         return this.codeExerciseRepository.save(codeExercise);
+    }
+    @Override
+    public String runCodeExercise(String fileCodeContent, String exerciseId, String containerId) {
+        //get path file in container 
+        String pathfile = "";
+        //override file in container 
+        if(!FileStreamHelper.OverrideFileContent(pathfile, fileCodeContent)){
+            return "cant override file";
+        }
+        if (result != null) {
+            // log here "cant create file"
+            return result;
+        }
+        // push file in to container
+        //run code
+        //get result from container 
+        return "";
     }
 }

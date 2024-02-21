@@ -1,16 +1,26 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.service.exercise.CodeExerciseService;
+
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
-import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.ExerciseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.List;
 import java.util.Map;
@@ -65,4 +75,17 @@ public class ExerciseController {
     public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExercise exercise) {
         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(exercise));
     }
+
+
+    @PostMapping
+    @RequestMapping(value = "runcode", method = RequestMethod.POST)
+    public ResponseEntity<?> RunCode(@RequestBody String fileCodeContent, String exerciseId, String ContanierId){
+            //param : fileCodeContent, exerciseId, containerId
+            // override fileCodeContent to file 
+            // run code
+            // get result from container
+            // return result
+        return ResponseEntity.status(HttpStatus.OK).body("Run Code Success!");
+    }
+
 }

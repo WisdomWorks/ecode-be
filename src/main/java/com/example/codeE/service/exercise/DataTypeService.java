@@ -5,5 +5,5 @@ import com.example.codeE.model.exercise.DataType;
 import java.util.List;
 
 public interface DataTypeService {
-    public List<DataType> getAllDataTypes();
+    List<DataType> getAllDataTypes();
 }
