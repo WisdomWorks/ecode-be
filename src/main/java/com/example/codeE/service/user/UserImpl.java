@@ -77,7 +77,7 @@ public class UserImpl implements UserService {
                 for(User user : users){
                     System.out.println(user.toString());
                 }
-//                this.userRepository.saveAll(users);
+                this.userRepository.saveAll(users);
             } catch (IOException e) {
                 throw new IllegalArgumentException("The file is not a valid excel file");
             }
