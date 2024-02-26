@@ -59,24 +59,10 @@ public class User {
     private String role;
 
     @Column(name = "created_date")
-    @NotBlank(message = "Created date is required")
     private String createdDate;
 
     @Column(name = "updated_date")
-    @NotBlank(message = "Updated date is required")
     private String updatedDate;
-
-    @PrePersist
-    protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        createdDate = DateTimeUtil.format(now);
-        updatedDate = DateTimeUtil.format(now);
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedDate = DateTimeUtil.format(LocalDateTime.now());
-    }
 
     public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull String createdDate, @NonNull String updatedDate) {
         this.userId = userId;
