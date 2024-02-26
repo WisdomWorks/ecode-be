@@ -11,7 +11,7 @@ public class Main {
             }
 
             Method method = instance.getClass().getMethod(methodName, paramTypes);
-            System.out.println(method.invoke(instance, args));
+            System.out.print(method.invoke(instance, args));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -36,7 +36,10 @@ public class Main {
         String className = "Calculator";
         String methodName = "add";
         String[] parameterTypes = {"int", "int"};
+        boolean isCodeRunning = true;
 
-        callMethod(className, methodName, parameterTypes, 1, 2);
+        if(isCodeRunning) {
+            callMethod(className, methodName, parameterTypes, 1, 2);
+        }
     }
 }
