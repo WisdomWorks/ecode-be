@@ -27,7 +27,10 @@ public class CodeEApplication {
 			String containerId = dockerApplication.createContainer(imageId);
 			System.out.println("Container ID: " + containerId);
 			// Invoke mvn test in the container
-//			String output = dockerApplication.runCmd(containerId, "java", "Main");
+			dockerApplication.runCmd(containerId, "javac", "./Main.java");
+			dockerApplication.runCmd(containerId, "javac", "./Calculator.java");
+			String output = dockerApplication.runCmd(containerId, "java", "Main");
+			System.out.println(output);
 		};
 	}
 }
