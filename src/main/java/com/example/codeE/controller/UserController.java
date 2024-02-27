@@ -2,7 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
-import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.model.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

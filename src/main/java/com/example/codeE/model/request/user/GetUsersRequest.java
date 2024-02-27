@@ -1,4 +1,4 @@
-package com.example.codeE.request.user;
+package com.example.codeE.model.request.user;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;

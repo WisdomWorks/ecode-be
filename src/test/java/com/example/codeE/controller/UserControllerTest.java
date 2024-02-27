@@ -1,7 +1,7 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.model.user.User;
-import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.model.request.user.GetUsersRequest;
 import com.example.codeE.service.user.UserImpl;
 
 import org.hamcrest.Matchers;

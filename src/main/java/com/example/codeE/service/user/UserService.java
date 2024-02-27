@@ -1,7 +1,7 @@
 package com.example.codeE.service.user;
 
 import com.example.codeE.model.user.User;
-import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.model.request.user.GetUsersRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

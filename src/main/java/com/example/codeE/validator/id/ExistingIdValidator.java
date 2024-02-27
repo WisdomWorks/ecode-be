@@ -1,7 +1,7 @@
 package com.example.codeE.validator.id;
 
 import com.example.codeE.repository.ExerciseRepository;
-import com.example.codeE.request.exercise.DeleteExerciseRequest;
+import com.example.codeE.model.request.exercise.DeleteExerciseRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;

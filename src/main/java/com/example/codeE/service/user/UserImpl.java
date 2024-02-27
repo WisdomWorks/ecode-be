@@ -3,7 +3,7 @@ package com.example.codeE.service.user;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
-import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.model.request.user.GetUsersRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.helper.ExcelHelper;
 import org.springframework.beans.factory.annotation.Autowired;

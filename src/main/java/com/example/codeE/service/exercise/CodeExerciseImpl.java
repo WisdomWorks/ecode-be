@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 public class CodeExerciseImpl implements CodeExerciseService{
     @Autowired
     private CodeExerciseRepository codeExerciseRepository;
+
     @Override
     public CodeExercise createCodeExercise(CodeExercise codeExercise) {
         return this.codeExerciseRepository.save(codeExercise);
@@ -28,20 +29,5 @@ public class CodeExerciseImpl implements CodeExerciseService{
     @Override
     public CodeExercise updateCodeExercise(CodeExercise codeExercise) {
         return this.codeExerciseRepository.save(codeExercise);
-    }
-    @Override
-    public String runCodeExercise(String fileCodeContent, String exerciseId, String containerId) {
-        //get path file in container 
-        String pathfile = "";
-        //override file in container 
-        if(!FileStreamHelper.OverrideFileContent(pathfile, fileCodeContent)){
-            return "cant override file";
-        }
-        //run code
-
-        // push file in to container
-        //run code
-        //get result from container 
-        return "";
     }
 }

@@ -1,11 +1,12 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.service.docker.DockerService;
 import com.example.codeE.service.exercise.CodeExerciseService;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.request.exercise.DeleteExerciseRequest;
+import com.example.codeE.model.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.service.exercise.ExerciseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,12 @@ import java.util.Map;
 @RequestMapping("/exercises")
 @Validated
 public class ExerciseController {
-    @Autowired
-    private CodeExerciseService codeExerciseService;
-
+//    @Autowired
+    private DockerService dockerService;
     @Autowired
     private ExerciseService exerciseService;
+    @Autowired
+    private CodeExerciseService codeExerciseService;
 
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
@@ -78,14 +80,16 @@ public class ExerciseController {
 
 
     @PostMapping
-    @RequestMapping(value = "runcode", method = RequestMethod.POST)
-    public ResponseEntity<?> RunCode(@RequestBody String fileCodeContent, String exerciseId, String ContanierId){
+    @RequestMapping(value = "runCode", method = RequestMethod.POST)
+    public ResponseEntity<?> RunCode(@RequestBody String fileCodeContent){
             //param : fileCodeContent, exerciseId, containerId
-            // override fileCodeContent to file 
+            // override fileCodeContent to file
             // run code
+        var ContainerId = "42adf8ef9049cd6d5ba4f669b879fb2d5f2f10c27760ec232fe64cfc8ee11980";
+        String result = dockerService.RunCode(fileCodeContent, "java", ContainerId );
             // get result from container
             // return result
-        return ResponseEntity.status(HttpStatus.OK).body("Run Code Success!");
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 }

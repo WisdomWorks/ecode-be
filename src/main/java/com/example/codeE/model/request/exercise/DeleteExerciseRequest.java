@@ -1,4 +1,4 @@
-package com.example.codeE.request.exercise;
+package com.example.codeE.model.request.exercise;
 
 import com.example.codeE.validator.id.ExistingId;
 import jakarta.validation.constraints.NotBlank;
