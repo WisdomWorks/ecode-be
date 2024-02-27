@@ -1,6 +1,7 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.request.docker.RunCodeRequest;
+import com.example.codeE.request.exercise.code.RunCodeRequest;
+import com.example.codeE.request.exercise.code.SubmitCodeRequest;
 import com.example.codeE.service.docker.DockerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,9 +30,16 @@ public class CodeEditorController {
     }
 
     @PutMapping
-    @RequestMapping(value = "{exerciseId}/run-code", method = RequestMethod.PUT)
+    @RequestMapping(value = "{exerciseId}/run", method = RequestMethod.PUT)
     public ResponseEntity<?> runCode(@RequestBody RunCodeRequest request) {
         String log = dockerService.runCode(request.getContainerId(), request.getContentFile(), request.getFileName());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("log", log));
+    }
+
+    @PostMapping
+    @RequestMapping(value = "{exerciseId}/submit", method = RequestMethod.POST)
+    public ResponseEntity<?> submitCodeExercise(@RequestBody SubmitCodeRequest request) {
+        Map<Integer, String> result = dockerService.submitCode(request.getContainerId(), "Main");
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

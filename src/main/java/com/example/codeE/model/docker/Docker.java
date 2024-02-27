@@ -3,6 +3,7 @@ package com.example.codeE.model.docker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.BuildImageResultCallback;
+import com.github.dockerjava.api.command.CopyArchiveFromContainerCmd;
 import com.github.dockerjava.api.model.BuildResponseItem;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -10,6 +11,7 @@ import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 
 public class Docker {
@@ -135,6 +138,28 @@ public class Docker {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String copyFileFromContainer(String containerId, String containerFilePath){
+        String tempFilePath = createTempFile("");
+
+        CopyArchiveFromContainerCmd copyCmd = dockerClient.copyArchiveFromContainerCmd(containerId, containerFilePath);
+
+        try (var archiveStream = copyCmd.exec();
+             var tarInputStream = new TarArchiveInputStream(archiveStream)) {
+
+            TarArchiveEntry entry;
+            while ((entry = tarInputStream.getNextTarEntry()) != null) {
+//                if (!entry.isDirectory() && entry.getName().endsWith("/" + containerFilePath)) {
+                    Files.copy(tarInputStream, Paths.get(tempFilePath), StandardCopyOption.REPLACE_EXISTING);
+                    break;
+//                }
+            }
+            return new String(Files.readAllBytes(Paths.get(tempFilePath)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static String createTempFile(String content) {

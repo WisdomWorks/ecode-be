@@ -1,4 +1,4 @@
-package com.example.codeE.request.docker;
+package com.example.codeE.request.exercise.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
