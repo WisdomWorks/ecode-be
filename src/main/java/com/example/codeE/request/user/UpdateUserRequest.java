@@ -1,5 +1,6 @@
 package com.example.codeE.request.user;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -28,4 +29,7 @@ public class UpdateUserRequest {
 
     @Pattern(regexp = "^(teacher|student|admin)$", message = "Role should be teacher, student, or admin")
     private String updatedRole;
+
+    @Column(name = "created_date", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdDate;
 }

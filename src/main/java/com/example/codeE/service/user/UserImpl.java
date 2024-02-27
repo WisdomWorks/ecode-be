@@ -1,5 +1,6 @@
 package com.example.codeE.service.user;
 
+import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
@@ -12,10 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.lang.reflect.Field;
+import java.util.*;
 
 @Service
 public class UserImpl implements UserService {
@@ -23,8 +22,14 @@ public class UserImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public List<User> getAllUsers() {
-        return (List<User>) this.userRepository.findAll();
+    public User getById(String userId) {
+        Optional<User> userOptional = this.userRepository.findById(userId);
+        return userOptional.orElse(null);
+    }
+
+    @Override
+    public List<User> getAll() {
+        return this.userRepository.findAll();
     }
 
     @Override
@@ -36,13 +41,13 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
+    public User createOne(User user) {
         String password = BCryptPassword.generateRandomPassword();
         user.setUserId(UUID.randomUUID().toString());
         user.setPassword(password);
-        System.out.println(password);
         return this.userRepository.save(user);
     }
+
 
     @Override
     public User updateById(String userId, UpdateUserRequest updatedUser) {
@@ -71,14 +76,12 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public void deleteById(String userId) {
-        this.userRepository.deleteById(userId);
-    }
-
-    @Override
-    public User getById(String userId) {
-        Optional<User> userOptional = this.userRepository.findById(userId);
-        return userOptional.orElse(null);
+    public boolean deleteById(String userId) {
+        if(userRepository.existsById(userId)){
+            this.userRepository.deleteById(userId);
+            return true;
+        }
+        return false;
     }
 
     @Override

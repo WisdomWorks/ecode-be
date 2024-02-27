@@ -53,7 +53,7 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user){
-        User createdUser = this.userService.createUser(user);
+        User createdUser = this.userService.createOne(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
@@ -72,7 +72,7 @@ public class UserController {
     public ResponseEntity<?> getById(@PathVariable String userId) {
         User user = this.userService.getById(userId);
         if(user == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
         }
         return ResponseEntity.ok(user);
     }
@@ -92,6 +92,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
         this.userService.deleteById(userId);
-        return ResponseEntity.ok(Map.of("message" , "Users is deleted successfully"));
+        return ResponseEntity.ok(Map.of("message" , "User is deleted successfully"));
     }
 }
