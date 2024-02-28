@@ -1,23 +1,44 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Java CI with Maven
+name: Build and Push Docker images
 
 on:
-  pull_request:
-    branches: ["main", "dev"]
-  # For development
   push:
-    branches: ["WW-113"]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build:
+  run-tests:
     runs-on: ubuntu-latest
+    services:
+      sql-db:
+        image: wisdomwork/sql:latest
+        env:
+          MYSQL_DATABASE: codee
+          # So you don't have to use root, but you can if you like
+          MYSQL_USER: admin
+          # You can use whatever password you like
+          MYSQL_PASSWORD: Wisdomworks.33
+          # Password for root access
+          MYSQL_ROOT_PASSWORD: Wisdomworks.33
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      nosql-db:
+        image: wisdomwork/no-sql:latest
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: Wisdomworks.33
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongo --eval 'db.runCommand({ping: 1})'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - uses: actions/checkout@v3
@@ -28,4 +49,31 @@ jobs:
           distribution: "temurin"
           cache: maven
       - name: Build with Maven
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/testdb
+          SPRING_DATASOURCE_USERNAME: user
+          SPRING_DATASOURCE_PASSWORD: password
+          SPRING_DATA_MONGODB_URI: mongodb://rootuser:rootpass@localhost:27017/testdb
         run: mvn -B package --file pom.xml
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./.docker/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/codee-be:latest
