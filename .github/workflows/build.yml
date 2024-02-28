@@ -1,9 +1,10 @@
 name: Build and Push Docker images
 
 on:
+  pull_request:
+    branches: ["main", "dev"]
   push:
-    branches:
-      - main
+    branches: ["main", "WW-113"]
   workflow_dispatch:
 
 jobs:
