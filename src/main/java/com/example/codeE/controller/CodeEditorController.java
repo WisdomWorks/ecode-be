@@ -1,11 +1,14 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.request.exercise.code.RunCodeRequest;
 import com.example.codeE.request.exercise.code.SubmitCodeRequest;
 import com.example.codeE.service.docker.DockerService;
+import com.example.codeE.service.exercise.CodeExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,18 +24,34 @@ public class CodeEditorController {
     @Autowired
     private DockerService dockerService;
 
+    @Autowired
+    private CodeExerciseService codeExerciseService;
+
     @PostMapping
     @RequestMapping(value = "{exerciseId}/check-key", method = RequestMethod.POST)
-    public ResponseEntity<?> checkCodeExerciseKey(@RequestBody String key) {
+    public ResponseEntity<?> checkCodeExerciseKey(@RequestBody String key, @PathVariable String exerciseId) {
         //create container if the entered key is true
-        String containerId = dockerService.createContainer("Dockerfile.java");
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("containerId", containerId));
+        CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(exerciseId);
+
+        switch (codeExercise.getLanguage()) {
+            case "java":
+                String containerId = dockerService.createContainer("Dockerfile.java", codeExercise);
+                return ResponseEntity.status(HttpStatus.OK).body(Map.of("containerId", containerId));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
     }
 
     @PutMapping
     @RequestMapping(value = "{exerciseId}/run", method = RequestMethod.PUT)
-    public ResponseEntity<?> runCode(@RequestBody RunCodeRequest request) {
-        String log = dockerService.runCode(request.getContainerId(), request.getContentFile(), request.getFileName());
+    public ResponseEntity<?> runCode(@RequestBody RunCodeRequest request, @PathVariable String exerciseId) {
+        CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(exerciseId);
+        String log = dockerService.runCode(
+                request.getContainerId(),
+                request.getContentFile(),
+                request.getFileName(),
+                request.getInputs(),
+                codeExercise);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("log", log));
     }
 
