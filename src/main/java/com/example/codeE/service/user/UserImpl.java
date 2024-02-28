@@ -23,8 +23,7 @@ public class UserImpl implements UserService {
 
     @Override
     public User getById(String userId) {
-        Optional<User> userOptional = this.userRepository.findById(userId);
-        return userOptional.orElse(null);
+        return this.userRepository.findById(userId).get();
     }
 
     @Override
@@ -51,10 +50,7 @@ public class UserImpl implements UserService {
 
     @Override
     public User updateById(String userId, UpdateUserRequest updatedUser) {
-        User existingUser = userRepository.findById(userId).orElse(null);
-        if(existingUser == null){
-            return null;
-        }
+        User existingUser = userRepository.findById(userId).get();
 
         if (updatedUser.getUpdatedName() != null) {
             existingUser.setName(updatedUser.getUpdatedName());
@@ -76,12 +72,8 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public boolean deleteById(String userId) {
-        if(userRepository.existsById(userId)){
-            this.userRepository.deleteById(userId);
-            return true;
-        }
-        return false;
+    public void deleteById(String userId) {
+        this.userRepository.deleteById(userId);
     }
 
     @Override

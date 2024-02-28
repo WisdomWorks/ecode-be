@@ -2,6 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.user.CommonUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.service.user.UserService;
@@ -53,28 +54,19 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody User user){
-        User createdUser = this.userService.createOne(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createOne(user));
     }
 
     @PatchMapping
     @RequestMapping(value = "{userId}", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateById(@PathVariable String userId, @Valid @RequestBody UpdateUserRequest updatedUser) {
-        User user = this.userService.updateById(userId, updatedUser);
-        if(user == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    public ResponseEntity<?> updateById(@Valid @RequestBody UpdateUserRequest updatedUser) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.updateById(updatedUser.getUserId(), updatedUser));
     }
 
     @GetMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.GET)
-    public ResponseEntity<?> getById(@PathVariable String userId) {
-        User user = this.userService.getById(userId);
-        if(user == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userId);
-        }
-        return ResponseEntity.ok(user);
+    public ResponseEntity<?> getById(@Valid @ModelAttribute CommonUserRequest request) {
+        return ResponseEntity.ok(this.userService.getById(request.getUserId()));
     }
 
     @PostMapping
@@ -86,12 +78,8 @@ public class UserController {
 
     @DeleteMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteById(@PathVariable String userId){
-        User user = this.userService.getById(userId);
-        if(user == null){
-            return ResponseEntity.notFound().build();
-        }
-        this.userService.deleteById(userId);
+    public ResponseEntity<?> deleteById(@Valid @ModelAttribute CommonUserRequest request){
+        this.userService.deleteById(request.getUserId());
         return ResponseEntity.ok(Map.of("message" , "User is deleted successfully"));
     }
 }

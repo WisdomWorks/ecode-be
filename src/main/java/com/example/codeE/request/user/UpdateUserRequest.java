@@ -1,7 +1,9 @@
 package com.example.codeE.request.user;
 
+import com.example.codeE.validator.id.ExistingId;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -15,7 +17,10 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ExistingId(targetClasses = {UpdateUserRequest.class})
 public class UpdateUserRequest {
+    @NotBlank(message = "User ID is required")
+    private String userId;
     private String updatedName;
 
     @Email(message = "Invalid email format")
