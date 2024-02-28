@@ -14,4 +14,9 @@ public class TestcaseImpl implements TestcaseService{
     public TestCase getTestcaseById(String id) {
         return this.testcaseRepository.findById(id).get();
     }
+
+    @Override
+    public TestCase createTestcase(TestCase tc) {
+        return this.testcaseRepository.save(tc);
+    }
 }
