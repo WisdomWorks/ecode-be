@@ -46,10 +46,10 @@ jobs:
           cache: maven
       - name: Build with Maven
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/testdb
-          SPRING_DATASOURCE_USERNAME: user
-          SPRING_DATASOURCE_PASSWORD: password
-          SPRING_DATA_MONGODB_URI: mongodb://rootuser:rootpass@localhost:27017/testdb
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/codee
+          SPRING_DATASOURCE_USERNAME: admin
+          SPRING_DATASOURCE_PASSWORD: Wisdomworks.33
+          SPRING_DATA_MONGODB_URI: mongodb://admin:Wisdomworks.33@localhost:27017/codee
         run: mvn -B package --file pom.xml
 
   build-and-push:
