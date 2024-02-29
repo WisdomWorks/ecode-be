@@ -58,7 +58,7 @@ public class UserController {
     }
 
     @PatchMapping
-    @RequestMapping(value = "{userId}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "", method = RequestMethod.PATCH)
     public ResponseEntity<?> updateById(@Valid @RequestBody UpdateUserRequest updatedUser) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.updateById(updatedUser.getUserId(), updatedUser));
     }
