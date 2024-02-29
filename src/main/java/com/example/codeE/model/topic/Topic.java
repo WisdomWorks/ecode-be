@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -36,10 +38,10 @@ public class Topic {
     private Boolean isPublic;
 
     @Column(name = "created_date")
-    private String createdDate;
+    private Date createdDate;
 
     @Column(name = "updated_date")
-    private String updatedDate;
+    private Date updatedDate;
 
     @JsonIgnore
     @ManyToOne(optional=false)

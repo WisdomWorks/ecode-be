@@ -15,4 +15,26 @@ public class TopicImpl implements TopicService{
     public List<Topic> getAllTopicsByCourseId(String courseId) {
         return this.topicRepository.getAllTopicsByCourseId(courseId);
     }
+
+    @Override
+    public Topic createTopic(Topic topic) {
+        return this.topicRepository.save(topic);
+    }
+
+    @Override
+    public Topic updateTopic(Topic topic) {
+        return this.topicRepository.save(topic);
+    }
+
+    @Override
+    public void deleteTopic(String topicId) {
+        this.topicRepository.deleteById(topicId);
+    }
+
+    @Override
+    public Topic getTopic(String topicId) {
+        return this.topicRepository.findById(topicId).orElse(null);
+    }
+
+
 }

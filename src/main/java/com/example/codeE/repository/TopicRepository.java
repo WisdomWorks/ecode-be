@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface TopicRepository extends JpaRepository<Topic, String> {
     @Query(value = "SELECT new com.example.codeE.model.topic.Topic(t.topicId)"
-            + "FROM topic t INNER JOIN t.course WHERE t.courseId = ?1")
+            + "FROM topic t WHERE t.courseId = ?1")
     List<Topic> getAllTopicsByCourseId(String courseId);
 }
