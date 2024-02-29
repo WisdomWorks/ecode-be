@@ -1,9 +1,7 @@
 package com.example.codeE.model.user;
 
 import com.example.codeE.mapper.user.UserFromExcel;
-import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.security.BCryptPassword;
-import com.example.codeE.validator.id.ExistingId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;

@@ -1,6 +1,5 @@
 package com.example.codeE.service.user;
 
-import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
@@ -8,12 +7,13 @@ import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.helper.ExcelHelper;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
@@ -23,7 +23,8 @@ public class UserImpl implements UserService {
 
     @Override
     public User getById(String userId) {
-        return this.userRepository.findById(userId).get();
+        Optional<User> userOptional = this.userRepository.findById(userId);
+        return userOptional.orElse(null);
     }
 
     @Override
@@ -72,8 +73,12 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public void deleteById(String userId) {
+    public boolean deleteById(@NotBlank String userId) {
+        if(!userRepository.existsById(userId)){
+            return false;
+        }
         this.userRepository.deleteById(userId);
+        return true;
     }
 
     @Override
@@ -85,21 +90,28 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public void saveUserToDatabase(MultipartFile file) {
+    public boolean saveUserToDatabase(MultipartFile file) {
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
                 List<User> users = new ArrayList<>();
                 List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(), UserFromExcel.class);
                 for (UserFromExcel excelUser : importedUsers) {
+                    excelUser.setRole(excelUser.getRole().toLowerCase());
                     users.add(new User(excelUser));
                 }
                 for(User user : users){
                     System.out.println(user.toString());
                 }
                 this.userRepository.saveAll(users);
+                return true;
             } catch (IOException e) {
-                throw new IllegalArgumentException("The file is not a valid excel file");
+                e.printStackTrace();
+                return false;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return false;
             }
         }
+        return false;
     }
 }

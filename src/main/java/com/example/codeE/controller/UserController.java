@@ -65,21 +65,27 @@ public class UserController {
 
     @GetMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.GET)
-    public ResponseEntity<?> getById(@Valid @ModelAttribute CommonUserRequest request) {
-        return ResponseEntity.ok(this.userService.getById(request.getUserId()));
+    public ResponseEntity<?> getById(@PathVariable String userId) {
+        return ResponseEntity.ok(this.userService.getById(userId));
     }
 
     @PostMapping
     @RequestMapping(value = "/import-users",method = RequestMethod.POST)
     public ResponseEntity<?> importUsersByExcel(@RequestParam("file") MultipartFile file) {
-        this.userService.saveUserToDatabase(file);
+        boolean result = this.userService.saveUserToDatabase(file);
+        if(!result){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to import users");
+        }
         return ResponseEntity.ok(Map.of("message" , " Users data uploaded and saved to database successfully"));
     }
 
     @DeleteMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteById(@Valid @ModelAttribute CommonUserRequest request){
-        this.userService.deleteById(request.getUserId());
+    public ResponseEntity<?> deleteById(@PathVariable String userId){
+        boolean result = this.userService.deleteById(userId);
+        if(!result){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with ID:" + userId);
+        }
         return ResponseEntity.ok(Map.of("message" , "User is deleted successfully"));
     }
 }

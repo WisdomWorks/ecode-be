@@ -29,9 +29,6 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
         } else if (object instanceof UpdateUserRequest) {
             UpdateUserRequest updateUserRequest = (UpdateUserRequest) object;
             return userRepository.existsById(updateUserRequest.getUserId());
-        } else if (object instanceof CommonUserRequest) {
-            CommonUserRequest getUserRequest = (CommonUserRequest) object;
-            return userRepository.existsById(getUserRequest.getUserId());
         }
         return false;
     }

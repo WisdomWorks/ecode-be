@@ -8,5 +8,5 @@ public interface CommonService<T> {
     T getById(String id);
     List<T> getAll();
     //T updateById(String id, Map<String, Object> update);
-    void deleteById(String id);
+    boolean deleteById(String id);
 }
