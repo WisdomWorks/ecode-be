@@ -1,4 +1,4 @@
-package com.example.codeE.model.docker;
+package com.example.codeE.helper;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
@@ -27,12 +27,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 
-public class Docker {
+public class DockerHelper {
     public DefaultDockerClientConfig dockerClientConfig;
     public DockerHttpClient dockerHttpClient;
     private DockerClient dockerClient;
 
-    public Docker() {
+    public DockerHelper() {
         dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
         DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
                 .dockerHost(dockerClientConfig.getDockerHost())
