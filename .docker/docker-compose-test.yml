@@ -17,8 +17,6 @@ services:
     expose:
       # Opens port 3306 on the container
       - "3306"
-    env_file:
-      - dev.env
       # Where our data will be persisted
   # Names our volume
 
@@ -32,5 +30,20 @@ services:
       - "27017:27017"
     expose:
       - "27017"
-    env_file:
-      - dev.env
+
+  be:
+    build:
+      context: ..
+      dockerfile: ./.docker/Dockerfile
+
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sql-db
+      - nosql-db
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
+      SPRING_DATA_MONGODB_DATABASE: ${SPRING_DATA_MONGODB_DATABASE}
