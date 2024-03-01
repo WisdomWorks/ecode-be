@@ -46,8 +46,12 @@ public class CourseController {
 
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<?> createOne(@RequestBody Course course, BindingResult result) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(courseService.createOne(course));
+    public ResponseEntity<?> createOne(@RequestBody Course course) {
+        Course result = courseService.createOne(course);
+        if(result == null){
+            return ResponseEntity.status(HttpStatus.CREATED).body("Failed to create ne course");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PostMapping

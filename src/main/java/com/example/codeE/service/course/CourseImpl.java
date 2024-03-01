@@ -21,9 +21,14 @@ public class CourseImpl implements CourseService {
 
     @Override
     public Course createOne(Course course) {
-        String courseId = UUID.randomUUID().toString();
-        course.setCourseId(courseId);
-        return this.courseRepository.save(course);
+        try {
+            String courseId = UUID.randomUUID().toString();
+            course.setCourseId(courseId);
+            return this.courseRepository.save(course);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception for debugging purposes
+            return null;
+        }
     }
 
     @Override
