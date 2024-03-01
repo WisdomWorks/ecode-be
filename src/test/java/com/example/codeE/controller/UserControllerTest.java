@@ -22,6 +22,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,17 +46,18 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     private List<User> mockDataUser;
-
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    LocalDateTime dateTime = LocalDateTime.parse("2024-01-28 05:10:52", formatter);
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         this.mockDataUser = new ArrayList<>();
-        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
     }
 
     @AfterEach
@@ -67,8 +70,8 @@ class UserControllerTest {
             when(userImplement.getUsersByRoleAndSearchKeyword(Mockito.any())).thenReturn(mockDataUser);
 
             List<User> paginatedUserList = new ArrayList<>();
-            paginatedUserList.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-            paginatedUserList.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+            paginatedUserList.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+            paginatedUserList.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
 
             when(userImplement.paginateUsers(Mockito.any())).thenReturn(paginatedUserList);
 
