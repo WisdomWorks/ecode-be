@@ -3,6 +3,7 @@ package com.example.codeE.service.user;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.user.GetUsersRequest;
+import org.bson.codecs.jsr310.LocalDateTimeCodec;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,9 +15,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -28,17 +32,18 @@ class UserImplTest {
     private UserImpl userImplement;
     @Mock
     private UserRepository userRepository;
-
     private List<User> mockDataUser;
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    LocalDateTime dateTime = LocalDateTime.parse("2024-01-28 05:10:52", formatter);
     @BeforeEach
     void setUp() {
         this.mockDataUser = new ArrayList<>();
-        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
-        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", "2024-01-28 05:10:52", "2024-01-28 05:10:52"));
+        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
     }
 
     @AfterEach
@@ -48,7 +53,7 @@ class UserImplTest {
     @Test
     void getAllUsers() {
         when(userRepository.findAll()).thenReturn(mockDataUser);
-        assertEquals(mockDataUser, userImplement.getAllUsers());
+        assertEquals(mockDataUser, userImplement.getAll());
     }
 
     @Test

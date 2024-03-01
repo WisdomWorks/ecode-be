@@ -2,13 +2,12 @@ package com.example.codeE.model.user;
 
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.security.BCryptPassword;
-import com.example.codeE.util.DateTimeUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -57,13 +56,25 @@ public class User {
     @Pattern(regexp = "^(teacher|student|admin)$", message = "Role should be teacher, student, or admin")
     private String role;
 
-    @Column(name = "created_date")
-    private String createdDate;
+    @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdDate;
 
-    @Column(name = "updated_date")
-    private String updatedDate;
+    @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private LocalDateTime updatedDate;
 
-    public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull String createdDate, @NonNull String updatedDate) {
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdDate = now;
+        this.updatedDate = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedDate = LocalDateTime.now();
+    }
+
+    public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull LocalDateTime createdDate, @NonNull LocalDateTime updatedDate) {
         this.userId = userId;
         this.name = name;
         this.email = email;
