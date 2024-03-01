@@ -17,7 +17,7 @@ public class Main {
             Method method = instance.getClass().getMethod(methodName, paramTypes);
             return method.invoke(instance, args);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
         return null;
     }
@@ -46,7 +46,7 @@ public class Main {
                 try {
                     return Class.forName(typeName);
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    System.out.println(e);
                     return null;
                 }
         }
@@ -73,7 +73,7 @@ public class Main {
                 }
             }
         }  catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
         return convertedParameters.toArray();
     }
@@ -95,8 +95,8 @@ public class Main {
             String className, String methodName,
             String[] parameterTypes, Object... args){
         Object result = callMethod(className, methodName, parameterTypes, args);
-
-        System.out.print(result);
+        if (result != null)
+            System.out.print(result);
     }
 
     public static void main(String[] args) throws Exception {

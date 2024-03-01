@@ -30,15 +30,19 @@ public class CodeEditorController {
     @PostMapping
     @RequestMapping(value = "{exerciseId}/check-key", method = RequestMethod.POST)
     public ResponseEntity<?> checkCodeExerciseKey(@RequestBody String key, @PathVariable String exerciseId) {
-        //create container if the entered key is true
+        // create container if the entered key is true
         CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(exerciseId);
-
-        switch (codeExercise.getLanguage()) {
-            case "java":
-                String containerId = dockerService.createContainer("Dockerfile.java", codeExercise);
-                return ResponseEntity.status(HttpStatus.OK).body(Map.of("containerId", containerId));
+        // codeExercise.getKey().equals(key)
+        // for test purpose, we won't use the real key of code exercise.
+        if (key.equals("key")) {
+            switch (codeExercise.getLanguage()) {
+                case "java":
+                    String containerId = dockerService.createContainer("Dockerfile.java", codeExercise);
+                    return ResponseEntity.status(HttpStatus.OK).body(Map.of("containerId", containerId));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong key");
         }
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
     }
 

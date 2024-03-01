@@ -2,7 +2,7 @@ package com.example.codeE.service.docker;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.FileHelper;
-import com.example.codeE.model.docker.Docker;
+import com.example.codeE.helper.DockerHelper;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.common.IOTestCase;
 import com.example.codeE.model.exercise.common.TestCase;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Service
 public class DockerImpl implements DockerService {
-    private Docker docker = new Docker();
+    private DockerHelper dockerHelper = new DockerHelper();
     private String currentDirectory = System.getProperty("user.dir");
 
     @Autowired
@@ -28,15 +28,15 @@ public class DockerImpl implements DockerService {
     @Override
     public String createContainer(String dockerfilePath, CodeExercise codeExercise) {
         // Create image
-        String imageId = docker.buildDockerImage(new File(currentDirectory, dockerfilePath));
+        String imageId = dockerHelper.buildDockerImage(new File(currentDirectory, dockerfilePath));
 
         // Create container
-        String containerId = docker.createContainer(imageId);
+        String containerId = dockerHelper.createContainer(imageId);
 
         // Push template exercise of teacher to docker
         String fileName = "JavaClass.java";
         String pathFile = Constant.DOCKER_CONTAINER_FILE_PATH + fileName;
-        docker.replaceFile(containerId, codeExercise.getTemplate(), pathFile);
+        dockerHelper.replaceFile(containerId, codeExercise.getTemplate(), pathFile);
 
         // Config Main file in docker
         List<TestCase> testCases = new ArrayList<>();
@@ -47,7 +47,7 @@ public class DockerImpl implements DockerService {
         enteredInputs.put("inputs", "{}");
         enteredInputs.put("inputTypes", "{}");
 
-        docker.replaceFile(
+        dockerHelper.replaceFile(
                 containerId,
                 FileHelper.replaceTemplateFile(
                         "./template/java/MainTemplate.txt",
@@ -67,7 +67,7 @@ public class DockerImpl implements DockerService {
                           List<IOTestCase> inputs,
                           CodeExercise codeExercise) {
         String pathFile = Constant.DOCKER_CONTAINER_FILE_PATH + fileName + ".java";
-        docker.replaceFile(containerId, contentFile, pathFile);
+        dockerHelper.replaceFile(containerId, contentFile, pathFile);
 
         // Config Main file in docker
         List<TestCase> testCases = new ArrayList<>();
@@ -75,7 +75,7 @@ public class DockerImpl implements DockerService {
             testCases.add(this.testcaseService.getTestcaseById(id));
         }
 
-        docker.replaceFile(
+        dockerHelper.replaceFile(
                 containerId,
                 FileHelper.replaceTemplateFile(
                         "./template/java/MainTemplate.txt",
@@ -85,20 +85,20 @@ public class DockerImpl implements DockerService {
                         TestcaseUtil.convertStudentInputsToMap(inputs)),
                 Constant.DOCKER_CONTAINER_FILE_PATH + "Main.java");
 
-        docker.runCmd(containerId, "javac", "./Main.java");
-        docker.runCmd(containerId, "javac", "./"+fileName+".java");
-        String output = docker.runCmd(containerId, "java", "Main");
+        dockerHelper.runCmd(containerId, "javac", "./Main.java");
+        dockerHelper.runCmd(containerId, "javac", "./"+fileName+".java");
+        String output = dockerHelper.runCmd(containerId, "java", "Main");
         return output;
     }
 
     @Override
     public Map<Integer, String> submitCode(String containerId, String fileName) {
         String containerFilePath = Constant.DOCKER_CONTAINER_FILE_PATH + fileName + ".java";
-        String contentMain = docker.copyFileFromContainer(containerId, containerFilePath);
+        String contentMain = dockerHelper.copyFileFromContainer(containerId, containerFilePath);
         String modifiedContent = contentMain.replace("boolean isCodeRunning = true;", "boolean isCodeRunning = false;");
-        docker.replaceFile(containerId, modifiedContent, containerFilePath);
-        docker.runCmd(containerId, "javac", "./Main.java");
-        String[] output = (String[]) docker.runCmd(containerId, "java", "Main").split("\n");
+        dockerHelper.replaceFile(containerId, modifiedContent, containerFilePath);
+        dockerHelper.runCmd(containerId, "javac", "./Main.java");
+        String[] output = (String[]) dockerHelper.runCmd(containerId, "java", "Main").split("\n");
 
         Map<Integer, String> resultMap = new HashMap<Integer, String>();
         for (int i=0; i<output.length; i++) {
