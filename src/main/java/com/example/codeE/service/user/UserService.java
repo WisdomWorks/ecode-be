@@ -2,17 +2,16 @@ package com.example.codeE.service.user;
 
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.request.user.UpdateUserRequest;
+import com.example.codeE.service.common.CommonService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface UserService {
-    List<User> getAllUsers();
+public interface UserService extends CommonService<User> {
     List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
-    User createUser(User user);
-    User updateUser(User user);
-    void deleteUser(String userId);
-    User getUser(String userId);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
-    void saveUserToDatabase(MultipartFile file);
+    boolean saveUserToDatabase(MultipartFile file);
+    // boolean exportExcel();
+    User updateById(String userId, UpdateUserRequest updatedUser);
 }
