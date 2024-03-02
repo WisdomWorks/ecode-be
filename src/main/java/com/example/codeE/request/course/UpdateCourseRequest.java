@@ -1,7 +1,6 @@
 package com.example.codeE.request.course;
 
 import com.example.codeE.validator.id.ExistingId;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
