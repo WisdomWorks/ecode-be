@@ -1,7 +1,6 @@
 package com.example.codeE.service.course;
 
 import com.example.codeE.helper.ExcelHelper;
-import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
 import com.example.codeE.repository.CourseRepository;
@@ -11,8 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CourseImpl implements CourseService {
