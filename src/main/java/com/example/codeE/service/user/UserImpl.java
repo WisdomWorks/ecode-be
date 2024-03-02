@@ -118,13 +118,13 @@ public class UserImpl implements UserService {
         return false;
     }
 
-    // @Override
-    // public boolean exportExcel() {
-    //     // List<User> users = (List<User>) this.userRepository.findAll();
-    //     // if (users.size() > 0) {
-    //     //     ExcelHelper.writeExcel(users, "Users", user);
-    //     //     return true;
-    //     // }
-    //     return false;
-    // }
+    @Override
+    public boolean exportExcel() {
+        // List<User> users = (List<User>) this.userRepository.findAll();
+        // if (users.size() > 0) {
+        //     ExcelHelper.writeExcel(users, "Users", user);
+        //     return true;
+        // }
+        return false;
+    }
 }

@@ -12,6 +12,6 @@ public interface UserService extends CommonService<User> {
     List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
     boolean saveUserToDatabase(MultipartFile file);
-    // boolean exportExcel();
+    boolean exportExcel();
     User updateById(String userId, UpdateUserRequest updatedUser);
 }
