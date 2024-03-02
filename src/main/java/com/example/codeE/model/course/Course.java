@@ -4,6 +4,7 @@ import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.topic.Topic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -11,6 +12,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,18 +33,21 @@ public class Course {
 
     @NotBlank(message = "Course name is required")
     @Column(name = "course_name", columnDefinition = "TEXT")
+    @Size(max = 255, message = "Course name cannot exceed 255 characters")
     private String courseName;
 
-    @Column(name = "semester", length = 4)
-    @NotBlank(message = "Semester is required")
+    @Column(name = "semester")
+    @Size(max = 4, message = "Semester cannot exceed 4 characters")
     private String semester;
 
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
+    @NotNull(message = "Creation date is required")
     @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdDate;
 
+    @NotNull(message = "Updated date is required")
     @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedDate;
 
@@ -68,6 +73,4 @@ public class Course {
         this.semester = excelCourse.getSemester();
         this.description = excelCourse.getDescription();
     }
-
-
 }
