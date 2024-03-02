@@ -2,7 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
-import com.example.codeE.request.user.CommonUserRequest;
+// import com.example.codeE.request.user.ExportExcelRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.service.user.UserService;
@@ -78,6 +78,17 @@ public class UserController {
         }
         return ResponseEntity.ok(Map.of("message" , " Users data uploaded and saved to database successfully"));
     }
+
+    //get api export excel 
+    // @GetMapping
+    // @RequestMapping(value = "/export-users",method = RequestMethod.GET)
+    // public ResponseEntity<?> exportUsersByExcel(@RequestBody ExportExcelRequest request) {
+    //     var result = this.userService.exportExcel();
+    //     if(result){
+    //         return ResponseEntity.ok(Map.of("message" , " Users data exported to excel successfully"));
+    //     }
+    //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message" , " Users data exported to excel failed"));
+    // }
 
     @DeleteMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.DELETE)

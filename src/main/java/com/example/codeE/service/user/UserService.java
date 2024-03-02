@@ -11,6 +11,7 @@ import java.util.List;
 public interface UserService extends CommonService<User> {
     List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
-    User updateById(String userId, UpdateUserRequest updatedUser);
     boolean saveUserToDatabase(MultipartFile file);
+    // boolean exportExcel();
+    User updateById(String userId, UpdateUserRequest updatedUser);
 }
