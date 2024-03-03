@@ -10,8 +10,10 @@ import java.util.Map;
 
 public class TestcaseUtil {
     public static String convertFormatArray(String arrayString){
-        String temp = arrayString.replace("[", "{");
-        return temp.replace("]", "}");
+        StringBuilder modifiedString = new StringBuilder(arrayString);
+        modifiedString.setCharAt(0, '{');
+        modifiedString.setCharAt(arrayString.length()-1, '}');
+        return modifiedString.toString();
     }
 
     public static Map<String, String> convertStudentInputsToMap(List<IOTestCase> inputList){
