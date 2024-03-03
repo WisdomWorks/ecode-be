@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface UserService extends CommonService<User> {
+public interface UserService extends CommonService<User, User> {
     List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
     boolean saveUserToDatabase(MultipartFile file);
