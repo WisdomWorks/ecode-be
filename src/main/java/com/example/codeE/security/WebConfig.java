@@ -8,7 +8,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/api/**")
-                .allowedOrigins("https://example.com")
+                .allowedOrigins("http://localhost:4000", "http://localhost:4001")
                 .allowedMethods("GET", "POST", "PATCH", "DELETE", "PUT")
                 .allowedHeaders("header1", "header2", "header3")
                 .exposedHeaders("header1", "header2")
