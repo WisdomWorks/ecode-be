@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "group")
+@Table(name = "`group`")
 public class Group {
     @Id
     @NotBlank(message = "Group id is required")
@@ -33,7 +35,7 @@ public class Group {
     private String groupName;
     
     @Column(name = "create_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime dateCreate;
+    private LocalDateTime createDate;
 
     @Column(name = "update_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updateDate;
@@ -41,7 +43,7 @@ public class Group {
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
-        this.dateCreate = now;
+        this.createDate = now;
         this.updateDate = now;
     }
 

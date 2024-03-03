@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.example.codeE.service.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.GroupRepository;
+import com.example.codeE.request.group.CreateGroupRequest;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,11 +19,18 @@ public class GroupImpl implements GroupService{
 
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private CourseService courseService;
 
     @Override
-    public Group createOne(Group group) {      
-        group.setGroupId(UUID.randomUUID().toString());
-        return this.groupRepository.save(group);
+    public Group createOne(CreateGroupRequest groupRequest) {
+        if (this.courseService.checkCourseExistById(groupRequest.getCourseId())){
+            var group = new Group();
+            group.setGroupId(UUID.randomUUID().toString());
+            group.setGroupName(groupRequest.getGroupName());
+            group.setCourseId(groupRequest.getCourseId());
+            return this.groupRepository.save(group);
+        }else return null;
     }
 
     @Override
@@ -49,8 +59,7 @@ public class GroupImpl implements GroupService{
 
     @Override
     public List<Group> getGroupsByCourseId(String courseId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getGroupsByCourseId'");
+        return this.groupRepository.getAllCourseByCourseId(courseId);
     }
 
     @Override
@@ -59,10 +68,12 @@ public class GroupImpl implements GroupService{
         throw new UnsupportedOperationException("Unimplemented method 'getUsersInGroup'");
     }
 
+
     @Override
     public Boolean updateGroupById(String groupId, Group updatedGroup) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'updateGroupById'");
     }
+
     
 }

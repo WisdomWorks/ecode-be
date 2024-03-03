@@ -111,4 +111,9 @@ public class CourseImpl implements CourseService {
         }
         return false;
     }
+
+    @Override
+    public Boolean checkCourseExistById(String courseId) {
+        return this.courseRepository.findById(courseId).isPresent();
+    }
 }
