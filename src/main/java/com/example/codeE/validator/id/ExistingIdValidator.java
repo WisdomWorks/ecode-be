@@ -5,7 +5,6 @@ import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
-import com.example.codeE.request.user.CommonUserRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
