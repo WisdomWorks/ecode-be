@@ -3,12 +3,11 @@ package com.example.codeE.service.group;
 import java.util.List;
 
 import com.example.codeE.model.group.Group;
+import com.example.codeE.model.user.User;
+import com.example.codeE.service.common.CommonService;
 
-public interface GroupService {
-    // crud 
-    List<Group> getAllGroups();
-    Group getGroupById(String id);
-    Boolean createGroup(Group group);
-    Group updateGroup(String id, Group group);
-    void deleteGroup(String id); 
+public interface GroupService extends CommonService<Group> {
+    Boolean updateGroupById(String groupId, Group updatedGroup);
+    List<Group> getGroupsByCourseId(String courseId);
+    List<User> getUsersInGroup(String groupId);
 }

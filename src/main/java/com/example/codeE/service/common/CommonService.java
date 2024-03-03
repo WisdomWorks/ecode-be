@@ -1,7 +1,6 @@
 package com.example.codeE.service.common;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CommonService<T> {
     T createOne(T entity);
