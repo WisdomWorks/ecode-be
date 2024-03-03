@@ -2,6 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseStudent;
+import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.AddStudentToCourseRequest;
 import com.example.codeE.request.course.ImportStudentToCourseRequest;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -112,12 +114,12 @@ public class CourseController {
         if (request.getFile().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
-        boolean importSuccess = courseStudentService.importStudentsToCourse(request);
-        if (importSuccess) {
+        List<String> result = courseStudentService.importStudentsToCourse(request);
+        if (result == null) {
             return ResponseEntity.ok(Map.of("message", "Import students to course successfully"));
         }
 
-        return ResponseEntity.badRequest().body(Map.of("error", "There is something wrong with the excel file. Please try again!"));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Fail to add these students in course: " + result);
     }
 
     @DeleteMapping
