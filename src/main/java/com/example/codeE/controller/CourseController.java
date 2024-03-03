@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -61,7 +60,7 @@ public class CourseController {
     public ResponseEntity<?> createOne(@RequestBody Course course) {
         Course result = courseService.createOne(course);
         if(result == null){
-            return ResponseEntity.status(HttpStatus.CREATED).body("Failed to create ne course");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Failed to create new course");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

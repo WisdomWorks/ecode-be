@@ -6,9 +6,8 @@ import com.example.codeE.request.course.UpdateCourseRequest;
 import com.example.codeE.service.common.CommonService;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-
-public interface CourseService extends CommonService<Course> {
+public interface CourseService extends CommonService<Course, Course> {
     Course updateById(String id, UpdateCourseRequest update);
     boolean importByExcel(MultipartFile file);
+    Boolean checkCourseExistById(String groupId);
 }

@@ -64,7 +64,6 @@ public class CourseImpl implements CourseService {
             existingCourse.setDescription(update.getDescription());
         }
 
-
         return courseRepository.save(existingCourse);
     }
 
@@ -90,27 +89,8 @@ public class CourseImpl implements CourseService {
         return false;
     }
 
-//    @Override
-//    public Course updateById(String id, Map<String, Object> update) {
-//        Optional<Course> optionalCourse = courseRepository.findById(id);
-//        if (optionalCourse.isEmpty()) {
-//            return null;
-//        }
-//
-//        Course existingCourse = optionalCourse.get();
-//
-//        for (Map.Entry<String, Object> entry : update.entrySet()) {
-//            String propertyName = entry.getKey();
-//            Object newValue = entry.getValue();
-//            try {
-//                Field field = existingCourse.getClass().getDeclaredField(propertyName);
-//                field.setAccessible(true);
-//                field.set(existingCourse, newValue);
-//            } catch (NoSuchFieldException | IllegalAccessException e) {
-//                LoggerHelper.logError("Invalid property encountered while updating object", e);
-//            }
-//        }
-//
-//        return courseRepository.save(existingCourse);
-//    }
+    @Override
+    public Boolean checkCourseExistById(String courseId) {
+        return this.courseRepository.findById(courseId).isPresent();
+    }
 }
