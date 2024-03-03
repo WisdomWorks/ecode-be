@@ -1,8 +1,10 @@
 package com.example.codeE.service.course;
 
 import com.example.codeE.helper.ExcelHelper;
+import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,30 +43,6 @@ public class CourseImpl implements CourseService {
         return this.courseRepository.findAll();
     }
 
-//    @Override
-//    public Course updateById(String id, Map<String, Object> update) {
-//        Optional<Course> optionalCourse = courseRepository.findById(id);
-//        if (optionalCourse.isEmpty()) {
-//            return null;
-//        }
-//
-//        Course existingCourse = optionalCourse.get();
-//
-//        for (Map.Entry<String, Object> entry : update.entrySet()) {
-//            String propertyName = entry.getKey();
-//            Object newValue = entry.getValue();
-//            try {
-//                Field field = existingCourse.getClass().getDeclaredField(propertyName);
-//                field.setAccessible(true);
-//                field.set(existingCourse, newValue);
-//            } catch (NoSuchFieldException | IllegalAccessException e) {
-//                LoggerHelper.logError("Invalid property encountered while updating object", e);
-//            }
-//        }
-//
-//        return courseRepository.save(existingCourse);
-//    }
-
     @Override
     public boolean deleteById(String courseId) {
         if (courseRepository.existsById(courseId)) {
@@ -85,7 +63,6 @@ public class CourseImpl implements CourseService {
         } else if (update.getDescription() != null) {
             existingCourse.setDescription(update.getDescription());
         }
-
 
         return courseRepository.save(existingCourse);
     }

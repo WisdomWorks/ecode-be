@@ -51,7 +51,6 @@ public class UserImpl implements UserService {
         return this.userRepository.save(user);
     }
 
-
     @Override
     public User updateById(String userId, UpdateUserRequest updatedUser) {
         User existingUser = userRepository.findById(userId).get();
