@@ -118,4 +118,49 @@ public class ExcelHelper {
         //can add more fields to ignore
         return true;
     }
+
+    public static <T> List<T> getAllFieldsFromExcel(InputStream inputStream, Class<T> clazz) {
+        List<T> list = new ArrayList<>();
+        try (Workbook workbook = WorkbookFactory.create(inputStream)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> iterator = sheet.iterator();
+            while (iterator.hasNext()) {
+                Row nextRow = iterator.next();
+                if (nextRow.getRowNum() == 0) {
+                    // Ignore header
+                    continue;
+                }
+                T instance = clazz.newInstance();
+
+                int cellIndex = 0;
+                boolean rowHasData = false;
+                Iterator<Cell> cellIterator = nextRow.cellIterator();
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+                    Field field = clazz.getDeclaredFields()[cellIndex];
+                    field.setAccessible(true);
+                    // Set value from Excel cell to corresponding field in the instance
+                    if (field.getType() == String.class) {
+                        field.set(instance, cell.getStringCellValue());
+                    } else if (field.getType() == int.class) {
+                        field.set(instance, (int) cell.getNumericCellValue());
+                    } else if (field.getType() == double.class) {
+                        field.set(instance, cell.getNumericCellValue());
+                    } else if (field.getType() == UUID.class) {
+                        field.set(instance, UUID.randomUUID().toString());
+                    }
+                    if (!cell.toString().trim().isEmpty()) {
+                        rowHasData = true;
+                    }
+                    cellIndex++;
+                }
+                if (rowHasData) {
+                    list.add(instance);
+                }
+            }
+        } catch (IOException | ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

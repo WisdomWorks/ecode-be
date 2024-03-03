@@ -4,6 +4,7 @@ import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CourseImpl implements CourseService {
@@ -40,30 +42,6 @@ public class CourseImpl implements CourseService {
     public List<Course> getAll() {
         return this.courseRepository.findAll();
     }
-
-//    @Override
-//    public Course updateById(String id, Map<String, Object> update) {
-//        Optional<Course> optionalCourse = courseRepository.findById(id);
-//        if (optionalCourse.isEmpty()) {
-//            return null;
-//        }
-//
-//        Course existingCourse = optionalCourse.get();
-//
-//        for (Map.Entry<String, Object> entry : update.entrySet()) {
-//            String propertyName = entry.getKey();
-//            Object newValue = entry.getValue();
-//            try {
-//                Field field = existingCourse.getClass().getDeclaredField(propertyName);
-//                field.setAccessible(true);
-//                field.set(existingCourse, newValue);
-//            } catch (NoSuchFieldException | IllegalAccessException e) {
-//                LoggerHelper.logError("Invalid property encountered while updating object", e);
-//            }
-//        }
-//
-//        return courseRepository.save(existingCourse);
-//    }
 
     @Override
     public boolean deleteById(String courseId) {
@@ -111,4 +89,28 @@ public class CourseImpl implements CourseService {
         }
         return false;
     }
+
+//    @Override
+//    public Course updateById(String id, Map<String, Object> update) {
+//        Optional<Course> optionalCourse = courseRepository.findById(id);
+//        if (optionalCourse.isEmpty()) {
+//            return null;
+//        }
+//
+//        Course existingCourse = optionalCourse.get();
+//
+//        for (Map.Entry<String, Object> entry : update.entrySet()) {
+//            String propertyName = entry.getKey();
+//            Object newValue = entry.getValue();
+//            try {
+//                Field field = existingCourse.getClass().getDeclaredField(propertyName);
+//                field.setAccessible(true);
+//                field.set(existingCourse, newValue);
+//            } catch (NoSuchFieldException | IllegalAccessException e) {
+//                LoggerHelper.logError("Invalid property encountered while updating object", e);
+//            }
+//        }
+//
+//        return courseRepository.save(existingCourse);
+//    }
 }
