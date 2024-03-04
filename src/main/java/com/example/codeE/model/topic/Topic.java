@@ -9,11 +9,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "topic")
+@Table(name = "topic")
 public class Topic {
     @Id
     @NotBlank(message = "Topic id is required")
@@ -31,21 +35,27 @@ public class Topic {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "is_public")
-    @NotBlank(message = "Topic public option is required")
-    private Boolean isPublic;
+    @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdDate;
 
-    @Column(name = "created_date")
-    private String createdDate;
-
-    @Column(name = "updated_date")
-    private String updatedDate;
+    @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime updatedDate;
 
     @JsonIgnore
     @ManyToOne(optional=false)
     @JoinColumn(name = "course_id", insertable=false, updatable=false)
     private Course course;
 
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdDate = now;
+        this.updatedDate = now;
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedDate = LocalDateTime.now();
+    }
     public Topic(String topicId) {
         this.topicId = topicId;
     }
