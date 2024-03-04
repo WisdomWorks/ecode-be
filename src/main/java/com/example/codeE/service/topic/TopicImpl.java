@@ -1,10 +1,13 @@
 package com.example.codeE.service.topic;
 
+import com.example.codeE.model.group.Group;
 import com.example.codeE.model.topic.Topic;
+import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.UpdateTopicRequest;
 import com.example.codeE.service.course.CourseService;
+import com.example.codeE.service.group.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,9 @@ public class TopicImpl implements TopicService{
     private TopicRepository topicRepository;
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private GroupRepository groupRepository;
     @Override
     public List<Topic> getAllTopicsByCourseId(String courseId) {
         return this.topicRepository.getAllTopicsByCourseId(courseId);
@@ -31,6 +37,43 @@ public class TopicImpl implements TopicService{
             return this.topicRepository.save(topic);
         }
         return null;
+    }
+
+    @Override
+    public List<Group> getAllGroupsByTopicId(String topicId) {
+        if (this.topicRepository.existsById(topicId)) {
+            return this.topicRepository.getAllGroupsByTopicId(topicId);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean removeViewPermission(String topicId, List<String> groupIds) {
+        if (!this.topicRepository.existsById(topicId)) {
+            return false;
+        }
+        for (String groupId : groupIds) {
+            if (!this.groupRepository.existsById(groupId)) {
+                return false;
+            }
+            this.topicRepository.removeViewPermission(topicId, groupId);
+    }
+        return true;
+    }
+
+    @Override
+    public boolean addViewPermission(String topicId, List<String> groupIds) {
+        if (!this.topicRepository.existsById(topicId)) {
+            return false;
+        }
+        for (String groupId : groupIds) {
+            if (!this.groupRepository.existsById(groupId)) {
+                return false;
+            }
+            System.out.println(groupId);
+            this.topicRepository.addViewPermission(topicId, groupId);
+        }
+        return true;
     }
 
     @Override

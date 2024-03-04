@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/topics")
 @Validated
@@ -50,5 +52,23 @@ public class TopicController {
     @RequestMapping(value = "/{topicId}",method = RequestMethod.GET)
     public ResponseEntity<?> getTopic(@PathVariable String topicId) {
         return ResponseEntity.ok(this.topicService.getById(topicId));
+    }
+
+    @GetMapping
+    @RequestMapping(value="/view", method = RequestMethod.GET)
+    public ResponseEntity<?> getPublicGroups(@RequestParam String topicId){
+        return ResponseEntity.ok(this.topicService.getAllGroupsByTopicId(topicId));
+    }
+
+    @PostMapping
+    @RequestMapping(value="/view", method = RequestMethod.POST)
+    public ResponseEntity<?> addViewPermission(@RequestParam String topicId, @RequestParam List<String> groupIds){
+        return ResponseEntity.ok(this.topicService.addViewPermission(topicId, groupIds));
+    }
+
+    @DeleteMapping
+    @RequestMapping(value="/view", method = RequestMethod.DELETE)
+    public ResponseEntity<?> removeViewPermission(@RequestParam String topicId, @RequestParam List<String> groupIds){
+        return ResponseEntity.ok(this.topicService.removeViewPermission(topicId, groupIds));
     }
 }
