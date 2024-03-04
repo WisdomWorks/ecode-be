@@ -34,15 +34,16 @@ public class CodeEditorController {
         CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(exerciseId);
         // codeExercise.getKey().equals(key)
         // for test purpose, we won't use the real key of code exercise.
-        if (key.equals("key")) {
+        System.out.println(key);
+//        if (key.equals("key")) {
             switch (codeExercise.getLanguage()) {
                 case "java":
                     String containerId = dockerService.createContainer("Dockerfile.java", codeExercise);
                     return ResponseEntity.status(HttpStatus.OK).body(Map.of("containerId", containerId));
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong key");
-        }
+//        } else {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Wrong key");
+//        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
     }
 
