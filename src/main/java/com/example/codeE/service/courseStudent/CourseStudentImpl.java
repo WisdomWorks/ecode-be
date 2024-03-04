@@ -2,7 +2,6 @@ package com.example.codeE.service.courseStudent;
 
 import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.helper.LoggerHelper;
-import com.example.codeE.mapper.course.StudentInCourseExcel;
 import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseStudentRepository;
@@ -57,7 +56,7 @@ public class CourseStudentImpl implements CourseStudentService {
                 LoggerHelper.logInfo("Number of imported students: " + importedStudentsName.size());
 
                 for (String excelStudent : importedStudentsName) {
-                    System.out.println(importedStudentsName.toString());
+                    System.out.println(excelStudent.toString());
                 }
                 for (String excelStudentName : importedStudentsName) {
                     User student = userRepository.findUserByRoleAndUserName("student", excelStudentName);

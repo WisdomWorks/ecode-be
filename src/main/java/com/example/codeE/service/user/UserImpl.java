@@ -3,6 +3,7 @@ package com.example.codeE.service.user;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
+import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.security.BCryptPassword;
@@ -44,10 +45,8 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public User createOne(User user) {
-        String password = BCryptPassword.generateRandomPassword();
-        user.setUserId(UUID.randomUUID().toString());
-        user.setPassword(password);
+    public User createOne(CreateUserRequest userRequest) {
+        var user = new User(userRequest, UUID.randomUUID().toString());
         return this.userRepository.save(user);
     }
 
