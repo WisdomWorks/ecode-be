@@ -151,30 +151,6 @@ public class Main {
                 return convertedParameters.toArray();
             }
 
-        public static int[] convertToIntArr(Object value) {
-            return (int[]) value;
-        }
-
-        public static float[] convertToFloatArr(Object value) {
-            return (float[]) value;
-        }
-
-        public static double[] convertToDoubleArr(Object value) {
-            return (double[]) value;
-        }
-
-        public static char[] convertToCharArr(Object value) {
-            return (char[]) value;
-        }
-
-        public static boolean[] convertToBooleanArr(Object value) {
-            return (boolean[]) value;
-        }
-
-        public static String[] convertToStringArr(Object value) {
-            return (String[]) value;
-        }
-
         public static void printResultForSubmisstion(
                 String className, String methodName,
                 String expectedOutputType, String expectedOutput,
@@ -184,22 +160,22 @@ public class Main {
             if (result.getClass().isArray()) {
                 switch (expectedOutputType){
                     case "int[]":
-                        System.out.println(Arrays.equals(convertToIntArr(result), convertToIntArr(convertedOutput)));
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToIntArr(result), ConvertObjectToArray.convertToIntArr(convertedOutput)));
                         break;
                     case "float[]":
-                        System.out.println(Arrays.equals(convertToFloatArr(result), convertToFloatArr(convertedOutput)));
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToFloatArr(result), ConvertObjectToArray.convertToFloatArr(convertedOutput)));
                         break;
                     case "double[]":
-                        System.out.println(Arrays.equals(convertToDoubleArr(result), convertToDoubleArr(convertedOutput)));
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToDoubleArr(result), ConvertObjectToArray.convertToDoubleArr(convertedOutput)));
                         break;
                     case "char[]":
-                        System.out.println(Arrays.equals(convertToCharArr(result), convertToCharArr(convertedOutput)));
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToCharArr(result), ConvertObjectToArray.convertToCharArr(convertedOutput)));
                         break;
                     case "boolean[]":
-                        System.out.println(Arrays.equals(convertToBooleanArr(result), convertToBooleanArr(convertedOutput)));
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToBooleanArr(result), ConvertObjectToArray.convertToBooleanArr(convertedOutput)));
                         break;
                     case "String[]":
-                        System.out.println(Arrays.equals(convertToStringArr(result), convertToStringArr(convertedOutput)));
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToStringArr(result), ConvertObjectToArray.convertToStringArr(convertedOutput)));
                         break;
                     default:
                         System.out.println("false");
