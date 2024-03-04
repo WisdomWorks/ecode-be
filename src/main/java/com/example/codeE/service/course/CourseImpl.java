@@ -1,11 +1,10 @@
 package com.example.codeE.service.course;
 
 import com.example.codeE.helper.ExcelHelper;
-import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
-import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.repository.CourseRepository;
+import com.example.codeE.request.course.CreateCourseRequest;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,10 +21,10 @@ public class CourseImpl implements CourseService {
     private CourseRepository courseRepository;
 
     @Override
-    public Course createOne(Course course) {
+    public Course createOne(CreateCourseRequest courseRequest) {
         try {
             String courseId = UUID.randomUUID().toString();
-            course.setCourseId(courseId);
+            var course = new Course(courseRequest, courseId);
             return this.courseRepository.save(course);
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception for debugging purposes

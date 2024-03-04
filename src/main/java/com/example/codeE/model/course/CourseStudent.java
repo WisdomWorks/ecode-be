@@ -1,14 +1,10 @@
 package com.example.codeE.model.course;
 
-import com.example.codeE.model.user.User;
 import com.example.codeE.request.course.AddStudentToCourseRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
 import jakarta.persistence.IdClass;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
