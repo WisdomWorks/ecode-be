@@ -1,9 +1,14 @@
 package com.example.codeE.validator.id;
 
+import com.example.codeE.repository.CourseRepository;
+import com.example.codeE.repository.CourseStudentRepository;
 import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.UserRepository;
+import com.example.codeE.request.course.AddStudentToCourseRequest;
+import com.example.codeE.request.course.ImportStudentToCourseRequest;
+import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
+import com.example.codeE.request.course.UpdateCourseRequest;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
-import com.example.codeE.request.user.CommonUserRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -17,6 +22,12 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private CourseStudentRepository courseStudentRepository;
+
     @Override
     public void initialize(ExistingId constraintAnnotation) {
     }
@@ -29,6 +40,19 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
         } else if (object instanceof UpdateUserRequest) {
             UpdateUserRequest updateUserRequest = (UpdateUserRequest) object;
             return userRepository.existsById(updateUserRequest.getUserId());
+        } else if (object instanceof UpdateCourseRequest) {
+            UpdateCourseRequest updateCourseRequest = (UpdateCourseRequest) object;
+            return courseRepository.existsById(updateCourseRequest.getCourseId());
+        } else if (object instanceof AddStudentToCourseRequest) {
+            AddStudentToCourseRequest addStudentToCourseRequest = (AddStudentToCourseRequest) object;
+            return courseRepository.existsById(addStudentToCourseRequest.getCourseId())
+                    && userRepository.existsById(addStudentToCourseRequest.getStudentId());
+        } else if (object instanceof ImportStudentToCourseRequest) {
+            ImportStudentToCourseRequest importStudentToCourseRequest = (ImportStudentToCourseRequest) object;
+            return courseRepository.existsById(importStudentToCourseRequest.getCourseId());
+        } else if (object instanceof RemoveStudentFromCourseRequest) {
+            RemoveStudentFromCourseRequest removeStudentFromCourseRequest = (RemoveStudentFromCourseRequest) object;
+            return courseStudentRepository.existsByStudentIdAndCourseId(removeStudentFromCourseRequest.getStudentId(), removeStudentFromCourseRequest.getCourseId()) > 0;
         }
         return false;
     }

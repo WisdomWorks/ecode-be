@@ -3,7 +3,6 @@ package com.example.codeE.service.user;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.user.GetUsersRequest;
-import org.bson.codecs.jsr310.LocalDateTimeCodec;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 

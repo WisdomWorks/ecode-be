@@ -1,8 +1,8 @@
 package com.example.codeE.request.user;
 
-import com.example.codeE.validator.id.ExistingId;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,8 +11,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ExistingId(targetClasses = {CommonUserRequest.class})
-public class CommonUserRequest {
-    @NotBlank(message = "User ID is required")
-    private String userId;
+@Builder
+public class ExportExcelRequest {
+    @NotBlank
+    private String fileName;
+    @NotBlank
+    private String courseId;
 }
