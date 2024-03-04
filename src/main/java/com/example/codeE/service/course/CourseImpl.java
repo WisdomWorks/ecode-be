@@ -1,10 +1,8 @@
 package com.example.codeE.service.course;
 
 import com.example.codeE.helper.ExcelHelper;
-import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
-import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
