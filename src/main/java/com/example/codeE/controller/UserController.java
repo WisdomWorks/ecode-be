@@ -2,6 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.common.Pagination;
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.service.user.UserService;
@@ -52,7 +53,7 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestBody User user){
+    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest user){
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createOne(user));
     }
 

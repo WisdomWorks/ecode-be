@@ -2,6 +2,7 @@ package com.example.codeE.model.course;
 
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.topic.Topic;
+import com.example.codeE.request.course.CreateCourseRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -72,5 +73,11 @@ public class Course {
         this.courseName = excelCourse.getCourseName();
         this.semester = excelCourse.getSemester();
         this.description = excelCourse.getDescription();
+    }
+    public Course(CreateCourseRequest courseRequest, String courseId){
+        this.courseId = courseId;
+        this.courseName = courseRequest.getCourseName();
+        this.semester = courseRequest.getSemester();
+        this.description = courseRequest.getDescription();
     }
 }

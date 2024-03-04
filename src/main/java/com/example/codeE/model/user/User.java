@@ -1,6 +1,7 @@
 package com.example.codeE.model.user;
 
 import com.example.codeE.mapper.user.UserFromExcel;
+import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.PrePersist;
@@ -91,6 +92,14 @@ public class User {
         this.username = excelUser.getUsername();
         this.password = BCryptPassword.generateRandomPassword();
         this.role = excelUser.getRole();
+    }
+    public User (CreateUserRequest createUser, String userId){
+        this.userId = userId;
+        this.username = createUser.getUsername();
+        this.name = createUser.getName();
+        this.email = createUser.getEmail();
+        this.password = BCryptPassword.generateRandomPassword();
+        this.role = createUser.getRole();
     }
 
     @Override

@@ -3,10 +3,7 @@ package com.example.codeE.controller;
 import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.repository.UserRepository;
-import com.example.codeE.request.course.AddStudentToCourseRequest;
-import com.example.codeE.request.course.ImportStudentToCourseRequest;
-import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
-import com.example.codeE.request.course.UpdateCourseRequest;
+import com.example.codeE.request.course.*;
 import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.courseStudent.CourseStudentService;
 import jakarta.validation.Valid;
@@ -57,7 +54,7 @@ public class CourseController {
 
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<?> createOne(@RequestBody Course course) {
+    public ResponseEntity<?> createOne(@RequestBody CreateCourseRequest course) {
         Course result = courseService.createOne(course);
         if(result == null){
             return ResponseEntity.status(HttpStatus.CREATED).body("Failed to create new course");
