@@ -4,6 +4,7 @@ import com.example.codeE.request.group.CreateGroupRequest;
 
 import java.util.Map;
 
+import com.example.codeE.request.group.CreateGroupStudentRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,11 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
-    @GetMapping
-    @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllGroups() {
-        return new ResponseEntity<>(groupService.getAll(), HttpStatus.OK);
-    }
+//    @GetMapping
+//    @RequestMapping(value = "",method = RequestMethod.GET)
+//    public ResponseEntity<?> getAllGroups() {
+//        return new ResponseEntity<>(groupService.getAll(), HttpStatus.OK);
+//    }
 
     @GetMapping
     @RequestMapping(value = "{groupId}",method = RequestMethod.GET)
@@ -32,7 +33,7 @@ public class GroupController {
         if(result != null){
             return new ResponseEntity<>(result, HttpStatus.OK);
         }       
-        return ResponseEntity.status(HttpStatus.CREATED).body("Can not find group with id: " + groupId);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can not find group with id: " + groupId);
     }
 
     @PostMapping
@@ -41,10 +42,6 @@ public class GroupController {
         return new ResponseEntity<>(groupService.createOne(group), HttpStatus.CREATED);
     }
 
-    // @PutMapping("/{groupId}")
-    // public ResponseEntity<?> updateGroup(String groupId, @RequestBody Group group) {
-    //     return new ResponseEntity<>(groupService.updateGroupById(groupId, group), HttpStatus.OK);
-    // }
     @DeleteMapping
     @RequestMapping(value = "{groupId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteGroup(String groupId) {
@@ -56,8 +53,24 @@ public class GroupController {
     }
 
     @GetMapping
-    @RequestMapping(value = "/get-groups-in-course/{courseId}", method = RequestMethod.GET)
-    public  ResponseEntity<?> getGroupsByCourseId(@PathVariable String courseId){
+    @RequestMapping(value = "course/{courseId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getGroupsByCourseId(@PathVariable String courseId){
         return ResponseEntity.status(HttpStatus.OK).body(this.groupService.getGroupsByCourseId(courseId));
+    }
+    @PostMapping
+    @RequestMapping(value = "/student" , method = RequestMethod.POST)
+    public ResponseEntity<?> addStudentsToGroup(@RequestBody CreateGroupStudentRequest createRequest){
+        var result = this.groupService.addStudentsToGroup(createRequest.getStudentIds(), createRequest.getGroupId(), createRequest.getDescription());
+        if(!result.isEmpty()){
+            return new ResponseEntity<>(result, HttpStatus.CREATED);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can not add student to group! ");
+    }
+
+    @GetMapping
+    @RequestMapping(value = "{groupId}/student", method = RequestMethod.GET)
+    public ResponseEntity<?> getStudentInGroup(@PathVariable String groupId){
+        return new ResponseEntity<>(this.groupService.getUsersInGroup(groupId), HttpStatus.CREATED);
+
     }
 }
