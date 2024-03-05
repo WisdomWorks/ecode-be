@@ -11,14 +11,17 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(collection = "Exercise")
 @DateComparison(targetClasses = {Exercise.class})
 public class Exercise {
     @Id
@@ -56,20 +59,20 @@ public class Exercise {
 
     @Field
     @NotNull(message = "Exercise type is required")
-    @Pattern(regexp = "^(quizz|essay|code)$", message = "Exercise type should be quizz, essay, or code")
+    @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
     private String type;
 
     @Field
     @NotNull(message = "Exercise public option is required")
-    private Boolean isPublic;
+    private List<String> publicGroupIds;
 
-    public Exercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, String type, Boolean isPublic) {
+    public Exercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, String type, List<String> publicGroupIds) {
         this.topicId = topicId;
         this.exerciseName = exerciseName;
         this.key = key;
         this.startTime = startTime;
         this.endTime = endTime;
         this.type = type;
-        this.isPublic = isPublic;
+        this.publicGroupIds = publicGroupIds;
     }
 }
