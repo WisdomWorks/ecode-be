@@ -26,21 +26,23 @@ public class QuizExerciseImpl implements QuizExerciseService{
     public QuizExercise createQuizExercise(QuizExercise quizExercise) {
         List<QuizQuestion> questions = quizExercise.getQuestions();
         for(int i=0; i<questions.size(); i++){
-            QuizQuestion savedQuizQuestion = quizQuestionRepository.save(questions.get(i));
-            quizExercise.getQuestions().get(i).setQuestionId(savedQuizQuestion.getQuestionId());
+            QuizQuestion quizQuestion = quizExercise.getQuestions().get(i);
 
             List<QuizChoice> choices = questions.get(i).getChoices();
             for(int j=0; j<choices.size(); j++){
                 QuizChoice savedChoice = quizChoiceRepository.save(choices.get(j));
+                quizQuestion.getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
                 quizExercise.getQuestions().get(i).getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
 
                 List<QuizChoice> answers = questions.get(i).getAnswers();
                 for(int k=0; k<answers.size(); k++){
                     if(answers.get(k).getContent().equals(choices.get(j).getContent())){
+                        quizQuestion.getAnswers().get(k).setChoiceId(savedChoice.getChoiceId());
                         quizExercise.getQuestions().get(i).getAnswers().get(k).setChoiceId(savedChoice.getChoiceId());
                     }
                 }
             }
+            quizExercise.getQuestions().get(i).setQuestionId(quizQuestionRepository.save(quizQuestion).getQuestionId());
         }
         return quizExerciseRepository.save(quizExercise);
     }
