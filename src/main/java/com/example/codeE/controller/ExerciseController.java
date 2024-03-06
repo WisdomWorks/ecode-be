@@ -2,11 +2,14 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.Exercise;
+import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.ExerciseService;
+import com.example.codeE.service.exercise.QuizExerciseService;
 import com.example.codeE.service.exercise.common.TestcaseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,9 @@ public class ExerciseController {
     @Autowired
     private TestcaseService testcaseService;
 
+    @Autowired
+    private QuizExerciseService quizExerciseService;
+
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
     public ResponseEntity<?> createCodeExercise(@Valid @RequestBody CreateCodeExerciseRequest request){
@@ -59,11 +65,18 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(codeExercise);
     }
 
+    @PostMapping
+    @RequestMapping(value = "quiz", method = RequestMethod.POST)
+    public ResponseEntity<?> createQuizExercise(@Valid @RequestBody QuizExercise request){
+//        this.exerciseService.saveExercise((Exercise) request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(quizExerciseService.createQuizExercise(request));
+    }
+
     @GetMapping
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseEntity<?> getAllExerciseByCourseId(@RequestParam String courseId) {
         List<Exercise> exercises = this.exerciseService.getExercisesByCourseId(courseId);
-//        List<CodeExercise> codeExercises = new ArrayList<>();
+//        List<CodeExercise> codeExercises = new ArßrayList<>();
 //        for(Exercise exercise: exercises) {
 //            switch (exercise.getType()) {
 //                case "code":
