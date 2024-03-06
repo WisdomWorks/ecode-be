@@ -36,8 +36,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest) {
+    @RequestMapping(value = "pagination",method = RequestMethod.GET)
+    public ResponseEntity<?> getAllUsersPagination(@Valid @ModelAttribute GetUsersRequest getUsersRequest) {
         int totalRecords = this.userService.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
         getUsersRequest.setPageable(PageRequest.of(getUsersRequest.getPageNumber()-1, getUsersRequest.getPageSize()));
         List<User> listUsers = this.userService.paginateUsers(getUsersRequest);
@@ -50,7 +50,11 @@ public class UserController {
                                 (int) Math.ceil((double) totalRecords / getUsersRequest.getPageSize())
                         )), HttpStatus.OK);
     }
-
+    @GetMapping
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ResponseEntity<?>getAll(){
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.getAll());
+    }
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest user){
@@ -87,5 +91,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with ID:" + userId);
         }
         return ResponseEntity.ok(Map.of("message" , "User is deleted successfully"));
+    }
+    @GetMapping
+    @RequestMapping(value = "get-by-user-name/{username}", method = RequestMethod.GET)
+    public  ResponseEntity<?> getUserByUserName (@PathVariable String username,String role){
+        var result = this.userService.getUserByUserName(role, username);
+        if(result == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with user name:" + username);
+        }
+        return  ResponseEntity.ok(result);
     }
 }

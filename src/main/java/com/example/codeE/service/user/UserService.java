@@ -15,4 +15,5 @@ public interface UserService extends CommonService<User, CreateUserRequest> {
     boolean saveUserToDatabase(MultipartFile file);
     // boolean exportExcel();
     User updateById(String userId, UpdateUserRequest updatedUser);
+    User getUserByUserName(String role, String userName);
 }

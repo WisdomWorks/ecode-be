@@ -74,6 +74,11 @@ public class UserImpl implements UserService {
     }
 
     @Override
+    public User getUserByUserName(String role, String userName) {
+        return this.userRepository.findUserByRoleAndUserName(role, userName);
+    }
+
+    @Override
     public boolean deleteById(@NotBlank String userId) {
         if(!userRepository.existsById(userId)){
             return false;
