@@ -10,6 +10,9 @@ import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.helper.ExcelHelper;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +24,7 @@ import java.util.UUID;
 
 
 @Service
-public class UserImpl implements UserService {
+public class UserImpl implements UserService, UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
@@ -75,8 +78,10 @@ public class UserImpl implements UserService {
 
     @Override
     public User getUserByUserName(String role, String userName) {
-        return this.userRepository.findUserByRoleAndUserName(role, userName);
+        return this.userRepository.findUserByUserName(userName);
+//        return this.userRepository.findUserByRoleAndUserName(role, userName);
     }
+
 
     @Override
     public boolean deleteById(@NotBlank String userId) {
@@ -119,6 +124,11 @@ public class UserImpl implements UserService {
             }
         }
         return false;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return this.userRepository.findUserByUserName(username);
     }
 
     // @Override
