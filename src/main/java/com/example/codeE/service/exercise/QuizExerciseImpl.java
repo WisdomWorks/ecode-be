@@ -3,7 +3,6 @@ package com.example.codeE.service.exercise;
 import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.exercise.common.QuizChoice;
 import com.example.codeE.model.exercise.common.QuizQuestion;
-import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.QuizChoiceRepository;
 import com.example.codeE.repository.QuizExerciseRepository;
 import com.example.codeE.repository.QuizQuestionRepository;

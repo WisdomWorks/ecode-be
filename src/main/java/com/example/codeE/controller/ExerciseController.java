@@ -6,7 +6,6 @@ import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
-import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.ExerciseService;
 import com.example.codeE.service.exercise.QuizExerciseService;
