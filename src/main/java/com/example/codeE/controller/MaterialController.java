@@ -1,9 +1,6 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.model.course.Course;
 import com.example.codeE.model.material.Material;
-import com.example.codeE.request.course.CreateCourseRequest;
-import com.example.codeE.request.course.UpdateCourseRequest;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
 import com.example.codeE.service.material.MaterialService;
@@ -12,8 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
@@ -37,11 +41,8 @@ public class MaterialController {
 
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<?> createOne(@RequestBody CreateMaterialRequest request) {
+    public ResponseEntity<?> createOne(@Valid @RequestBody CreateMaterialRequest request) {
         Material result = materialService.createOne(request);
-        if(result == null){
-            return ResponseEntity.status(HttpStatus.CREATED).body("Failed to create new material");
-        }
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -53,11 +54,8 @@ public class MaterialController {
 
     @DeleteMapping
     @RequestMapping(value = "{materialId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteById(@PathVariable String materialId) {
-        boolean result = materialService.deleteById(materialId);
-        if (result) {
-            return ResponseEntity.ok(Map.of("message" , "Delete material successfully"));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No material found with ID:" + materialId);
+    public ResponseEntity<?> deleteById(@Valid @PathVariable String materialId) {
+        materialService.deleteById(materialId);
+        return ResponseEntity.ok(Map.of("message" , "Delete material successfully"));
     }
 }

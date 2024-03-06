@@ -1,7 +1,7 @@
 package com.example.codeE.service.group;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.example.codeE.service.course.CourseService;
@@ -35,8 +35,7 @@ public class GroupImpl implements GroupService{
 
     @Override
     public Group getById(String GroupId) {
-       Optional<Group> groupOptional = this.groupRepository.findById(GroupId);
-        return groupOptional.orElse(null);
+        return this.groupRepository.findById(GroupId).orElseThrow(() -> new NoSuchElementException("No group found with ID:" + GroupId));
     }
 
     @Override
@@ -49,12 +48,12 @@ public class GroupImpl implements GroupService{
     }
 
     @Override
-    public boolean deleteById(String id) {
-        if (!groupRepository.existsById(id)) {
-            return false;
+    public void deleteById(String id) {
+        if (groupRepository.existsById(id)) {
+            this.groupRepository.deleteById(id);
+        } else {
+            throw new NoSuchElementException("Group not found with id " + id);
         }
-        this.groupRepository.deleteById(id);
-        return true;
     }
 
     @Override

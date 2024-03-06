@@ -1,6 +1,5 @@
 package com.example.codeE.service.material;
 
-import com.example.codeE.model.course.Course;
 import com.example.codeE.model.material.Material;
 import com.example.codeE.repository.MaterialRepository;
 import com.example.codeE.request.material.CreateMaterialRequest;
@@ -9,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -32,8 +31,7 @@ public class MaterialImpl implements MaterialService{
 
     @Override
     public Material getById(String id) {
-        Optional<Material> material = materialRepository.findById(id);
-        return material.orElse(null);
+        return materialRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No material found with ID:" + id));
     }
 
     @Override
@@ -42,12 +40,12 @@ public class MaterialImpl implements MaterialService{
     }
 
     @Override
-    public boolean deleteById(String id) {
+    public void deleteById(String id) {
         if(materialRepository.existsById(id)){
             this.materialRepository.deleteById(id);
-            return true;
+        } else {
+            throw new NoSuchElementException("Material not found with id " + id);
         }
-        return false;
     }
 
     @Override

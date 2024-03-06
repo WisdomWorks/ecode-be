@@ -7,11 +7,11 @@ import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.UpdateTopicRequest;
 import com.example.codeE.service.course.CourseService;
-import com.example.codeE.service.group.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -102,11 +102,11 @@ public class TopicImpl implements TopicService{
     }
 
     @Override
-    public boolean deleteById(String id) {
-        if (!topicRepository.existsById(id)) {
-            return false;
+    public void deleteById(String id) {
+        if (topicRepository.existsById(id)) {
+            this.topicRepository.deleteById(id);
+        } else {
+            throw new NoSuchElementException("Topic not found with id " + id);
         }
-        this.topicRepository.deleteById(id);
-        return true;
     }
 }
