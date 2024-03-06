@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -26,9 +23,8 @@ public class UserImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public User getById(String userId) {
-        Optional<User> userOptional = this.userRepository.findById(userId);
-        return userOptional.orElse(null);
+    public User getById(@NotBlank String userId) {;
+        return this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found with ID:" + userId));
     }
 
     @Override
@@ -74,12 +70,12 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public boolean deleteById(@NotBlank String userId) {
-        if(!userRepository.existsById(userId)){
-            return false;
+    public void deleteById(@NotBlank String userId) {
+        if(userRepository.existsById(userId)){
+            this.userRepository.deleteById(userId);
+        }else {
+            throw new NoSuchElementException("User not found with id " + userId);
         }
-        this.userRepository.deleteById(userId);
-        return true;
     }
 
     @Override

@@ -4,13 +4,21 @@ import com.example.codeE.request.group.CreateGroupRequest;
 
 import java.util.Map;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 
 import com.example.codeE.service.group.GroupService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/group")
@@ -47,12 +55,9 @@ public class GroupController {
     // }
     @DeleteMapping
     @RequestMapping(value = "{groupId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteGroup(String groupId) {
-        var result = this.groupService.deleteById(groupId);
-        if (result) {
-            return ResponseEntity.ok(Map.of("message" , "Delete group successfully"));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No course found with ID:" + groupId);
+    public ResponseEntity<?> deleteGroup(@Valid String groupId) {
+        this.groupService.deleteById(groupId);
+        return ResponseEntity.ok(Map.of("message" , "Delete group successfully"));
     }
 
     @GetMapping

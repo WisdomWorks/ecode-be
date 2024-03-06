@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -34,7 +35,7 @@ public class CourseImpl implements CourseService {
 
     @Override
     public Course getById(String courseId) {
-        return courseRepository.findById(courseId).orElse(null);
+        return courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID:" + courseId));
     }
 
     @Override
@@ -43,12 +44,12 @@ public class CourseImpl implements CourseService {
     }
 
     @Override
-    public boolean deleteById(String courseId) {
+    public void deleteById(String courseId) {
         if (courseRepository.existsById(courseId)) {
             this.courseRepository.deleteById(courseId);
-            return true;
+        } else {
+            throw new NoSuchElementException("Course not found with id " + courseId);
         }
-        return false;
     }
 
     @Override
