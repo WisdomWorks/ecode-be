@@ -75,7 +75,7 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(value = "/import-users",method = RequestMethod.POST)
-    public ResponseEntity<?> importUsersByExcel(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> importUsersByExcel(@Valid @RequestParam("file") MultipartFile file) {
         boolean result = this.userService.saveUserToDatabase(file);
         if(!result){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to import users");
@@ -85,12 +85,9 @@ public class UserController {
 
     @DeleteMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteById(@PathVariable String userId){
-        boolean result = this.userService.deleteById(userId);
-        if(!result){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with ID:" + userId);
-        }
-        return ResponseEntity.ok(Map.of("message" , "User is deleted successfully"));
+    public ResponseEntity<?> deleteById(@Valid @PathVariable String userId){
+        this.userService.deleteById(userId);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with ID:" + userId);
     }
     @GetMapping
     @RequestMapping(value = "get-by-user-name/{username}", method = RequestMethod.GET)
