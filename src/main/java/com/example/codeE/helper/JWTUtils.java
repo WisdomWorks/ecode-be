@@ -1,7 +1,9 @@
 package com.example.codeE.helper;
 
+import com.example.codeE.model.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +21,7 @@ public class JWTUtils {
     private static final long EXPIRATION_TIME = 3600000;
 
     public JWTUtils(){
-        String secreteString = "1236219384u1023jrpqwjfofnas3oi4234867585647";
+        String secreteString = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
         byte[] keyBytes = Base64.getDecoder().decode(secreteString.getBytes(StandardCharsets.UTF_8));
         this.Key= new SecretKeySpec(keyBytes, "HmacSHA256");
     }

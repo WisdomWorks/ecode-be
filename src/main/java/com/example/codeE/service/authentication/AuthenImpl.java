@@ -1,13 +1,16 @@
 package com.example.codeE.service.authentication;
 
 import com.example.codeE.helper.JWTUtils;
+import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
+import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -18,30 +21,40 @@ public class AuthenImpl implements  AuthenService{
     private UserRepository userRepository;
     JWTUtils jwtHelper = new JWTUtils();
     @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
     private AuthenticationManager authenticationManager;
 
-
     @Override
-    public UserAuthenRequest signIn(UserAuthenRequest signInRequest) {
-        UserAuthenRequest response = new UserAuthenRequest();
+    public UserAuthenRequest signIn(LoginRequest signInRequest, HttpServletResponse response) {
+        UserAuthenRequest userResponse = new UserAuthenRequest();
         try{
+            System.out.println(signInRequest.getUserName());
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),signInRequest.getPassword()));
-            System.out.println(signInRequest.getUserName()+","+signInRequest.getPassword());
             var user = userRepository.findUserByUserName(signInRequest.getUserName());
-            System.out.println(user);
             var jwt = jwtHelper.generateToken(user);
             var refreshToken = jwtHelper.generateRefreshToken(new HashMap<>(), user);
-            response.setStatusCode(200);
-            response.setToken(jwt);
-            response.setRefreshToken(refreshToken);
-            response.setExpirationTime("1h");
-            response.setMessage("Sign In successful");
+            userResponse.setStatusCode(200);
+            userResponse.setToken(jwt);
+            userResponse.setRefreshToken(refreshToken);
+            userResponse.setExpirationTime("1 hour");
+            userResponse.setMessage("Sign In successful");
+            ResponseCookie cookie = ResponseCookie.from("accessToken", jwt)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(3600)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
-            response.setStatusCode(500);
-            response.setError(e.getMessage());
+            userResponse.setStatusCode(500);
+            userResponse.setMessage("Access denied");
+            userResponse.setError(e.getMessage());
         }
-        return response;
+        return userResponse;
+    }
+
+    @Override
+    public User getUserToken(String token) {
+        String username = this.jwtHelper.extractUserName(token);
+        return this.userRepository.findUserByUserName(username);
     }
 }

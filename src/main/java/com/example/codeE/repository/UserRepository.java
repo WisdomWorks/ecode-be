@@ -18,6 +18,8 @@ public interface UserRepository extends JpaRepository<User, String> {
             "AND (?2 IS NULL OR u.username = ?2)";
     String getUserByUserName = "Select new com.example.codeE.model.user.User(u.userId, u.name, u.email, u.username, u.password, u.role, u.createdDate, u.updatedDate)" +
             "FROM user u WHERE username = ?1";
+    String getUserByUserId = "Select new com.example.codeE.model.user.User(u.userId, u.name, u.email, u.username, u.password, u.role, u.createdDate, u.updatedDate)" +
+            "FROM user u WHERE u.userId = ?1";
     @Query(value = getUsersByRoleAndSearchKeywordSql)
     List<User> findUsersByRoleAndSearchKeywordWithPagination(String role, String searchKeyword, Pageable pageable);
 
@@ -28,4 +30,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     User findUserByRoleAndUserName(String role, String userName);
     @Query(getUserByUserName)
     User findUserByUserName(String userName);
+    @Query(getUserByUserId)
+    User findUserByUserId(String userId);
 }

@@ -2,7 +2,6 @@ package com.example.codeE.model.user;
 
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.request.user.CreateUserRequest;
-import com.example.codeE.security.BCryptPassword;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -90,20 +89,20 @@ public class User implements UserDetails {
         this.updatedDate = updatedDate;
     }
 
-    public User (UserFromExcel excelUser){
+    public User (UserFromExcel excelUser,String hashPassword){
         this.userId = excelUser.getUserId();
         this.name = excelUser.getName();
         this.email = excelUser.getEmail();
         this.username = excelUser.getUsername();
-        this.password = BCryptPassword.generateRandomPassword();
+        this.password = hashPassword;
         this.role = excelUser.getRole();
     }
-    public User (CreateUserRequest createUser, String userId){
+    public User (CreateUserRequest createUser, String userId, String hashPassword){
         this.userId = userId;
         this.username = createUser.getUsername();
         this.name = createUser.getName();
         this.email = createUser.getEmail();
-        this.password = BCryptPassword.generateRandomPassword();
+        this.password = hashPassword;
         this.role = createUser.getRole();
     }
 

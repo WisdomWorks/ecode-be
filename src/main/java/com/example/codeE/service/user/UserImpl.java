@@ -7,6 +7,7 @@ import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.helper.ExcelHelper;
+import com.example.codeE.security.BCryptPassword;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,7 +45,8 @@ public class UserImpl implements UserService, UserDetailsService {
 
     @Override
     public User createOne(CreateUserRequest userRequest) {
-        var user = new User(userRequest, UUID.randomUUID().toString());
+        String passwordString = BCryptPassword.generateRandomPassword();
+        var user = new User(userRequest, UUID.randomUUID().toString(), BCryptPassword.passwordEncoder(passwordString));
         return this.userRepository.save(user);
     }
 
@@ -97,13 +99,14 @@ public class UserImpl implements UserService, UserDetailsService {
 
     @Override
     public boolean saveUserToDatabase(MultipartFile file) {
+        String passwordHash = BCryptPassword.generateRandomPassword();
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
                 List<User> users = new ArrayList<>();
                 List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(), UserFromExcel.class);
                 for (UserFromExcel excelUser : importedUsers) {
                     excelUser.setRole(excelUser.getRole().toLowerCase());
-                    users.add(new User(excelUser));
+                    users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
                 }
                 for(User user : users){
                     System.out.println(user.toString());
