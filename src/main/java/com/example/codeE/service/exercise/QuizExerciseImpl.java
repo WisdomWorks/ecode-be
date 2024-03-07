@@ -46,4 +46,9 @@ public class QuizExerciseImpl implements QuizExerciseService{
         }
         return quizExerciseRepository.save(quizExercise);
     }
+
+    @Override
+    public QuizExercise getQuizExerciseById(String exerciseId) {
+        return quizExerciseRepository.findById(exerciseId).get();
+    }
 }
