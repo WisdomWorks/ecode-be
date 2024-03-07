@@ -67,7 +67,7 @@ public class ExerciseController {
     @PostMapping
     @RequestMapping(value = "quiz", method = RequestMethod.POST)
     public ResponseEntity<?> createQuizExercise(@Valid @RequestBody QuizExercise request){
-//        this.exerciseService.saveExercise((Exercise) request);
+        this.exerciseService.saveExercise((Exercise) request);
         return ResponseEntity.status(HttpStatus.CREATED).body(quizExerciseService.createQuizExercise(request));
     }
 
@@ -84,6 +84,12 @@ public class ExerciseController {
 //            }
 //        }
         return ResponseEntity.status(HttpStatus.OK).body(exercises);
+    }
+
+    @GetMapping
+    @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getExerciseById(@RequestParam String exerciseId){
+        return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
     }
 
     @DeleteMapping
