@@ -58,9 +58,11 @@ public class CourseImpl implements CourseService {
 
         if(update.getCourseName() != null){
             existingCourse.setCourseName(update.getCourseName());
-        } else if (update.getSemester() != null) {
+        }
+        if (update.getSemester() != null) {
             existingCourse.setSemester(update.getSemester());
-        } else if (update.getDescription() != null) {
+        }
+        if (update.getDescription() != null) {
             existingCourse.setDescription(update.getDescription());
         }
 
