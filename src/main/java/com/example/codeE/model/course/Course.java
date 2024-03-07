@@ -1,8 +1,10 @@
 package com.example.codeE.model.course;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.course.CreateCourseRequest;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -45,10 +47,12 @@ public class Course {
     private String description;
 
     @NotNull(message = "Creation date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdDate;
 
     @NotNull(message = "Updated date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedDate;
 

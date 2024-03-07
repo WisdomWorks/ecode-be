@@ -1,7 +1,9 @@
 package com.example.codeE.model.user;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.request.user.CreateUserRequest;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.example.codeE.security.BCryptPassword;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.PrePersist;
@@ -58,9 +60,11 @@ public class User {
     private String role;
 
     @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
 
     @PrePersist
