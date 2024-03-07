@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 
+import static com.example.codeE.constant.Constant.VALID_ROLES;
+
 
 @Service
 public class UserImpl implements UserService {
@@ -30,6 +32,14 @@ public class UserImpl implements UserService {
     @Override
     public List<User> getAll() {
         return this.userRepository.findAll();
+    }
+
+    @Override
+    public List<User> getUsersByRoleOrAll(String role){
+        if (!VALID_ROLES.contains(role)) {
+            throw new NoSuchElementException("Role not found");
+        }
+        return this.userRepository.findUsersByRole(role);
     }
 
     @Override
