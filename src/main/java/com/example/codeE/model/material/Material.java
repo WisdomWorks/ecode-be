@@ -1,14 +1,19 @@
 package com.example.codeE.model.material;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.request.material.CreateMaterialRequest;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -43,9 +48,11 @@ public class Material {
     private String description;
 
     @Column(name = "created_date", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date", nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
 
     public Material(String materialId, CreateMaterialRequest request) {

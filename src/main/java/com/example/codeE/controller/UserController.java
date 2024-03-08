@@ -54,7 +54,13 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest user){
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createOne(user));
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.createOne(user));
+    }
+
+    @GetMapping
+    @RequestMapping(value = "role/{role}",method = RequestMethod.GET)
+    public ResponseEntity<?> getUsersByRoleOrAll(@Valid @RequestParam(required = false) String role){
+        return ResponseEntity.ok(this.userService.getUsersByRoleOrAll(role));
     }
 
     @PatchMapping

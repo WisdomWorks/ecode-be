@@ -1,14 +1,14 @@
 package com.example.codeE.model.user;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.mapper.user.UserFromExcel;
+import com.example.codeE.model.course.CourseStudent;
+import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.request.user.CreateUserRequest;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.example.codeE.security.BCryptPassword;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -58,11 +59,19 @@ public class User {
     private String role;
 
     @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
+    private List<CourseTeacher> courseTeachers;
+    @JsonIgnore
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<CourseStudent> courseStudents;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
