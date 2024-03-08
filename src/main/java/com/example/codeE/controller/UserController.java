@@ -1,14 +1,10 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.model.common.Pagination;
-import com.example.codeE.model.user.User;
 import com.example.codeE.request.user.CreateUserRequest;
-import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,11 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -90,5 +84,14 @@ public class UserController {
     public ResponseEntity<?> deleteById(@Valid @PathVariable String userId){
         this.userService.deleteById(userId);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with ID:" + userId);
+    }
+    @GetMapping
+    @RequestMapping(value = "get-by-user-name/{username}", method = RequestMethod.GET)
+    public  ResponseEntity<?> getUserByUserName (@PathVariable String username,String role){
+        var result = this.userService.getUserByUserName(role, username);
+        if(result == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with user name:" + username);
+        }
+        return  ResponseEntity.ok(result);
     }
 }

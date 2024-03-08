@@ -17,7 +17,11 @@ public interface UserRepository extends JpaRepository<User, String> {
             " FROM user u WHERE (?1 IS NULL OR u.role = ?1) " +
             "AND (?2 IS NULL OR u.username = ?2)";
 
-    String getListOfUsersByRoleSql = "SELECT * FROM user WHERE (?1 IS NULL OR ?1 = '' OR role = ?1)";
+    String getListOfUsersByRoleSql = "SELECT * FROM user WHERE CASE WHEN ?1 IS NULL THEN TRUE ELSE role = ?1 END";
+    String getUserByUserName = "Select u.user_id, u.username, u.name, u.email, u.password, u.role, u.created_date, u.updated_date " +
+            "FROM user u WHERE u.username = ?1";
+    String getUserByUserId = "Select u.user_id, u.username, u.name, u.email, u.password, u.role, u.created_date, u.updated_date " +
+            "FROM user u WHERE u.user_id = ?1";
     @Query(value = getUsersByRoleAndSearchKeywordSql)
     List<User> findUsersByRoleAndSearchKeywordWithPagination(String role, String searchKeyword, Pageable pageable);
 
@@ -39,4 +43,8 @@ public interface UserRepository extends JpaRepository<User, String> {
             "FROM user u INNER JOIN course_student cs ON u.user_id = cs.student_id " +
             "WHERE cs.course_id = ?1", nativeQuery = true)
     List<User> getUserInCourse(String courseId);
+    @Query(value = getUserByUserName, nativeQuery = true)
+    User findUserByUserName(String userName);
+    @Query(value = getUserByUserId, nativeQuery = true)
+    User findUserByUserId(String userId);
 }

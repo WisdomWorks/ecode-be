@@ -2,10 +2,8 @@ package com.example.codeE.service.material;
 
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.material.Material;
-import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
-import com.example.codeE.request.topic.UpdateTopicRequest;
 import com.example.codeE.service.common.CommonService;
 
 import java.util.List;
