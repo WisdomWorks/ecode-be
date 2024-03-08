@@ -6,7 +6,6 @@ import com.example.codeE.request.course.ImportStudentToCourseRequest;
 import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
-import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import jakarta.validation.ConstraintValidator;

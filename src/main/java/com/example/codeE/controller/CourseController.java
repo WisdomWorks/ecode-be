@@ -1,6 +1,5 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.*;

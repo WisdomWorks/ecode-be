@@ -4,7 +4,6 @@ import com.example.codeE.constant.Constant;
 import com.example.codeE.model.course.Course;
 import com.example.codeE.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

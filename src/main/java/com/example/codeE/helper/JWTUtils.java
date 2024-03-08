@@ -1,9 +1,7 @@
 package com.example.codeE.helper;
 
-import com.example.codeE.model.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import lombok.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 

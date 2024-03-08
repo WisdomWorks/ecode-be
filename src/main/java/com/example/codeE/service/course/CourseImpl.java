@@ -6,7 +6,6 @@ import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
-import com.example.codeE.repository.CourseStudentRepository;
 import com.example.codeE.repository.CourseTeacherRepository;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.CourseResponse;

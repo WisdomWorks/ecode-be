@@ -1,6 +1,5 @@
 package com.example.codeE.model.exercise;
 
-import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.common.QuizQuestion;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
