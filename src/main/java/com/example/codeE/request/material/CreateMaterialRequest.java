@@ -17,14 +17,14 @@ import lombok.Setter;
 public class CreateMaterialRequest {
 
     @NotBlank(message = "Material type is required")
-    @Pattern(regexp = "^(file|folder)$", message = "Invalid material type. Allowed types are file and folder.")
+    @Pattern(regexp = "^(file|url)$", message = "Invalid material type. Allowed types are file and url.")
     private String materialType;
 
     @NotBlank(message = "Topic ID is required")
     @Size(max = 36, message = "TopicID is GUID type")
     private String topicId;
 
-    private String storageUrl;
+    private String url;
 
     private String description;
 }

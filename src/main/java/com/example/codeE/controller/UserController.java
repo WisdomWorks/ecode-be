@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -72,11 +73,8 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "/import-users",method = RequestMethod.POST)
     public ResponseEntity<?> importUsersByExcel(@Valid @RequestParam("file") MultipartFile file) {
-        boolean result = this.userService.saveUserToDatabase(file);
-        if(!result){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to import users");
-        }
-        return ResponseEntity.ok(Map.of("message" , " Users data uploaded and saved to database successfully"));
+        ResponseEntity<Map<String, String>> result = this.userService.saveUserToDatabase(file);
+        return result;
     }
 
     @DeleteMapping

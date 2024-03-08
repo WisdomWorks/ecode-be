@@ -25,7 +25,7 @@ public class UpdateMaterialRequest {
     @Size(max = 36, message = "TopicID is GUID type")
     private String topicId;
 
-    private String storageUrl;
+    private String url;
 
     private String description;
 }

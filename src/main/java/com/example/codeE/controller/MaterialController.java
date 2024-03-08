@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class MaterialController {
 
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<?> createOne(@Valid @RequestBody CreateMaterialRequest request) {
+    public ResponseEntity<?> createOne(@Valid @RequestBody CreateMaterialRequest request, MultipartFile file) {
         Material result = materialService.createOne(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
