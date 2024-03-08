@@ -24,4 +24,8 @@ public class CreateCourseRequest {
 
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
+
+    @NotBlank(message = "Teacher ID is required")
+    @Column(name = "teacher_id")
+    private String teacherId;
 }
