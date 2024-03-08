@@ -28,11 +28,11 @@ public class ExcelHelperTest {
     @BeforeEach
     void setUp() {
         this.mockDataUser = new ArrayList<>();
-        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
     }
 
     @Test
