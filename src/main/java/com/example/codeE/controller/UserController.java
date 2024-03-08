@@ -58,7 +58,7 @@ public class UserController {
     }
 
     @GetMapping
-    @RequestMapping(value = "role/{role}",method = RequestMethod.GET)
+    @RequestMapping(value = "role",method = RequestMethod.GET)
     public ResponseEntity<?> getUsersByRoleOrAll(@Valid @RequestParam(required = false) String role){
         return ResponseEntity.ok(this.userService.getUsersByRoleOrAll(role));
     }
