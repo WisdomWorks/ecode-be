@@ -43,9 +43,7 @@ public class AuthController
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("accessToken".equals(cookie.getName())) {
-                    // Expire the cookie by setting its maxAge to 0
                     cookie.setMaxAge(0);
-                    // Optionally, clear the cookie path and domain
                     cookie.setPath("/");
                     response.addCookie(cookie);
                 }

@@ -2,7 +2,6 @@ package com.example.codeE.repository;
 
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.material.Material;
-import com.example.codeE.model.topic.Topic;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
