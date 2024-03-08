@@ -87,15 +87,13 @@ public class User implements UserDetails {
         updatedDate = LocalDateTime.now();
     }
 
-    public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull LocalDateTime createdDate, @NonNull LocalDateTime updatedDate) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.username = username;
-        this.role = role;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
-    }
+//    public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull LocalDateTime createdDate, @NonNull LocalDateTime updatedDate) {
+//        this.userId = userId;
+//        this.name = name;
+//        this.email = email;
+//        this.username = username;
+//        this.role = role;
+//    }
 
     public User (UserFromExcel excelUser,String hashPassword){
         this.userId = excelUser.getUserId();

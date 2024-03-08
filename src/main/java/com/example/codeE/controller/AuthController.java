@@ -42,12 +42,11 @@ public class AuthController
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("your_jwt_cookie_name".equals(cookie.getName())) {
+                if ("accessToken".equals(cookie.getName())) {
                     // Expire the cookie by setting its maxAge to 0
                     cookie.setMaxAge(0);
                     // Optionally, clear the cookie path and domain
                     cookie.setPath("/");
-                    cookie.setDomain("yourdomain.com");
                     response.addCookie(cookie);
                 }
             }

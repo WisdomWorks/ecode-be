@@ -27,7 +27,6 @@ public class AuthenImpl implements  AuthenService{
     public UserAuthenRequest signIn(LoginRequest signInRequest, HttpServletResponse response) {
         UserAuthenRequest userResponse = new UserAuthenRequest();
         try{
-            System.out.println(signInRequest.getUserName());
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),signInRequest.getPassword()));
             var user = userRepository.findUserByUserName(signInRequest.getUserName());
             var jwt = jwtHelper.generateToken(user);
