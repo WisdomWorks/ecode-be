@@ -19,6 +19,6 @@ public class Constant {
     //file path in docker container
     public static final String DOCKER_CONTAINER_FILE_PATH = "app/student-submission/";
 
-    public static final List<String> VALID_ROLES = Arrays.asList("student", "teacher", "admin");
+    public static final List<String> VALID_ROLES = Arrays.asList("student", "teacher", "admin", "");
 
 }

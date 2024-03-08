@@ -35,21 +35,21 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest) {
-        int totalRecords = this.userService.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
-        getUsersRequest.setPageable(PageRequest.of(getUsersRequest.getPageNumber()-1, getUsersRequest.getPageSize()));
-        List<User> listUsers = this.userService.paginateUsers(getUsersRequest);
-        return new ResponseEntity<>(
-                Map.of("users", listUsers,
-                        "pagination", new Pagination(
-                                totalRecords,
-                                getUsersRequest.getPageSize(),
-                                getUsersRequest.getPageNumber(),
-                                (int) Math.ceil((double) totalRecords / getUsersRequest.getPageSize())
-                        )), HttpStatus.OK);
-    }
+//    @GetMapping
+//    @RequestMapping(value = "",method = RequestMethod.GET)
+//    public ResponseEntity<?> getAllUsers(@Valid @ModelAttribute GetUsersRequest getUsersRequest) {
+//        int totalRecords = this.userService.getUsersByRoleAndSearchKeyword(getUsersRequest).size();
+//        getUsersRequest.setPageable(PageRequest.of(getUsersRequest.getPageNumber()-1, getUsersRequest.getPageSize()));
+//        List<User> listUsers = this.userService.paginateUsers(getUsersRequest);
+//        return new ResponseEntity<>(
+//                Map.of("users", listUsers,
+//                        "pagination", new Pagination(
+//                                totalRecords,
+//                                getUsersRequest.getPageSize(),
+//                                getUsersRequest.getPageNumber(),
+//                                (int) Math.ceil((double) totalRecords / getUsersRequest.getPageSize())
+//                        )), HttpStatus.OK);
+//    }
 
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
@@ -58,7 +58,7 @@ public class UserController {
     }
 
     @GetMapping
-    @RequestMapping(value = "role",method = RequestMethod.GET)
+    @RequestMapping(value = "",method = RequestMethod.GET)
     public ResponseEntity<?> getUsersByRoleOrAll(@Valid @RequestParam(required = false) String role){
         return ResponseEntity.ok(this.userService.getUsersByRoleOrAll(role));
     }
