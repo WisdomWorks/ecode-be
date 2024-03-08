@@ -3,6 +3,7 @@ package com.example.codeE.service.course;
 import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.repository.CourseStudentRepository;
@@ -27,13 +28,22 @@ public class CourseImpl implements CourseService {
     private CourseRepository courseRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CourseTeacherRepository courseTeacherRepository;
     @Override
     public CourseResponse createOne(CreateCourseRequest courseRequest) {
         try {
             String courseId = UUID.randomUUID().toString();
             var course = new Course(courseRequest, courseId);
             var courseSaved = this.courseRepository.save(course);
-            return new CourseResponse(courseSaved);
+
+            var teacherInCourse = new CourseTeacher(courseRequest.getTeacherId(), courseSaved.getCourseId(), true);
+            var teacher = this.courseTeacherRepository.save(teacherInCourse);
+            return new
+                    CourseResponse(
+                            courseSaved,
+                            this.userRepository.findById(teacher.getTeacherId()).orElseThrow(() -> new NoSuchElementException("No Teacher found with ID:" + teacher.getTeacherId()))
+            );
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception for debugging purposes
             return null;
