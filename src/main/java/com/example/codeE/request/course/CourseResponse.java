@@ -1,26 +1,19 @@
-package com.example.codeE.model.course;
+package com.example.codeE.request.course;
 
 import com.example.codeE.constant.Constant;
-import com.example.codeE.mapper.course.CourseFromExcel;
-import com.example.codeE.model.topic.Topic;
-import com.example.codeE.request.course.CreateCourseRequest;
-import com.example.codeE.security.BCryptPassword;
+import com.example.codeE.model.course.Course;
+import com.example.codeE.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,9 +21,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="course")
-public class Course {
-    @Id
+public class CourseResponse {
     @NotBlank(message = "Course id is required")
     @Column(name = "course_id")
     private String courseId;
@@ -43,9 +34,6 @@ public class Course {
     @Column(name = "semester")
     @Size(max = 4, message = "Semester cannot exceed 4 characters")
     private String semester;
-
-    @Column(name = "enroll_key")
-    private String enrollKey;
 
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
@@ -61,33 +49,26 @@ public class Course {
     private LocalDateTime updatedDate;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Topic> topics;
+    private List<User> students;
 
-    @PrePersist
-    protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdDate = now;
-        this.updatedDate = now;
+    @JsonIgnore
+    private User teacher;
+    public CourseResponse(Course course){
+        this.courseId = course.getCourseId();
+        this.courseName = course.getCourseName();
+        this.semester = course.getSemester();
+        this.description = course.getDescription();
+        this.updatedDate = course.getUpdatedDate();
+        this.createdDate = course.getCreatedDate();
     }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedDate = LocalDateTime.now();
-    }
-
-    public Course(CourseFromExcel excelCourse){
-        this.courseId = excelCourse.getCourseId();
-        this.courseName = excelCourse.getCourseName();
-        this.semester = excelCourse.getSemester();
-        this.enrollKey = BCryptPassword.generateRandomPassword();
-        this.description = excelCourse.getDescription();
-    }
-    public Course(CreateCourseRequest courseRequest, String courseId){
-        this.courseId = courseId;
-        this.courseName = courseRequest.getCourseName();
-        this.semester = courseRequest.getSemester();
-        this.enrollKey = BCryptPassword.generateRandomPassword();
-        this.description = courseRequest.getDescription();
+    public CourseResponse(Course course, List<User> students, User teacher){
+        this.courseId = course.getCourseId();
+        this.courseName = course.getCourseName();
+        this.semester = course.getSemester();
+        this.description = course.getDescription();
+        this.updatedDate = course.getUpdatedDate();
+        this.createdDate = course.getCreatedDate();
+        this.students = students;
+        this.teacher = teacher;
     }
 }

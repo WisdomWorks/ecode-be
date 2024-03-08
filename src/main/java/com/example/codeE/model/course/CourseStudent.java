@@ -1,6 +1,8 @@
 package com.example.codeE.model.course;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.request.course.AddStudentToCourseRequest;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
@@ -40,6 +42,7 @@ public class CourseStudent {
 //    private Course course;
 
     @Column(name = "join_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime joinDate;
 
     public CourseStudent(AddStudentToCourseRequest request) {
