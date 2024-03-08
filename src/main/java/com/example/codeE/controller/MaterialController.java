@@ -34,12 +34,6 @@ public class MaterialController {
         return ResponseEntity.ok(materialService.getAllByTopicId(topicId));
     }
 
-    @GetMapping
-    @RequestMapping(value = "", method = RequestMethod.GET)
-    public ResponseEntity<?> getAll(){
-        return ResponseEntity.ok(materialService.getAll());
-    }
-
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> createOne(@Valid @RequestBody CreateMaterialRequest request) {
@@ -62,7 +56,7 @@ public class MaterialController {
 
     @GetMapping
     @RequestMapping(value="/view", method = RequestMethod.GET)
-    public ResponseEntity<?> getPublicGroups(@RequestParam String materialId){
+    public ResponseEntity<?> getPublicMaterials(@RequestParam String materialId){
         return ResponseEntity.ok(this.materialService.getAllGroupsByMaterialId(materialId));
     }
 
