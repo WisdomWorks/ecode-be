@@ -69,4 +69,13 @@ public class CourseResponse {
         this.students = students;
         this.teacher = teacher;
     }
+    public CourseResponse(Course course, User teacher){
+        this.courseId = course.getCourseId();
+        this.courseName = course.getCourseName();
+        this.semester = course.getSemester();
+        this.description = course.getDescription();
+        this.updatedDate = course.getUpdatedDate();
+        this.createdDate = course.getCreatedDate();
+        this.teacher = teacher;
+    }
 }

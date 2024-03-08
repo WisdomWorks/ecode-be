@@ -42,4 +42,10 @@ public class CourseTeacher {
     @ManyToOne(optional=false)
     @JoinColumn(name = "teacher_id", insertable=false, updatable=false)
     private User teacher;
+
+    public CourseTeacher(String teacherId, String courseId, Boolean isMain){
+        this.courseId = courseId;
+        this.teacherId = teacherId;
+        this.isMain = isMain;
+    }
 }
