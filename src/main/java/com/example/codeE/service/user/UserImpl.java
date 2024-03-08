@@ -36,7 +36,9 @@ public class UserImpl implements UserService {
 
     @Override
     public List<User> getUsersByRoleOrAll(String role){
-        if (!VALID_ROLES.contains(role)) {
+        if (role == null || role.equals("all")) {
+            return this.userRepository.findAll();
+        } else if (!VALID_ROLES.contains(role)) {
             throw new NoSuchElementException("Role not found");
         }
         return this.userRepository.findUsersByRole(role);
