@@ -33,7 +33,7 @@ public class Material {
 
     @Column(name = "material_type", nullable = false)
     @NotBlank(message = "Material type is required")
-    @Pattern(regexp = "^(file|folder)$", message = "Invalid material type. Allowed types are file and folder.")
+    @Pattern(regexp = "^(file|text)$", message = "Invalid material type. Allowed types are file and folder.")
     private String materialType;
 
     @Column(name = "topic_id", length = 36, nullable = false)
@@ -59,7 +59,7 @@ public class Material {
         this.materialId = materialId;
         this.materialType = request.getMaterialType();
         this.topicId = request.getTopicId();
-        this.storageUrl = request.getStorageUrl();
+        this.storageUrl = request.getUrl();
         this.description = request.getDescription();
     }
 

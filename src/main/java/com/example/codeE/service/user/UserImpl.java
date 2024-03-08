@@ -10,6 +10,9 @@ import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.security.BCryptPassword;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -110,8 +113,9 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public boolean saveUserToDatabase(MultipartFile file) {
-        String passwordHash = BCryptPassword.generateRandomPassword();
+    public ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file) {
+            String passwordHash = BCryptPassword.generateRandomPassword();
+        Map<String, String> response = new HashMap<>();
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
                 List<User> users = new ArrayList<>();
@@ -120,20 +124,25 @@ public class UserImpl implements UserService, UserDetailsService {
                     excelUser.setRole(excelUser.getRole().toLowerCase());
                     users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
                 }
-                for(User user : users){
-                    System.out.println(user.toString());
-                }
-                this.userRepository.saveAll(users);
-                return true;
+                userRepository.saveAll(users);
+                response.put("message", "Users saved successfully");
+                return new ResponseEntity<>(response, HttpStatus.OK);
             } catch (IOException e) {
                 e.printStackTrace();
-                return false;
+                response.put("message", e.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            } catch (DataIntegrityViolationException ex) {
+                ex.printStackTrace();
+                response.put("message", ex.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                return false;
+                response.put("message", ex.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        return false;
+        response.put("message", "Invalid file format. Please upload a valid excel file");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Override

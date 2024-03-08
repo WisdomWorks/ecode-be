@@ -68,8 +68,8 @@ public class MaterialImpl implements MaterialService{
         if(request.getMaterialType() != null){
             material.setMaterialType(request.getMaterialType());
         }
-        if (request.getStorageUrl() != null) {
-            material.setStorageUrl(request.getStorageUrl());
+        if (request.getUrl() != null) {
+            material.setStorageUrl(request.getUrl());
         }
         if (request.getDescription() != null) {
             material.setDescription(request.getDescription());
