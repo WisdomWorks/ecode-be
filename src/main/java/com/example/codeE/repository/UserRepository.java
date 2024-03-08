@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             " FROM user u WHERE (?1 IS NULL OR u.role = ?1) " +
             "AND (?2 IS NULL OR u.username = ?2)";
 
-    String getListOfUsersByRoleSql = "SELECT * FROM user WHERE CASE WHEN ?1 IS NULL THEN TRUE ELSE role = ?1 END";
+    String getListOfUsersByRoleSql = "SELECT * FROM user WHERE CASE WHEN ?1 = '' THEN TRUE ELSE role = ?1 END";
     @Query(value = getUsersByRoleAndSearchKeywordSql)
     List<User> findUsersByRoleAndSearchKeywordWithPagination(String role, String searchKeyword, Pageable pageable);
 
