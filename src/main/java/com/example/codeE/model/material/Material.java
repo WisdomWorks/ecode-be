@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -31,8 +32,7 @@ public class Material {
 
     @Column(name = "material_type", nullable = false)
     @NotBlank(message = "Material type is required")
-    @Size(max = 6, message = "Max material type is 6")
-
+    @Pattern(regexp = "^(file|folder)$", message = "Invalid material type. Allowed types are file and folder.")
     private String materialType;
 
     @Column(name = "topic_id", length = 36, nullable = false)
@@ -67,5 +67,10 @@ public class Material {
         LocalDateTime now = LocalDateTime.now();
         this.createdDate = now;
         this.updatedDate = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedDate = LocalDateTime.now();
     }
 }

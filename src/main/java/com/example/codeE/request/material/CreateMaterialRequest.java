@@ -1,6 +1,7 @@
 package com.example.codeE.request.material;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,10 +12,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ExistingId(targetClasses = {CreateMaterialRequest.class})
 public class CreateMaterialRequest {
 
     @NotBlank(message = "Material type is required")
-    @Size(max = 6, message = "Max material type is 6")
+    @Pattern(regexp = "^(file|folder)$", message = "Invalid material type. Allowed types are file and folder.")
     private String materialType;
 
     @NotBlank(message = "Topic ID is required")

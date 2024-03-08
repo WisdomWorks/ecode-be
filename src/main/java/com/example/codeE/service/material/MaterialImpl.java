@@ -1,11 +1,14 @@
 package com.example.codeE.service.material;
 
+import com.example.codeE.model.group.Group;
 import com.example.codeE.model.material.Material;
+import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.MaterialRepository;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -17,6 +20,9 @@ public class MaterialImpl implements MaterialService{
     @Autowired
     private MaterialRepository materialRepository;
 
+    @Autowired
+    private GroupRepository groupRepository;
+
     @Override
     public Material createOne(CreateMaterialRequest request) {
         try {
@@ -25,13 +31,22 @@ public class MaterialImpl implements MaterialService{
             return materialRepository.save(material);
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception for debugging purposes
-            return null;
+            throw new IllegalArgumentException("Invalid request. Please check your request and try again. \n Error: " + e.getMessage());
         }
     }
 
     @Override
     public Material getById(String id) {
-        return materialRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No material found with ID:" + id));
+        return materialRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No material found with ID: " + id));
+    }
+
+    @Override
+    public List<Material> getAllByTopicId(String topicId) {
+        List<Material> material = materialRepository.findByTopicId(topicId);
+        if(material == null){
+            throw new NoSuchElementException("No material found with topicID: " + topicId);
+        }
+        return material;
     }
 
     @Override
@@ -50,17 +65,54 @@ public class MaterialImpl implements MaterialService{
 
     @Override
     public Material updateById(UpdateMaterialRequest request) {
-        Material material = materialRepository.findById(request.getMaterialId()).get();
-
+        Material material = materialRepository.findByMaterialIdAndTopicId(request.getMaterialId(), request.getTopicId());
         if(request.getMaterialType() != null){
             material.setMaterialType(request.getMaterialType());
-        } else if (request.getTopicId() != null) {
-            material.setTopicId(request.getTopicId());
-        } else if (request.getStorageUrl() != null) {
+        }
+        if (request.getStorageUrl() != null) {
             material.setStorageUrl(request.getStorageUrl());
-        } else if (request.getDescription() != null) {
+        }
+        if (request.getDescription() != null) {
             material.setDescription(request.getDescription());
         }
+
         return materialRepository.save(material);
+    }
+
+    @Override
+    public List<Group> getAllGroupsByMaterialId(String materialId) {
+        List<Group> groups = materialRepository.getAllGroupsByMaterialId(materialId);
+        if(groups.isEmpty()){
+            throw new NoSuchElementException("No group found with materialID: " + materialId);
+        }
+        return groups;
+    }
+
+    @Override
+    public boolean removeViewPermission(String materialId, List<String> groupIds) {
+        if (!this.materialRepository.existsById(materialId)) {
+            throw new NoSuchElementException("No material found with ID: " + materialId);
+        }
+        for (String groupId : groupIds) {
+            if (!this.groupRepository.existsById(groupId)) {
+                throw new NoSuchElementException("No group found with ID: " + groupId);
+            }
+            this.materialRepository.removeViewPermission(materialId, groupId);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean addViewPermission(String materialId, List<String> groupIds) {
+        if (!this.materialRepository.existsById(materialId)) {
+            throw new NoSuchElementException("No material found with ID: " + materialId);
+        }
+        for (String groupId : groupIds) {
+            if (!this.groupRepository.existsById(groupId)) {
+                throw new NoSuchElementException("No group found with ID: " + groupId);
+            }
+            this.materialRepository.addViewPermission(materialId, groupId);
+        }
+        return false;
     }
 }
