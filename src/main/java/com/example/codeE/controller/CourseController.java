@@ -57,7 +57,7 @@ public class CourseController {
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> createOne(@Valid @RequestBody CreateCourseRequest course) {
-        Course result = courseService.createOne(course);
+        var result = courseService.createOne(course);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 

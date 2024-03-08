@@ -5,6 +5,9 @@ import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
+import com.example.codeE.repository.CourseStudentRepository;
+import com.example.codeE.repository.CourseTeacherRepository;
+import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.CourseResponse;
 import com.example.codeE.request.course.CreateCourseRequest;
 import com.example.codeE.request.course.UpdateCourseRequest;
@@ -22,7 +25,8 @@ import java.util.UUID;
 public class CourseImpl implements CourseService {
     @Autowired
     private CourseRepository courseRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Override
     public CourseResponse createOne(CreateCourseRequest courseRequest) {
         try {
@@ -39,8 +43,10 @@ public class CourseImpl implements CourseService {
     @Override
     public CourseResponse getById(String courseId) {
         var course = courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID:" + courseId));
-        var studentInCourse = new ArrayList<User>();
-        var teacher = new User();
+        List<User> studentInCourse = this.userRepository.getUserInCourse(courseId);
+        System.out.println(studentInCourse);
+        var teacher = this.userRepository.getTeacherInCourse(courseId);
+        System.out.println(teacher);
         return new CourseResponse(course, studentInCourse, teacher);
     }
 

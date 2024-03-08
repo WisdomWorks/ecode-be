@@ -48,10 +48,8 @@ public class CourseResponse {
     @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedDate;
 
-    @JsonIgnore
     private List<User> students;
 
-    @JsonIgnore
     private User teacher;
     public CourseResponse(Course course){
         this.courseId = course.getCourseId();

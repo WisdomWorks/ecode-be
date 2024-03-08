@@ -63,7 +63,11 @@ public class Course {
     @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Topic> topics;
-
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<CourseStudent> courseStudents;
+    @JsonIgnore
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<CourseTeacher> courseTeachers;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
