@@ -1,10 +1,13 @@
 package com.example.codeE.repository;
 
 import com.example.codeE.model.course.CourseStudent;
+import com.example.codeE.model.user.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 
 public interface CourseStudentRepository extends JpaRepository<CourseStudent, String> {
@@ -19,4 +22,7 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudent, St
 
     @Query(value = checkExistingStudentIdAndCourseIdSql, nativeQuery = true)
     Long existsByStudentIdAndCourseId(String studentId, String courseId);
+
+
+    //new u.user_id, u.username, u.name, u.email, u.password, u.role, u.created_date, u.updated_date
 }

@@ -3,7 +3,12 @@ package com.example.codeE.service.course;
 import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
+import com.example.codeE.repository.CourseStudentRepository;
+import com.example.codeE.repository.CourseTeacherRepository;
+import com.example.codeE.repository.UserRepository;
+import com.example.codeE.request.course.CourseResponse;
 import com.example.codeE.request.course.CreateCourseRequest;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +25,15 @@ import java.util.UUID;
 public class CourseImpl implements CourseService {
     @Autowired
     private CourseRepository courseRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Override
-    public Course createOne(CreateCourseRequest courseRequest) {
+    public CourseResponse createOne(CreateCourseRequest courseRequest) {
         try {
             String courseId = UUID.randomUUID().toString();
             var course = new Course(courseRequest, courseId);
-            return this.courseRepository.save(course);
+            var courseSaved = this.courseRepository.save(course);
+            return new CourseResponse(courseSaved);
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception for debugging purposes
             return null;
@@ -34,13 +41,23 @@ public class CourseImpl implements CourseService {
     }
 
     @Override
-    public Course getById(String courseId) {
-        return courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID:" + courseId));
+    public CourseResponse getById(String courseId) {
+        var course = courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID:" + courseId));
+        List<User> studentInCourse = this.userRepository.getUserInCourse(courseId);
+        System.out.println(studentInCourse);
+        var teacher = this.userRepository.getTeacherInCourse(courseId);
+        System.out.println(teacher);
+        return new CourseResponse(course, studentInCourse, teacher);
     }
 
     @Override
-    public List<Course> getAll() {
-        return this.courseRepository.findAll();
+    public List<CourseResponse> getAll() {
+        var result = new ArrayList<CourseResponse>();
+        var data = this.courseRepository.findAll();
+        for (Course i: data) {
+            result.add(new CourseResponse(i));
+        }
+        return result;
     }
 
     @Override

@@ -43,6 +43,8 @@ public class CourseController {
     @GetMapping
     @RequestMapping(value = "{courseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getById(@PathVariable String courseId){
+//        var course =
+//        var teacherInCourse =
         return ResponseEntity.ok(courseService.getById(courseId));
     }
 
@@ -55,7 +57,7 @@ public class CourseController {
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> createOne(@Valid @RequestBody CreateCourseRequest course) {
-        Course result = courseService.createOne(course);
+        var result = courseService.createOne(course);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 

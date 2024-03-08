@@ -4,6 +4,7 @@ import com.example.codeE.constant.Constant;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.course.CreateCourseRequest;
+import com.example.codeE.security.BCryptPassword;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
@@ -43,6 +44,9 @@ public class Course {
     @Size(max = 4, message = "Semester cannot exceed 4 characters")
     private String semester;
 
+    @Column(name = "enroll_key")
+    private String enrollKey;
+
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
@@ -59,7 +63,11 @@ public class Course {
     @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Topic> topics;
-
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<CourseStudent> courseStudents;
+    @JsonIgnore
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<CourseTeacher> courseTeachers;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -76,12 +84,14 @@ public class Course {
         this.courseId = excelCourse.getCourseId();
         this.courseName = excelCourse.getCourseName();
         this.semester = excelCourse.getSemester();
+        this.enrollKey = BCryptPassword.generateRandomPassword();
         this.description = excelCourse.getDescription();
     }
     public Course(CreateCourseRequest courseRequest, String courseId){
         this.courseId = courseId;
         this.courseName = courseRequest.getCourseName();
         this.semester = courseRequest.getSemester();
+        this.enrollKey = BCryptPassword.generateRandomPassword();
         this.description = courseRequest.getDescription();
     }
 }
