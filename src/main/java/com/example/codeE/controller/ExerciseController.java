@@ -92,9 +92,15 @@ public class ExerciseController {
     }
 
     @GetMapping
-    @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
+    @RequestMapping(value = "exercise", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseById(@RequestParam String exerciseId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+        Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
+
+        switch (exercise.getType()){
+            case "quiz":
+                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
     }
 
     @PostMapping
