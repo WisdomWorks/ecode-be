@@ -1,7 +1,12 @@
 package com.example.codeE.model.group;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.example.codeE.model.course.Course;
+import com.example.codeE.model.course.CourseTeacher;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import com.example.codeE.constant.Constant;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
@@ -22,12 +27,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity(name = "group")
 @Table(name = "`group`")
+
 public class Group {
     @Id
     @NotBlank(message = "Group id is required")
     @Column(name = "group_id")
     private String groupId;
-    
+
     @NotBlank(message = "Course id is required")
     @Column(name = "course_id")
     private String courseId;
@@ -43,6 +49,10 @@ public class Group {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updateDate;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    private List<GroupStudent> groupStudents;
 
     @PrePersist
     protected void onCreate() {
