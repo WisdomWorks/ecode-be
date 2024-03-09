@@ -1,6 +1,7 @@
 package com.example.codeE.service.course;
 
 import com.example.codeE.helper.ExcelHelper;
+import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseTeacher;
@@ -12,14 +13,13 @@ import com.example.codeE.request.course.CourseResponse;
 import com.example.codeE.request.course.CreateCourseRequest;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CourseImpl implements CourseService {
@@ -96,25 +96,29 @@ public class CourseImpl implements CourseService {
     }
 
     @Override
-    public boolean importByExcel(MultipartFile file) {
-        if (ExcelHelper.isValidExcelFile(file)) {
-            try {
-                List<Course> courses = new ArrayList<>();
-                List<CourseFromExcel> importedCourse = ExcelHelper.importFromExcel(file.getInputStream(), CourseFromExcel.class);
-                for (CourseFromExcel course : importedCourse) {
-                    courses.add(new Course(course));
+    public ResponseEntity<Map<String, String>> importByExcel(MultipartFile file) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            List<Course> courses = new ArrayList<>();
+            List<String> unsuccessfulCourses = new ArrayList<>();
+            List<CourseFromExcel> importedCourses = ExcelHelper.importFromExcel(file.getInputStream(), CourseFromExcel.class);
+            for (CourseFromExcel excelCourse : importedCourses) {
+                try {
+                    courses.add(new Course(excelCourse));
+                    courseRepository.save(courses.get(courses.size() - 1));
+                } catch (Exception ex) {
+                    unsuccessfulCourses.add(excelCourse.getCourseName());
+                    LoggerHelper.logError("Error saving course to database", ex);
                 }
-                this.courseRepository.saveAll(courses);
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return false;
             }
+            response.put("message", "Courses saved successfully");
+            response.put("unsuccessfulCourses", unsuccessfulCourses.toString());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IOException e) {
+            LoggerHelper.logError("Error processing the file", e);
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return false;
     }
 
     @Override

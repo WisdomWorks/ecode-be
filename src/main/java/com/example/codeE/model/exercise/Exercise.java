@@ -75,4 +75,20 @@ public class Exercise {
         this.type = type;
         this.publicGroupIds = publicGroupIds;
     }
+
+    @Override
+    public String toString() {
+        return "Exercise{" +
+                "exerciseId='" + exerciseId + '\'' +
+                ", topicId='" + topicId + '\'' +
+                ", exerciseName='" + exerciseName + '\'' +
+                ", key='" + key + '\'' +
+                ", createdDate='" + createdDate + '\'' +
+                ", updatedDate='" + updatedDate + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", type='" + type + '\'' +
+                ", publicGroupIds=" + publicGroupIds +
+                '}';
+    }
 }

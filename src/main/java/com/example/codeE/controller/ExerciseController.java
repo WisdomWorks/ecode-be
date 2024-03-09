@@ -7,6 +7,7 @@ import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.ExerciseService;
 import com.example.codeE.service.exercise.QuizExerciseService;
@@ -20,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -92,9 +94,15 @@ public class ExerciseController {
     }
 
     @GetMapping
-    @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
+    @RequestMapping(value = "exercise", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseById(@RequestParam String exerciseId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+        Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
+
+        switch (exercise.getType()){
+            case "quiz":
+                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
     }
 
     @PostMapping
@@ -114,6 +122,9 @@ public class ExerciseController {
             case "code":
                 this.codeExerciseService.deleteCodeExerciseById(request.getExerciseId());
                 break;
+            case "quiz":
+                this.quizExerciseService.deleteQuizExerciseById(request.getExerciseId());
+                break;
         }
         this.exerciseService.deleteExerciseById(request.getExerciseId());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true));
@@ -123,5 +134,12 @@ public class ExerciseController {
     @RequestMapping(value = "code", method = RequestMethod.PUT)
     public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExercise exercise) {
         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(exercise));
+    }
+
+    @PatchMapping
+    @RequestMapping(value = "quiz", method = RequestMethod.PATCH)
+    public ResponseEntity<?> updateQuizExercise(@RequestParam String exerciseId, @RequestBody UpdateQuizExerciseRequest request){
+        QuizExercise updatedExercise = this.quizExerciseService.updateQuizExercise(exerciseId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
 }
