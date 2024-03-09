@@ -21,6 +21,7 @@ public class AuthController
     private AuthenService authenService;
 
     @PostMapping
+    @CrossOrigin
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> signIn(@RequestBody LoginRequest signInRequest, HttpServletResponse response){
         var result = authenService.signIn(signInRequest, response);
@@ -30,6 +31,7 @@ public class AuthController
         else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
     }
     @PostMapping
+    @CrossOrigin
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public  ResponseEntity<?> Logout(HttpServletRequest request, HttpServletResponse response){
         SecurityContextHolder.clearContext();
@@ -37,6 +39,7 @@ public class AuthController
         return ResponseEntity.status(HttpStatus.OK).body("Logout Successfully");
     }
     @GetMapping
+    @CrossOrigin
     @RequestMapping(value = "/check-session", method = RequestMethod.GET)
     public ResponseEntity<?> checkSession(HttpServletRequest request, HttpServletResponse response){
         String token = "";
