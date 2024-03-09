@@ -9,4 +9,5 @@ public interface QuizExerciseService {
     public QuizExercise getQuizExerciseById(String exerciseId);
     public QuizQuestion getQuizQuestionByQuestionId(String questionId);
     public QuizExercise updateQuizExercise(String exerciseId, UpdateQuizExerciseRequest updateExercise);
+    public void deleteQuizExerciseById(String exerciseId);
 }

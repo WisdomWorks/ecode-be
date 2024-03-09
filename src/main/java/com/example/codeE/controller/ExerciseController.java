@@ -122,6 +122,9 @@ public class ExerciseController {
             case "code":
                 this.codeExerciseService.deleteCodeExerciseById(request.getExerciseId());
                 break;
+            case "quiz":
+                this.quizExerciseService.deleteQuizExerciseById(request.getExerciseId());
+                break;
         }
         this.exerciseService.deleteExerciseById(request.getExerciseId());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true));

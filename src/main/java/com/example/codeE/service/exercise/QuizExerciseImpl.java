@@ -85,4 +85,9 @@ public class QuizExerciseImpl implements QuizExerciseService{
         }
         return this.quizExerciseRepository.save(quizExercise);
     }
+
+    @Override
+    public void deleteQuizExerciseById(String exerciseId) {
+        this.quizExerciseRepository.deleteById(exerciseId);
+    }
 }
