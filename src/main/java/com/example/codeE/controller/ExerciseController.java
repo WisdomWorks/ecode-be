@@ -7,6 +7,7 @@ import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.ExerciseService;
 import com.example.codeE.service.exercise.QuizExerciseService;
@@ -20,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -129,5 +131,12 @@ public class ExerciseController {
     @RequestMapping(value = "code", method = RequestMethod.PUT)
     public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExercise exercise) {
         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(exercise));
+    }
+
+    @PatchMapping
+    @RequestMapping(value = "quiz", method = RequestMethod.PATCH)
+    public ResponseEntity<?> updateQuizExercise(@RequestParam String exerciseId, @RequestBody UpdateQuizExerciseRequest request){
+        QuizExercise updatedExercise = this.quizExerciseService.updateQuizExercise(exerciseId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
 }
