@@ -1,5 +1,7 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.model.user.User;
+import com.example.codeE.request.ApiResponse;
 import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.service.user.UserService;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -48,26 +49,68 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest user){
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.createOne(user));
+    public ApiResponse<User> createUser(@RequestBody CreateUserRequest user){
+        var response = new ApiResponse<User>();
+        try{
+            var userCreated = this.userService.createOne(user);
+            response.setMessage("Create User Successful");
+            response.setStatus(200);
+            response.setValue(userCreated);
+        }catch (Exception e){
+            response.setMessage("Can not create user");
+            response.setStatus(500);
+            response.setError(e.getMessage());
+        }
+        return response;
     }
 
     @GetMapping
     @RequestMapping(value = "",method = RequestMethod.GET)
-    public ResponseEntity<?> getUsersByRoleOrAll(@Valid @RequestParam(required = false) String role){
-        return ResponseEntity.ok(this.userService.getUsersByRoleOrAll(role));
+    public ApiResponse<User> getUsersByRoleOrAll(@Valid @RequestParam(required = false) String role){
+        var response = new ApiResponse<User>();
+        var userList = this.userService.getUsersByRoleOrAll(role);
+        response.setValues(userList);
+        if (!userList.isEmpty()){
+            response.setMessage("No content");
+            response.setStatus(204);
+        }else {
+            response.setMessage("Get user successful");
+            response.setStatus(200);
+        }
+        return response;
     }
 
     @PatchMapping
     @RequestMapping(value = "", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateById(@Valid @RequestBody UpdateUserRequest updatedUser) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.updateById(updatedUser.getUserId(), updatedUser));
+    public ApiResponse<User> updateById(@Valid @RequestBody UpdateUserRequest updatedUser) {
+        var response = new ApiResponse<User>();
+        try{
+            var user = this.userService.updateById(updatedUser.getUserId(), updatedUser);
+            response.setMessage("Update User successful");
+            response.setValue(this.userService.updateById(updatedUser.getUserId(), updatedUser));
+            response.setStatus(200);
+        }catch (Exception e){
+            response.setStatus(500);
+            response.setMessage("Can not update user");
+            response.setError(e.getMessage());
+        }
+        return response;
     }
 
     @GetMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.GET)
-    public ResponseEntity<?> getById(@PathVariable String userId) {
-        return ResponseEntity.ok(this.userService.getById(userId));
+    public ApiResponse<User> getById(@PathVariable String userId) {
+        var response = new ApiResponse<User>();
+        try {
+            response.setStatus(200);
+            response.setMessage("Get User successful");
+            response.setValue(this.userService.getById(userId));
+        }catch (Exception e){
+            response.setStatus(500);
+            response.setError(e.getMessage());
+            response.setMessage("Can not get user by this id: "+ userId);
+        }
+        return response;
     }
 
     @PostMapping
