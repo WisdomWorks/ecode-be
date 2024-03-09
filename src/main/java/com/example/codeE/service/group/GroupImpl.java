@@ -89,7 +89,7 @@ public class GroupImpl implements GroupService{
     @Override
     public List<GetGroupStudentEntity> getUsersInGroup(String groupId) {
         return this.groupStudentRepository.getStudentInGroup(groupId);
-
+    }
     @Override
     public List<User> getStudentNotInGroup(String groupId) {
         return null;

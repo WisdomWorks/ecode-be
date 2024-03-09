@@ -3,6 +3,7 @@ package com.example.codeE.model.group;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.codeE.model.course.Course;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import com.example.codeE.constant.Constant;
@@ -52,6 +53,10 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     private List<GroupStudent> groupStudents;
 
+    @JsonIgnore
+    @ManyToOne(optional=false)
+    @JoinColumn(name = "course_id", insertable=false, updatable=false)
+    private Course course;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();

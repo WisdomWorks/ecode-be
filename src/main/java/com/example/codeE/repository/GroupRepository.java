@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, String>{
-    @Query(value = "select new com.example.codeE.model.group.Group (g.groupId, g.courseId, g.groupName, g.createDate, g.updateDate) from group g where g.courseId = ?1")
+    @Query(value = "SELECT g.group_id, g.course_id, g.group_name, g.created_date, g.updated_date FROM codee.group g WHERE g.course_id = ?1 ", nativeQuery = true)
     List<Group> getAllCourseByCourseId(String courseId);
 }
