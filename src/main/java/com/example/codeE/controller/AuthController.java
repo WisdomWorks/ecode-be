@@ -15,37 +15,35 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthController
-{
+public class AuthController {
     @Autowired
     private AuthenService authenService;
 
     @PostMapping
-    @CrossOrigin
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<?> signIn(@RequestBody LoginRequest signInRequest, HttpServletResponse response){
+    public ResponseEntity<?> signIn(@RequestBody LoginRequest signInRequest, HttpServletResponse response) {
         var result = authenService.signIn(signInRequest, response);
-        if(result.getStatusCode() == 200){
+        if (result.getStatusCode() == 200) {
             return ResponseEntity.ok(result);
-        }
-        else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        } else
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
     }
+
     @PostMapping
-    @CrossOrigin
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    public  ResponseEntity<?> Logout(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<?> Logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextHolder.clearContext();
         clearAuthenticationTokens(request, response);
         return ResponseEntity.status(HttpStatus.OK).body("Logout Successfully");
     }
+
     @GetMapping
-    @CrossOrigin
     @RequestMapping(value = "/check-session", method = RequestMethod.GET)
-    public ResponseEntity<?> checkSession(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<?> checkSession(HttpServletRequest request, HttpServletResponse response) {
         String token = "";
         int age = 0;
         Cookie[] cookies = request.getCookies();
-        if(cookies != null){
+        if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("accessToken".equals(cookie.getName())) {
                     token = cookie.getValue();
@@ -53,7 +51,7 @@ public class AuthController
                 }
             }
         }
-        return ResponseEntity.ok(Map.of("token" , token, "age", age));
+        return ResponseEntity.ok(Map.of("token", token, "age", age));
     }
 
     private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {
