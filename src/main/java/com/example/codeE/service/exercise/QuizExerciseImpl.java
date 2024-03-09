@@ -6,6 +6,7 @@ import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.repository.QuizChoiceRepository;
 import com.example.codeE.repository.QuizExerciseRepository;
 import com.example.codeE.repository.QuizQuestionRepository;
+import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,5 +56,38 @@ public class QuizExerciseImpl implements QuizExerciseService{
     @Override
     public QuizQuestion getQuizQuestionByQuestionId(String questionId) {
         return this.quizQuestionRepository.findById(questionId).get();
+    }
+
+    @Override
+    public QuizExercise updateQuizExercise(String exerciseId, UpdateQuizExerciseRequest updateExercise) {
+        QuizExercise quizExercise = this.quizExerciseRepository.findById(exerciseId).get();
+
+        if(updateExercise.getExerciseName() != null){
+            quizExercise.setExerciseName(updateExercise.getExerciseName());
+        }
+        if(updateExercise.getKey() != null){
+            quizExercise.setKey(updateExercise.getKey());
+        }
+        if(updateExercise.getStartTime() != null){
+            quizExercise.setStartTime(updateExercise.getStartTime());
+        }
+        if(updateExercise.getEndTime() != null){
+            quizExercise.setEndTime(updateExercise.getEndTime());
+        }
+        if(updateExercise.getTopicId() != null){
+            quizExercise.setTopicId(updateExercise.getTopicId());
+        }
+        if(updateExercise.getPublicGroupIds() != null){
+            quizExercise.setPublicGroupIds(updateExercise.getPublicGroupIds());
+        }
+        if(updateExercise.getQuestions() != null){
+            quizExercise.setQuestions(updateExercise.getQuestions());
+        }
+        return this.quizExerciseRepository.save(quizExercise);
+    }
+
+    @Override
+    public void deleteQuizExerciseById(String exerciseId) {
+        this.quizExerciseRepository.deleteById(exerciseId);
     }
 }
