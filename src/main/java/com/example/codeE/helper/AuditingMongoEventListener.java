@@ -1,6 +1,7 @@
 package com.example.codeE.helper;
 
 import com.example.codeE.model.exercise.Exercise;
+import com.example.codeE.model.exercise.Submission;
 import com.example.codeE.util.DateTimeUtil;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
@@ -19,6 +20,12 @@ public class AuditingMongoEventListener extends AbstractMongoEventListener<Objec
             Exercise exercise = (Exercise) source;
             exercise.setCreatedDate(DateTimeUtil.format(LocalDateTime.now()));
             exercise.setUpdatedDate(DateTimeUtil.format(LocalDateTime.now()));
+        }
+
+        if (source instanceof Submission) {
+            Submission submission = (Submission) source;
+            submission.setDateSubmit(DateTimeUtil.format(LocalDateTime.now()));
+            submission.setDateGrade(DateTimeUtil.format(LocalDateTime.now()));
         }
     }
 }
