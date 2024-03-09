@@ -61,12 +61,9 @@ public class CourseController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
-        boolean importSuccess = this.courseService.importByExcel(file);
-        if (importSuccess) {
-            return ResponseEntity.ok(Map.of("message", "Course data uploaded and saved to database successfully"));
-        }
+        ResponseEntity<Map<String, String>> result = this.courseService.importByExcel(file);
 
-        return ResponseEntity.badRequest().body(Map.of("error", "Invalid file format"));
+        return result;
     }
 
     @PatchMapping

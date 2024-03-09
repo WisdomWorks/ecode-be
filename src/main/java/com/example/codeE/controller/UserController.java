@@ -73,6 +73,9 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "/import-users",method = RequestMethod.POST)
     public ResponseEntity<?> importUsersByExcel(@Valid @RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+        }
         ResponseEntity<Map<String, String>> result = this.userService.saveUserToDatabase(file);
         return result;
     }
