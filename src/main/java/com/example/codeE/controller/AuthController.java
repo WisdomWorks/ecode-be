@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController
@@ -34,11 +36,24 @@ public class AuthController
         clearAuthenticationTokens(request, response);
         return ResponseEntity.status(HttpStatus.OK).body("Logout Successfully");
     }
-    private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {
-        // Clear any tokens or cookies used for authentication
-        // For example, remove JWT token from the client side
+    @GetMapping
+    @RequestMapping(value = "/check-session", method = RequestMethod.GET)
+    public ResponseEntity<?> checkSession(HttpServletRequest request, HttpServletResponse response){
+        String token = "";
+        int age = 0;
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null){
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    age = cookie.getMaxAge();
+                }
+            }
+        }
+        return ResponseEntity.ok(Map.of("token" , token, "age", age));
+    }
 
-        // Assuming you are using JWT as a token in a cookie
+    private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
