@@ -51,4 +51,9 @@ public class QuizExerciseImpl implements QuizExerciseService{
     public QuizExercise getQuizExerciseById(String exerciseId) {
         return quizExerciseRepository.findById(exerciseId).get();
     }
+
+    @Override
+    public QuizQuestion getQuizQuestionByQuestionId(String questionId) {
+        return this.quizQuestionRepository.findById(questionId).get();
+    }
 }

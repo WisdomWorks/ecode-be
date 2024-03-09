@@ -3,12 +3,14 @@ package com.example.codeE.controller;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizExercise;
+import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.ExerciseService;
 import com.example.codeE.service.exercise.QuizExerciseService;
+import com.example.codeE.service.exercise.QuizSubmissionService;
 import com.example.codeE.service.exercise.common.TestcaseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,9 @@ public class ExerciseController {
 
     @Autowired
     private QuizExerciseService quizExerciseService;
+
+    @Autowired
+    private QuizSubmissionService quizSubmissionService;
 
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
@@ -90,6 +95,16 @@ public class ExerciseController {
     @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseById(@RequestParam String exerciseId){
         return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+    }
+
+    @PostMapping
+    @RequestMapping(value = "quiz/submit", method = RequestMethod.POST)
+    public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody QuizSubmission quizSubmission){
+        QuizExercise quizExercise = this.quizExerciseService.getQuizExerciseById(quizSubmission.getExerciseId());
+        float score = this.quizSubmissionService.gradeSubmission(quizSubmission, quizExercise);
+        quizSubmission.setScore(score);
+        QuizSubmission submission = this.quizSubmissionService.createSubmission(quizSubmission);
+        return ResponseEntity.status(HttpStatus.OK).body(submission);
     }
 
     @DeleteMapping
