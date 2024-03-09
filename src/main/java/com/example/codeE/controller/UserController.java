@@ -49,7 +49,7 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
-    public ApiResponse<User> createUser(@RequestBody CreateUserRequest user){
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest user){
         var response = new ApiResponse<User>();
         try{
             var userCreated = this.userService.createOne(user);
@@ -60,8 +60,9 @@ public class UserController {
             response.setMessage("Can not create user");
             response.setStatus(500);
             response.setError(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-        return response;
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
