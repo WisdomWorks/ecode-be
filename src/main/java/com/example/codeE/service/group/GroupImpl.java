@@ -1,10 +1,15 @@
 package com.example.codeE.service.group;
 
 import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import com.example.codeE.entity.GetGroupStudentEntity;
+import com.example.codeE.model.group.GroupStudent;
+import com.example.codeE.repository.GroupStudentRepository;
+import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.entity.GetGroupStudentEntity;
 import com.example.codeE.model.group.GroupStudent;
 import com.example.codeE.repository.GroupStudentRepository;
@@ -84,7 +89,6 @@ public class GroupImpl implements GroupService{
     @Override
     public List<GetGroupStudentEntity> getUsersInGroup(String groupId) {
         return this.groupStudentRepository.getStudentInGroup(groupId);
-    }
 
     @Override
     public List<User> getStudentNotInGroup(String groupId) {

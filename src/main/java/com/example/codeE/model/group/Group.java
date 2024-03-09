@@ -3,8 +3,6 @@ package com.example.codeE.model.group;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.codeE.model.course.Course;
-import com.example.codeE.model.course.CourseTeacher;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import com.example.codeE.constant.Constant;
