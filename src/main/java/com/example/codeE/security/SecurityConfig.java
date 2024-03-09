@@ -48,10 +48,9 @@ public class SecurityConfig {
                         // .requestMatchers("/users/**").hasAnyAuthority( "teacher","admin")
                         .requestMatchers("/users/**").permitAll()
                         .requestMatchers("/topics/**").hasAnyAuthority("student", "teacher")
-                        .requestMatchers("/exercises/**").hasAnyAuthority("")
+                        .requestMatchers("/exercises/**").hasAnyAuthority("student", "teacher")
                         .requestMatchers("/materials/**").hasAnyAuthority("student", "teacher")
-                        .requestMatchers("/courses/**").hasAnyAuthority("teacher", "admin",
-                                "student")
+                        .requestMatchers("/courses/**").hasAnyAuthority("teacher", "admin", "student")
                         .requestMatchers("/groups/**").hasAnyAuthority("teacher")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

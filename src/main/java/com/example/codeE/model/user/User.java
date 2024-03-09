@@ -4,6 +4,7 @@ import com.example.codeE.constant.Constant;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.model.course.CourseTeacher;
+import com.example.codeE.model.group.GroupStudent;
 import com.example.codeE.request.user.CreateUserRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -75,6 +76,9 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<CourseStudent> courseStudents;
+    @JsonIgnore
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<GroupStudent> groupStudents;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
