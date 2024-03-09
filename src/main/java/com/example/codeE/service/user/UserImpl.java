@@ -6,34 +6,52 @@ import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
-import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.helper.ExcelHelper;
+import com.example.codeE.security.BCryptPassword;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import static com.example.codeE.constant.Constant.VALID_ROLES;
 
 
 @Service
-public class UserImpl implements UserService {
+public class UserImpl implements UserService, UserDetailsService {
+    private static final Logger logger = LoggerFactory.getLogger(UserImpl.class);
+
     @Autowired
     private UserRepository userRepository;
 
     @Override
-    public User getById(String userId) {
-        Optional<User> userOptional = this.userRepository.findById(userId);
-        return userOptional.orElse(null);
+    public User getById(@NotBlank String userId) {;
+        return this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found with ID:" + userId));
     }
 
     @Override
     public List<User> getAll() {
         return this.userRepository.findAll();
+    }
+
+    @Override
+    public List<User> getUsersByRoleOrAll(String role){
+        if (role == null || role.equals("all")) {
+            return this.userRepository.findAll();
+        } else if (!VALID_ROLES.contains(role)) {
+            throw new NoSuchElementException("Role not found");
+        }
+        return this.userRepository.findUsersByRole(role);
     }
 
     @Override
@@ -46,7 +64,8 @@ public class UserImpl implements UserService {
 
     @Override
     public User createOne(CreateUserRequest userRequest) {
-        var user = new User(userRequest, UUID.randomUUID().toString());
+        String passwordString = BCryptPassword.generateRandomPassword();
+        var user = new User(userRequest, UUID.randomUUID().toString(), BCryptPassword.passwordEncoder(passwordString));
         return this.userRepository.save(user);
     }
 
@@ -74,12 +93,19 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public boolean deleteById(@NotBlank String userId) {
-        if(!userRepository.existsById(userId)){
-            return false;
+    public User getUserByUserName(String role, String userName) {
+        return this.userRepository.findUserByUserName(userName);
+//        return this.userRepository.findUserByRoleAndUserName(role, userName);
+    }
+
+
+    @Override
+    public void deleteById(@NotBlank String userId) {
+        if(userRepository.existsById(userId)){
+            this.userRepository.deleteById(userId);
+        }else {
+            throw new NoSuchElementException("User not found with id " + userId);
         }
-        this.userRepository.deleteById(userId);
-        return true;
     }
 
     @Override
@@ -91,29 +117,40 @@ public class UserImpl implements UserService {
     }
 
     @Override
-    public boolean saveUserToDatabase(MultipartFile file) {
+    public ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file) {
+        String passwordHash = BCryptPassword.generateRandomPassword();
+        Map<String, String> response = new HashMap<>();
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
                 List<User> users = new ArrayList<>();
+                List<String> unsuccessfulUsers = new ArrayList<>();
                 List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(), UserFromExcel.class);
                 for (UserFromExcel excelUser : importedUsers) {
-                    excelUser.setRole(excelUser.getRole().toLowerCase());
-                    users.add(new User(excelUser));
+                    try {
+                        excelUser.setRole(excelUser.getRole().toLowerCase());
+                        users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
+                        userRepository.save(users.get(users.size() - 1));
+                    } catch (Exception ex) {
+                        unsuccessfulUsers.add(excelUser.getUsername());
+                        logger.error("Error saving user to database", ex);
+                    }
                 }
-                for(User user : users){
-                    System.out.println(user.toString());
-                }
-                this.userRepository.saveAll(users);
-                return true;
+                response.put("message", "Users saved successfully");
+                response.put("unsuccessfulUsers", unsuccessfulUsers.toString());
+                return new ResponseEntity<>(response, HttpStatus.OK);
             } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return false;
+                logger.error("Error processing the file", e);
+                response.put("message", e.getMessage());
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        return false;
+        response.put("message", "Invalid file format. Please upload a valid excel file");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return this.userRepository.findUserByUserName(username);
     }
 
     // @Override

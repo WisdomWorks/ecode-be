@@ -30,6 +30,9 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
     @Autowired
     private MaterialRepository materialRepository;
 
+    @Autowired
+    private TopicRepository topicRepository;
+
     @Override
     public void initialize(ExistingId constraintAnnotation) {
     }
@@ -57,7 +60,11 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
             return courseStudentRepository.existsByStudentIdAndCourseId(removeStudentFromCourseRequest.getStudentId(), removeStudentFromCourseRequest.getCourseId()) > 0;
         } else if (object instanceof UpdateMaterialRequest) {
             UpdateMaterialRequest updateMaterialRequest = (UpdateMaterialRequest) object;
-            return materialRepository.existsById(updateMaterialRequest.getMaterialId());
+            return materialRepository.existsById(updateMaterialRequest.getMaterialId())
+                    && topicRepository.existsById(updateMaterialRequest.getTopicId());
+        } else if (object instanceof CreateMaterialRequest) {
+            CreateMaterialRequest createMaterialRequest = (CreateMaterialRequest) object;
+            return topicRepository.existsById(createMaterialRequest.getTopicId());
         }
         return false;
     }

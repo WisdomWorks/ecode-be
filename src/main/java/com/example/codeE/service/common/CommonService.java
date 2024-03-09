@@ -7,5 +7,5 @@ public interface CommonService<T, V> {
     T getById(String id);
     List<T> getAll();
     //T updateById(String id, Map<String, Object> update);
-    boolean deleteById(String id);
+    void deleteById(String id);
 }

@@ -5,14 +5,18 @@ import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.service.common.CommonService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService extends CommonService<User, CreateUserRequest> {
+    List<User> getUsersByRoleOrAll(String role);
     List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
-    boolean saveUserToDatabase(MultipartFile file);
+    ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file);
     // boolean exportExcel();
     User updateById(String userId, UpdateUserRequest updatedUser);
+    User getUserByUserName(String role, String userName);
 }

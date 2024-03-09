@@ -52,11 +52,11 @@ class UserControllerTest {
         MockitoAnnotations.openMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         this.mockDataUser = new ArrayList<>();
-        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr1", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr2", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr3", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr4", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+        this.mockDataUser.add(new User("usr5", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
     }
 
     @AfterEach
@@ -69,8 +69,8 @@ class UserControllerTest {
             when(userImplement.getUsersByRoleAndSearchKeyword(Mockito.any())).thenReturn(mockDataUser);
 
             List<User> paginatedUserList = new ArrayList<>();
-            paginatedUserList.add(new User("usr1", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
-            paginatedUserList.add(new User("usr2", "user", "user@gmail.com", "username", "123", "Teacher", dateTime, dateTime));
+            paginatedUserList.add(new User("usr1", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
+            paginatedUserList.add(new User("usr2", "user", "user@gmail.com", "username", "Teacher", dateTime, dateTime));
 
             when(userImplement.paginateUsers(Mockito.any())).thenReturn(paginatedUserList);
 

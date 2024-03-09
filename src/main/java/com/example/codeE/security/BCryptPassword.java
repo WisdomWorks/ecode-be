@@ -4,8 +4,10 @@ import java.util.Random;
 
 import com.example.codeE.constant.Constant;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class BCryptPassword {
+    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     public static String generateRandomPassword() {
         StringBuilder password = new StringBuilder();
         Random r = new Random();
@@ -34,4 +36,12 @@ public class BCryptPassword {
     public static boolean checkPassword(String password, String hashedPassword) {
         return BCrypt.checkpw(password, hashedPassword);
     }
+    public static String passwordEncoder(String password){
+        return passwordEncoder.encode(password);
+    }
+
+    public static boolean checkPasswordBcrypt(String plainTextPassword, String hashedPassword) {
+        return passwordEncoder.matches(plainTextPassword, hashedPassword);
+    }
+
 }

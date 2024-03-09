@@ -1,8 +1,6 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseStudent;
-import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.*;
 import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.courseStudent.CourseStudentService;
@@ -34,8 +32,6 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private CourseStudentService courseStudentService;
@@ -54,26 +50,20 @@ public class CourseController {
 
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<?> createOne(@RequestBody CreateCourseRequest course) {
-        Course result = courseService.createOne(course);
-        if(result == null){
-            return ResponseEntity.status(HttpStatus.CREATED).body("Failed to create new course");
-        }
+    public ResponseEntity<?> createOne(@Valid @RequestBody CreateCourseRequest course) {
+        var result = courseService.createOne(course);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PostMapping
     @RequestMapping(value = "/import-courses",method = RequestMethod.POST)
-    public ResponseEntity<?> importCoursesByExcel(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> importCoursesByExcel(@Valid @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
-        boolean importSuccess = this.courseService.importByExcel(file);
-        if (importSuccess) {
-            return ResponseEntity.ok(Map.of("message", "Course data uploaded and saved to database successfully"));
-        }
+        ResponseEntity<Map<String, String>> result = this.courseService.importByExcel(file);
 
-        return ResponseEntity.badRequest().body(Map.of("error", "Invalid file format"));
+        return result;
     }
 
     @PatchMapping
@@ -84,12 +74,9 @@ public class CourseController {
 
     @DeleteMapping
     @RequestMapping(value = "{courseId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteById(@PathVariable String courseId) {
-        boolean result = courseService.deleteById(courseId);
-        if (result) {
-            return ResponseEntity.ok(Map.of("message" , "Delete course successfully"));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No course found with ID:" + courseId);
+    public ResponseEntity<?> deleteById(@Valid @PathVariable String courseId) {
+        courseService.deleteById(courseId);
+        return ResponseEntity.ok(Map.of("message" , "Delete course successfully"));
     }
 
     // Course - Student api
@@ -120,10 +107,7 @@ public class CourseController {
     @DeleteMapping
     @RequestMapping(value = "student", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteById(@Valid @RequestBody RemoveStudentFromCourseRequest request) {
-        boolean result = courseStudentService.deleteStudentInCourse(request);
-        if (result) {
-            return ResponseEntity.ok(Map.of("message" , "Delete course successfully"));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Delete fail");
+        courseStudentService.deleteStudentInCourse(request);
+        return ResponseEntity.ok(Map.of("message" , "Delete course successfully"));
     }
 }

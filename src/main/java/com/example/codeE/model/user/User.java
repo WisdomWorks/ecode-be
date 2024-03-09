@@ -1,14 +1,13 @@
 package com.example.codeE.model.user;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.mapper.user.UserFromExcel;
+import com.example.codeE.model.course.CourseStudent;
+import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.request.user.CreateUserRequest;
-import com.example.codeE.security.BCryptPassword;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -18,15 +17,20 @@ import lombok.Setter;
 import lombok.NonNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "user")
-public class User {
+public class User implements UserDetails {
     @Id
     @NotBlank(message = "User id is required")
     @Column(name = "user_id")
@@ -58,11 +62,19 @@ public class User {
     private String role;
 
     @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
+    private List<CourseTeacher> courseTeachers;
+    @JsonIgnore
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<CourseStudent> courseStudents;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -75,30 +87,28 @@ public class User {
         updatedDate = LocalDateTime.now();
     }
 
-    public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull LocalDateTime createdDate, @NonNull LocalDateTime updatedDate) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.username = username;
-        this.role = role;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
-    }
+   public User(@NonNull String userId, @NonNull String name, @NonNull String email, @NonNull String username, @NonNull String role, @NonNull LocalDateTime createdDate, @NonNull LocalDateTime updatedDate) {
+       this.userId = userId;
+       this.name = name;
+       this.email = email;
+       this.username = username;
+       this.role = role;
+   }
 
-    public User (UserFromExcel excelUser){
+    public User (UserFromExcel excelUser,String hashPassword){
         this.userId = excelUser.getUserId();
         this.name = excelUser.getName();
         this.email = excelUser.getEmail();
         this.username = excelUser.getUsername();
-        this.password = BCryptPassword.generateRandomPassword();
+        this.password = hashPassword;
         this.role = excelUser.getRole();
     }
-    public User (CreateUserRequest createUser, String userId){
+    public User (CreateUserRequest createUser, String userId, String hashPassword){
         this.userId = userId;
         this.username = createUser.getUsername();
         this.name = createUser.getName();
         this.email = createUser.getEmail();
-        this.password = BCryptPassword.generateRandomPassword();
+        this.password = hashPassword;
         this.role = createUser.getRole();
     }
 
@@ -112,5 +122,30 @@ public class User {
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 '}';
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
