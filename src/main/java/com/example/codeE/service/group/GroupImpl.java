@@ -1,19 +1,15 @@
 package com.example.codeE.service.group;
 
 import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import com.example.codeE.entity.GetGroupStudentEntity;
+import com.example.codeE.entity.group.StudentInGroupEntity;
+import com.example.codeE.entity.group.StudentNotInGroupEntity;
 import com.example.codeE.model.group.GroupStudent;
 import com.example.codeE.repository.GroupStudentRepository;
-import com.example.codeE.request.user.GetUsersRequest;
-import com.example.codeE.entity.GetGroupStudentEntity;
-import com.example.codeE.model.group.GroupStudent;
-import com.example.codeE.repository.GroupStudentRepository;
-import com.example.codeE.request.user.GetUsersRequest;
+import com.example.codeE.request.group.DeleteStudentInGroupRequest;
 import com.example.codeE.service.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -87,17 +83,18 @@ public class GroupImpl implements GroupService{
     }
 
     @Override
-    public List<GetGroupStudentEntity> getUsersInGroup(String groupId) {
+    public List<StudentInGroupEntity> getUsersInGroup(String groupId) {
         return this.groupStudentRepository.getStudentInGroup(groupId);
     }
     @Override
-    public List<User> getStudentNotInGroup(String groupId) {
-        return null;
+    public List<StudentNotInGroupEntity> getStudentNotInGroup(String groupId) {
+        return this.groupStudentRepository.getStudentNotInGroup(groupId);
     }
 
-//    @Override
-//    public Boolean updateGroupById(String groupId, Group updatedGroup) {
-//        // TODO Auto-generated method stub
-//        throw new UnsupportedOperationException("Unimplemented method 'updateGroupById'");
-//    }
+    @Override
+    public void deleteStudentInGroup(String groupId, List<String> studentIds) {
+        for(String studentId: studentIds){
+            this.groupStudentRepository.deleteStudentInGroup(studentId, groupId);
+        }
+    }
 }
