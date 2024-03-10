@@ -66,7 +66,7 @@ public class CourseImpl implements CourseService {
         for (Course i: data) {
             List<User> studentInCourse = this.userRepository.getUserInCourse(i.getCourseId());
             var teacher = this.userRepository.getTeacherInCourse(i.getCourseId());
-            result.add(new CourseResponse(i, studentInCourse, teacher));
+            result.add(new CourseResponse(i,studentInCourse, teacher));
         }
         return result;
     }

@@ -50,8 +50,7 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
             return courseRepository.existsById(updateCourseRequest.getCourseId());
         } else if (object instanceof AddStudentToCourseRequest) {
             AddStudentToCourseRequest addStudentToCourseRequest = (AddStudentToCourseRequest) object;
-            return courseRepository.existsById(addStudentToCourseRequest.getCourseId())
-                    && userRepository.existsById(addStudentToCourseRequest.getStudentId());
+            return courseRepository.existsById(addStudentToCourseRequest.getCourseId());
         } else if (object instanceof ImportStudentToCourseRequest) {
             ImportStudentToCourseRequest importStudentToCourseRequest = (ImportStudentToCourseRequest) object;
             return courseRepository.existsById(importStudentToCourseRequest.getCourseId());

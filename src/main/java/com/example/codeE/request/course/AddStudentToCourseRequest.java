@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,7 +17,7 @@ import lombok.Setter;
 public class AddStudentToCourseRequest {
 
     @NotBlank(message = "Student ID is required")
-    private String studentId;
+    private List<String> studentIds;
 
     @NotBlank(message = "Course ID is required")
     private String courseId;

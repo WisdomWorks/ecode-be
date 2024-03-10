@@ -33,13 +33,17 @@ public class CourseStudentImpl implements CourseStudentService {
     private UserRepository userRepository;
 
     @Override
-    public CourseStudent addStudentToCourse(AddStudentToCourseRequest request) {
+    public ArrayList<CourseStudent> addStudentToCourse(AddStudentToCourseRequest request) {
+        var result = new ArrayList<CourseStudent>();
         try {
-            CourseStudent courseStudent = new CourseStudent(request);
-            return this.courseStudentRepository.save(courseStudent);
+            for(String studentId : request.getStudentIds()){
+                CourseStudent courseStudent = new CourseStudent(request.getCourseId(), studentId);
+                result.add(this.courseStudentRepository.save(courseStudent));
+            }
+            return result;
         }catch (Exception e) {
             LoggerHelper.logInfo(e.getMessage());
-            return null;
+            return result;
         }
     }
 
