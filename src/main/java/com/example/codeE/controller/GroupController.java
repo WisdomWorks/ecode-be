@@ -2,12 +2,14 @@ package com.example.codeE.controller;
 
 import com.example.codeE.request.group.CreateGroupRequest;
 
+import java.util.List;
 import java.util.Map;
 
 import com.example.codeE.request.group.CreateGroupStudentRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 
@@ -28,20 +30,21 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
-//    @GetMapping
-//    @RequestMapping(value = "",method = RequestMethod.GET)
-//    public ResponseEntity<?> getAllGroups() {
-//        return new ResponseEntity<>(groupService.getAll(), HttpStatus.OK);
-//    }
 
     @GetMapping
     @RequestMapping(value = "{groupId}",method = RequestMethod.GET)
     public ResponseEntity<?> getGroupById(@PathVariable String groupId) {
         var result = this.groupService.getById(groupId);
-        if(result != null){
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        }       
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can not find group with id: " + groupId);
+        try{
+            if(result != null){
+                return ResponseEntity.status(HttpStatus.OK).body(result);
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can not find group with id: " + groupId);
+            }
+        } catch(Exception e){
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("");
+        }
     }
 
     @PostMapping
@@ -52,7 +55,7 @@ public class GroupController {
 
     @DeleteMapping
     @RequestMapping(value = "{groupId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteGroup(@Valid String groupId) {
+    public ResponseEntity<?> deleteGroup(@Valid @PathVariable String groupId) {
         this.groupService.deleteById(groupId);
         return ResponseEntity.ok(Map.of("message" , "Delete group successfully"));
     }
@@ -73,9 +76,27 @@ public class GroupController {
     }
 
     @GetMapping
-    @RequestMapping(value = "{groupId}/student", method = RequestMethod.GET)
+    @RequestMapping(value = "{groupId}/student/in-group", method = RequestMethod.GET)
     public ResponseEntity<?> getStudentInGroup(@PathVariable String groupId){
         return new ResponseEntity<>(this.groupService.getUsersInGroup(groupId), HttpStatus.CREATED);
-
     }
+
+    @GetMapping
+    @RequestMapping(value = "{groupId}/student/not-in-group", method = RequestMethod.GET)
+    public ResponseEntity<?> getStudentNotInGroup(@PathVariable String groupId){
+        return ResponseEntity.status(HttpStatus.OK).body(this.groupService.getStudentNotInGroup(groupId));
+    }
+
+    @DeleteMapping
+    @RequestMapping(value = "{groupId}/student", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteStudentInGroup(@PathVariable String groupId, @RequestBody List<String> studentIds){
+        this.groupService.deleteStudentInGroup(groupId, studentIds);
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body("Delete students successful");
+
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+        }
+    }
+
 }
