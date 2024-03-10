@@ -53,7 +53,9 @@ public class CourseImpl implements CourseService {
     public CourseResponse getById(String courseId) {
         var course = courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID:" + courseId));
         List<User> studentInCourse = this.userRepository.getUserInCourse(courseId);
+        System.out.println(studentInCourse);
         var teacher = this.userRepository.getTeacherInCourse(courseId);
+        System.out.println(teacher);
         return new CourseResponse(course, studentInCourse, teacher);
     }
 
@@ -62,8 +64,9 @@ public class CourseImpl implements CourseService {
         var result = new ArrayList<CourseResponse>();
         var data = this.courseRepository.findAll();
         for (Course i: data) {
+            List<User> studentInCourse = this.userRepository.getUserInCourse(i.getCourseId());
             var teacher = this.userRepository.getTeacherInCourse(i.getCourseId());
-            result.add(new CourseResponse(i, teacher));
+            result.add(new CourseResponse(i, studentInCourse, teacher));
         }
         return result;
     }
