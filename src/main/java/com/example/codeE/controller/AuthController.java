@@ -1,6 +1,8 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.helper.JWTUtils;
 import com.example.codeE.request.user.LoginRequest;
+import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.service.authentication.AuthenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,23 +20,38 @@ import java.util.Map;
 public class AuthController {
     @Autowired
     private AuthenService authenService;
+    @Autowired
+    private JWTUtils jwtHelper;
 
     @PostMapping
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<?> signIn(@RequestBody LoginRequest signInRequest, HttpServletResponse response) {
+    @RequestMapping(value = "/login/user", method = RequestMethod.POST)
+    public ResponseEntity<?> signInUser(@RequestBody LoginRequest signInRequest, HttpServletResponse response) {
         var result = authenService.signIn(signInRequest, response);
         if (result.getStatusCode() == 200) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.status(HttpStatus.OK).body(result);
         } else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
     }
-
+    @PostMapping
+    @RequestMapping(value = "/login/admin", method = RequestMethod.POST)
+    public ResponseEntity<?> signInAdmin(@RequestBody LoginRequest signInRequest, HttpServletResponse response) {
+        var result = authenService.signInAdmin(signInRequest, response);
+        if (result.getStatusCode() == 200) {
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        } else if(result.getStatusCode() == 403)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
+        else
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+    }
     @PostMapping
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public ResponseEntity<?> Logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextHolder.clearContext();
         clearAuthenticationTokens(request, response);
-        return ResponseEntity.status(HttpStatus.OK).body("Logout Successfully");
+        var responseResult = new UserAuthenRequest();
+        responseResult.setStatusCode(200);
+        responseResult.setMessage("Logout Successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(responseResult);
     }
 
     @GetMapping
@@ -47,11 +64,25 @@ public class AuthController {
             for (Cookie cookie : cookies) {
                 if ("accessToken".equals(cookie.getName())) {
                     token = cookie.getValue();
-                    age = cookie.getMaxAge();
                 }
             }
+            var checkExpired = jwtHelper.isTokenExpired(token);
+            if(checkExpired){
+                var responseResult = new UserAuthenRequest();
+                responseResult.setStatusCode(401);
+                responseResult.setMessage("token has been expired, please login again");
+                responseResult.setError("UNAUTHORIZED");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
+            }
+            var responseResult = this.authenService.createNewSession(token, response);
+            return ResponseEntity.status(HttpStatus.OK).body(responseResult);
+        }else {
+            var responseResult = new UserAuthenRequest();
+            responseResult.setStatusCode(401);
+            responseResult.setMessage("No user has been saved in cookie, please login again");
+            responseResult.setError("UNAUTHORIZED");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
         }
-        return ResponseEntity.ok(Map.of("token", token, "age", age));
     }
 
     private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {

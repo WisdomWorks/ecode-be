@@ -29,14 +29,14 @@ public class AuthenImpl implements  AuthenService{
         try{
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),signInRequest.getPassword()));
             var user = userRepository.findUserByUserName(signInRequest.getUserName());
-            var jwt = jwtHelper.generateToken(user);
-            var refreshToken = jwtHelper.generateRefreshToken(new HashMap<>(), user);
-            userResponse.setStatusCode(200);
-            userResponse.setToken(jwt);
-            userResponse.setRefreshToken(refreshToken);
-            userResponse.setExpirationTime("1 hour");
-            userResponse.setMessage("Sign In successful");
-            ResponseCookie cookie = ResponseCookie.from("accessToken", jwt)
+            if(user.getRole().equals("admin")){
+                userResponse.setStatusCode(403);
+                userResponse.setMessage("Something wrong when login");
+                userResponse.setError("User is admin");
+                return userResponse;
+            }
+            userResponse = this.setResponseResult(user);
+            ResponseCookie cookie = ResponseCookie.from("accessToken", userResponse.getToken())
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
@@ -45,7 +45,59 @@ public class AuthenImpl implements  AuthenService{
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
             userResponse.setStatusCode(500);
-            userResponse.setMessage("Access denied");
+            userResponse.setMessage("Something wrong when login");
+            userResponse.setError(e.getMessage());
+        }
+        return userResponse;
+    }
+
+    @Override
+    public UserAuthenRequest createNewSession(String token, HttpServletResponse response) {
+        UserAuthenRequest userResponse = new UserAuthenRequest();
+        try{
+            var userName = this.jwtHelper.extractUserName(token);
+            if(userName.isBlank())
+                throw new Exception();
+            var user = userRepository.findUserByUserName(userName);
+            userResponse = this.setResponseResult(user);
+            ResponseCookie cookie = ResponseCookie.from("accessToken", userResponse.getToken())
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(3600)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        }catch (Exception e){
+            userResponse.setStatusCode(500);
+            userResponse.setMessage("Something wrong when get new session");
+            userResponse.setError(e.getMessage());
+        }
+        return userResponse;
+    }
+
+    @Override
+    public UserAuthenRequest signInAdmin(LoginRequest signInRequest, HttpServletResponse response) {
+        UserAuthenRequest userResponse = new UserAuthenRequest();
+        try{
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),signInRequest.getPassword()));
+            var user = userRepository.findUserByUserName(signInRequest.getUserName());
+            if(!user.getRole().equals("admin")){
+                userResponse.setStatusCode(403);
+                userResponse.setMessage("Something wrong when login");
+                userResponse.setError("User is not admin");
+                return userResponse;
+            }
+            userResponse = this.setResponseResult(user);
+            ResponseCookie cookie = ResponseCookie.from("accessToken", userResponse.getToken())
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(3600)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        }catch (Exception e){
+            userResponse.setStatusCode(500);
+            userResponse.setMessage("Something wrong when login");
             userResponse.setError(e.getMessage());
         }
         return userResponse;
@@ -55,5 +107,22 @@ public class AuthenImpl implements  AuthenService{
     public User getUserToken(String token) {
         String username = this.jwtHelper.extractUserName(token);
         return this.userRepository.findUserByUserName(username);
+    }
+
+    private UserAuthenRequest setResponseResult(User user){
+        var result = new UserAuthenRequest();
+        var jwt = jwtHelper.generateToken(user);
+        var refreshToken = jwtHelper.generateRefreshToken(new HashMap<>(), user);
+        result.setStatusCode(200);
+        result.setToken(jwt);
+        result.setName(user.getName());
+        result.setEmail(user.getEmail());
+        result.setRole(user.getRole());
+        result.setUserId(user.getUserId());
+        result.setUserName(user.getName());
+        result.setRefreshToken(refreshToken);
+        result.setExpirationTime("1 hour");
+        result.setMessage("Sign In successful");
+        return result;
     }
 }
