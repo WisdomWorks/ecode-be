@@ -83,7 +83,7 @@ public class CourseController {
     @PostMapping
     @RequestMapping(value = "student", method = RequestMethod.POST)
     public ResponseEntity<?> addStudentToCourse(@Valid @RequestBody AddStudentToCourseRequest request) {
-        CourseStudent result = courseStudentService.addStudentToCourse(request);
+        var result = courseStudentService.addStudentToCourse(request);
         if(result == null){
             return ResponseEntity.status(HttpStatus.CREATED).body("Failed to add student into course");
         }

@@ -53,12 +53,7 @@ public class CourseStudent {
     @ManyToOne(optional=false)
     @JoinColumn(name = "student_id", insertable=false, updatable=false)
     private User student;
-
-    public CourseStudent(AddStudentToCourseRequest request) {
-        this.studentId = request.getStudentId();
-        this.courseId = request.getCourseId();
-        this.joinDate = LocalDateTime.now();
-    }
+    
 
     public CourseStudent(@NotNull String studentId, @NotNull String courseId) {
         this.studentId = studentId;
