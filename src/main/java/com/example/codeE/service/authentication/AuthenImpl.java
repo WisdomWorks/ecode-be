@@ -27,6 +27,11 @@ public class AuthenImpl implements  AuthenService{
     public UserAuthenRequest signIn(LoginRequest signInRequest, HttpServletResponse response) {
         UserAuthenRequest userResponse = new UserAuthenRequest();
         try{
+            userResponse = this.checkLoginRequest(signInRequest);
+            if(userResponse.getStatusCode() == 404)
+            {
+                return userResponse;
+            }
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),signInRequest.getPassword()));
             var user = userRepository.findUserByUserName(signInRequest.getUserName());
             if(user.getRole().equals("admin")){
@@ -44,9 +49,14 @@ public class AuthenImpl implements  AuthenService{
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
+            userResponse.setError(e.getMessage());
+            if(e.getMessage().equals("Bad credentials")){
+                userResponse.setStatusCode(401);
+                userResponse.setMessage("Password wrong");
+                return userResponse;
+            }
             userResponse.setStatusCode(500);
             userResponse.setMessage("Something wrong when login");
-            userResponse.setError(e.getMessage());
         }
         return userResponse;
     }
@@ -68,9 +78,14 @@ public class AuthenImpl implements  AuthenService{
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
+            userResponse.setError(e.getMessage());
+            if(e.getMessage().equals("Bad credentials")){
+                userResponse.setStatusCode(401);
+                userResponse.setMessage("Password wrong");
+                return userResponse;
+            }
             userResponse.setStatusCode(500);
             userResponse.setMessage("Something wrong when get new session");
-            userResponse.setError(e.getMessage());
         }
         return userResponse;
     }
@@ -79,7 +94,12 @@ public class AuthenImpl implements  AuthenService{
     public UserAuthenRequest signInAdmin(LoginRequest signInRequest, HttpServletResponse response) {
         UserAuthenRequest userResponse = new UserAuthenRequest();
         try{
-
+            userResponse = this.checkLoginRequest(signInRequest);
+            System.out.println(userResponse);
+            if(userResponse.getStatusCode() == 404)
+            {
+                return userResponse;
+            }
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),signInRequest.getPassword()));
             var user = userRepository.findUserByUserName(signInRequest.getUserName());
             if(!user.getRole().equals("admin")){
@@ -97,9 +117,14 @@ public class AuthenImpl implements  AuthenService{
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
+            userResponse.setError(e.getMessage());
+            if(e.getMessage().equals("Bad credentials")){
+                userResponse.setStatusCode(400);
+                userResponse.setMessage("Password wrong");
+                return userResponse;
+            }
             userResponse.setStatusCode(500);
             userResponse.setMessage("Something wrong when login");
-            userResponse.setError(e.toString());
         }
         return userResponse;
     }
@@ -126,4 +151,17 @@ public class AuthenImpl implements  AuthenService{
         result.setMessage("Sign In successful");
         return result;
     }
+    private UserAuthenRequest checkLoginRequest(LoginRequest signInRequest){
+        var response = new UserAuthenRequest();
+        var user = this.userRepository.findUserByUserName(signInRequest.getUserName());
+        if (user == null){
+            response.setStatusCode(404);
+            response.setMessage("User does not exist");
+            response.setError("Can not find this user by this user name: "+ signInRequest.getUserName());
+            return response;
+        }
+        response.setStatusCode(200);
+        return response;
+    }
 }
+
