@@ -5,7 +5,6 @@ import com.example.codeE.request.course.AddStudentToCourseRequest;
 import com.example.codeE.request.course.ImportStudentToCourseRequest;
 import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface CourseStudentService {

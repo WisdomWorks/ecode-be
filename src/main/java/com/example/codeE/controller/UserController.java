@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -76,8 +75,7 @@ public class UserController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
-        ResponseEntity<Map<String, String>> result = this.userService.saveUserToDatabase(file);
-        return result;
+        return this.userService.saveUserToDatabase(file);
     }
 
     @DeleteMapping

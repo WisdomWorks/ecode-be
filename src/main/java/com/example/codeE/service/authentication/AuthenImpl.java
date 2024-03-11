@@ -79,6 +79,7 @@ public class AuthenImpl implements  AuthenService{
     public UserAuthenRequest signInAdmin(LoginRequest signInRequest, HttpServletResponse response) {
         UserAuthenRequest userResponse = new UserAuthenRequest();
         try{
+
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),signInRequest.getPassword()));
             var user = userRepository.findUserByUserName(signInRequest.getUserName());
             if(!user.getRole().equals("admin")){
@@ -98,7 +99,7 @@ public class AuthenImpl implements  AuthenService{
         }catch (Exception e){
             userResponse.setStatusCode(500);
             userResponse.setMessage("Something wrong when login");
-            userResponse.setError(e.getMessage());
+            userResponse.setError(e.toString());
         }
         return userResponse;
     }

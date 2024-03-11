@@ -9,12 +9,10 @@ import com.example.codeE.entity.group.StudentInGroupEntity;
 import com.example.codeE.entity.group.StudentNotInGroupEntity;
 import com.example.codeE.model.group.GroupStudent;
 import com.example.codeE.repository.GroupStudentRepository;
-import com.example.codeE.request.group.DeleteStudentInGroupRequest;
 import com.example.codeE.service.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.codeE.model.group.Group;
-import com.example.codeE.model.user.User;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.request.group.CreateGroupRequest;
 
