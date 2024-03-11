@@ -13,10 +13,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ExistingId(targetClasses = {com.example.codeE.request.course.AddStudentToCourseRequest.class})
 public class AddStudentToCourseRequest {
 
-    @NotBlank(message = "Student ID is required")
     private List<String> studentIds;
 
     @NotBlank(message = "Course ID is required")

@@ -37,7 +37,7 @@ public class CourseStudentImpl implements CourseStudentService {
         var result = new ArrayList<CourseStudent>();
         try {
             for(String studentId : request.getStudentIds()){
-                CourseStudent courseStudent = new CourseStudent(request.getCourseId(), studentId);
+                CourseStudent courseStudent = new CourseStudent(studentId, request.getCourseId());
                 result.add(this.courseStudentRepository.save(courseStudent));
             }
             return result;
