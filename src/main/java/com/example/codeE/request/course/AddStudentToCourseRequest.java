@@ -1,6 +1,5 @@
 package com.example.codeE.request.course;
 
-import com.example.codeE.validator.id.ExistingId;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

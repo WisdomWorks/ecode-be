@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -58,7 +57,6 @@ public class AuthController {
     @RequestMapping(value = "/check-session", method = RequestMethod.GET)
     public ResponseEntity<?> checkSession(HttpServletRequest request, HttpServletResponse response) {
         String token = "";
-        int age = 0;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

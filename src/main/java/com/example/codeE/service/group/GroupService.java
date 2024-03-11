@@ -6,9 +6,7 @@ import com.example.codeE.entity.group.StudentInGroupEntity;
 import com.example.codeE.entity.group.StudentNotInGroupEntity;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.group.GroupStudent;
-import com.example.codeE.model.user.User;
 import com.example.codeE.request.group.CreateGroupRequest;
-import com.example.codeE.request.group.DeleteStudentInGroupRequest;
 import com.example.codeE.service.common.CommonService;
 
 public interface GroupService extends CommonService<Group, CreateGroupRequest> {
