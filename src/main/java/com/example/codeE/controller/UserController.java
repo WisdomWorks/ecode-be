@@ -49,24 +49,60 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest user){
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.createOne(user));
+        var apiResponse = new ApiResponse();
+        try{
+            apiResponse.setStatus(200);
+            apiResponse.setMessage("Create user successful");
+            apiResponse.setValue(this.userService.createOne(user))
+        }catch(Exception e){
+            apiResponse.setStatus(500);
+            apiResponse.setMessage("Something wrong when create new user");
+            apiResponse.setError(e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     @GetMapping
     @RequestMapping(value = "",method = RequestMethod.GET)
     public ResponseEntity<?> getUsersByRoleOrAll(@Valid @RequestParam(required = false) String role){
-        return ResponseEntity.ok(this.userService.getUsersByRoleOrAll(role));
+        var apiResponse = new ApiResponse();
+        try{
+            apiResponse.setStatus(200);
+            apiResponse.setMessage("Get users successful");
+            apiResponse.setValues(this.userService.getUsersByRoleOrAll(role))
+        }catch(Exception e){
+            apiResponse.setStatus(500);
+            apiResponse.setError(e.getMessage());
+            apiResponse.setMessage("Something wrong when get all users");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
     @PatchMapping
     @RequestMapping(value = "", method = RequestMethod.PATCH)
     public ResponseEntity<?> updateById(@Valid @RequestBody UpdateUserRequest updatedUser) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.updateById(updatedUser.getUserId(), updatedUser));
+        var apiResponse = new ApiResponse();
+        try{
+            apiResponse.setStatus(200);
+            apiResponse.setMessage("Get users successful");
+            apiResponse.setValues(this.userService.getUsersByRoleOrAll(role))
+            return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        }catch(NoSuchElementException e){
+            apiResponse.setStatus(404);
+            apiResponse.setError(e.getMessage());
+            apiResponse.setMessage("Something wrong when update all users");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse); 
+        }
+        }catch (Exception e){
+            apiResponse.setStatus(500);
+            apiResponse.setError(e.getMessage());
+            apiResponse.setMessage("Something wrong when update all users");
+        }
     }
 
     @GetMapping
     @RequestMapping(value = "{userId}",method = RequestMethod.GET)
-    public ResponseEntity<?> getById(@PathVariable String userId) {
+    public ResponseEntity<?> getById(@PathVariable String userId) {         
         return ResponseEntity.ok(this.userService.getById(userId));
     }
 

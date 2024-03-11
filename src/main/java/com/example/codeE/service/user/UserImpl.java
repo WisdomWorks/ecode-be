@@ -35,7 +35,7 @@ public class UserImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public User getById(@NotBlank String userId) {;
+    public User getById(@NotBlank String userId) {    
         return this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found with ID:" + userId));
     }
 
