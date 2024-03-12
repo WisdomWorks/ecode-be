@@ -1,10 +1,12 @@
 package com.example.codeE.service.authentication;
 
 import com.example.codeE.helper.JWTUtils;
+import com.example.codeE.model.course.Course;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
+import com.example.codeE.service.course.CourseService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,11 +16,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class AuthenImpl implements  AuthenService{
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CourseService courseService;
     JWTUtils jwtHelper = new JWTUtils();
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -141,11 +146,17 @@ public class AuthenImpl implements  AuthenService{
         var refreshToken = jwtHelper.generateRefreshToken(new HashMap<>(), user);
         result.setStatusCode(200);
         result.setToken(jwt);
-        result.setName(user.getName());
-        result.setEmail(user.getEmail());
-        result.setRole(user.getRole());
-        result.setUserId(user.getUserId());
-        result.setUserName(user.getName());
+        result.setUser(user);
+        if(user.getRole().equals("student")){
+            var course = this.courseService.getCourseByStudentId(user.getUserId());
+            if(!course.isEmpty())
+                result.setCourses(course);
+        }
+        if(user.getRole().equals("teacher")){
+            var course = this.courseService.getCourseByTeacherId(user.getUserId());
+            if(!course.isEmpty())
+                result.setCourses(course);
+        }
         result.setRefreshToken(refreshToken);
         result.setExpirationTime("1 hour");
         result.setMessage("Sign In successful");

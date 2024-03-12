@@ -7,6 +7,7 @@ import com.example.codeE.service.common.CommonService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface CourseService extends CommonService<CourseResponse, CreateCourseRequest> {
@@ -14,4 +15,6 @@ public interface CourseService extends CommonService<CourseResponse, CreateCours
     ResponseEntity<Map<String, String>> importByExcel(MultipartFile file);
     Boolean checkCourseExistById(String groupId);
     CourseEnrollmentResponse<CourseStudent> enrollStudentToCourse(CourseEnrollmentRequest request);
+    List<Course> getCourseByStudentId(String userId);
+    List<Course> getCourseByTeacherId(String userId);
 }
