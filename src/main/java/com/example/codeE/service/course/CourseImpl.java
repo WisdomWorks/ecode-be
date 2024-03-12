@@ -180,4 +180,14 @@ public class CourseImpl implements CourseService {
             return response;
         }
     }
+
+    @Override
+    public List<Course> getCourseByStudentId(String userId) {
+        return this.courseRepository.getCourseByStudentId(userId);
+    }
+
+    @Override
+    public List<Course> getCourseByTeacherId(String userId) {
+        return this.courseRepository.getCourseByTeacherId(userId);
+    }
 }

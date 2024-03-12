@@ -46,6 +46,7 @@ public class Course {
     private String semester;
 
     @Column(name = "enroll_key")
+    @JsonIgnore
     private String enrollKey;
 
     @Column(name = "description", columnDefinition = "LONGTEXT")
@@ -64,12 +65,12 @@ public class Course {
     @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Topic> topics;
+    @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<CourseStudent> courseStudents;
     @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<CourseTeacher> courseTeachers;
-
     @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Group> groups;
