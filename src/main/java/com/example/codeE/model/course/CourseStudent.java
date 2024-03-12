@@ -2,7 +2,6 @@ package com.example.codeE.model.course;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.model.user.User;
-import com.example.codeE.request.course.AddStudentToCourseRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
