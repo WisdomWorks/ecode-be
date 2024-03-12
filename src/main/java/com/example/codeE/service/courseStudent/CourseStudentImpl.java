@@ -86,7 +86,7 @@ public class CourseStudentImpl implements CourseStudentService {
 
 
     @Override
-    public boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request) {
+    public Boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request) {
         try {
             courseStudentRepository.deleteByStudentIdAndCourseId(request.getStudentId(),request.getCourseId());
             return true;
@@ -96,7 +96,10 @@ public class CourseStudentImpl implements CourseStudentService {
             return false;
         }
     }
-
+    @Override
+    public Boolean checkStudentInCourse(String studentId, String courseId){
+        return this.courseStudentRepository.existsByStudentIdAndCourseId(studentId, courseId) > 0;
+    }
     public static List<String> getAllNamesFromExcel(InputStream inputStream) {
         List<String> names = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(inputStream)) {

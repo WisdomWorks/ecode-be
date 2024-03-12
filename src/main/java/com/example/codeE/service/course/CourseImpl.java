@@ -4,14 +4,20 @@ import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.repository.CourseTeacherRepository;
 import com.example.codeE.repository.UserRepository;
+import com.example.codeE.request.course.AddStudentToCourseRequest;
+import com.example.codeE.request.course.CourseEnrollmentRequest;
+import com.example.codeE.request.course.CourseEnrollmentResponse;
 import com.example.codeE.request.course.CourseResponse;
 import com.example.codeE.request.course.CreateCourseRequest;
 import com.example.codeE.request.course.UpdateCourseRequest;
+import com.example.codeE.service.courseStudent.CourseStudentService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +35,8 @@ public class CourseImpl implements CourseService {
     private UserRepository userRepository;
     @Autowired
     private CourseTeacherRepository courseTeacherRepository;
+    @Autowired
+    private CourseStudentService courseStudentService;
     @Override
     public CourseResponse createOne(CreateCourseRequest courseRequest) {
         try {
@@ -126,5 +134,50 @@ public class CourseImpl implements CourseService {
     @Override
     public Boolean checkCourseExistById(String courseId) {
         return this.courseRepository.findById(courseId).isPresent();
+    }
+    @Override
+    public CourseEnrollmentResponse<CourseStudent> enrollStudentToCourse(CourseEnrollmentRequest request) {
+        var response = new CourseEnrollmentResponse<CourseStudent>();
+        if(this.courseStudentService.checkStudentInCourse(request.studentId, request.courseId)){
+            response.setStatus(HttpStatus.CONFLICT.value());
+            response.setMessage("User already enrolled in course");
+            response.setError("Can not enroll in course");
+            return response;
+        }
+        var course = this.courseRepository.findById(request.courseId).orElse(null);
+        if (course == null) {
+            response.setMessage("Course not found");
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            response.setError("Can not find course with ID: " + request.courseId);
+            return response;
+        }
+        if (!course.getEnrollKey().equals(request.enrollmentKey)) {
+            response.setMessage("Your key not match, please try again");
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.setError("Invalid enrollment key");
+            return response;
+        }
+        var student = this.userRepository.findById(request.studentId).orElse(null);
+        if (student == null) {
+            response.setMessage( "Student not found");
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            response.setError("Can not find student with ID: " + request.studentId);
+            return response;
+        }
+        try {
+            var listUsers = new ArrayList<String>();
+            listUsers.add(request.studentId);
+            var requestAddStudentToCourse = new AddStudentToCourseRequest(listUsers, request.studentId);
+            var result = this.courseStudentService.addStudentToCourse(requestAddStudentToCourse);
+            response.setMessage( "Enroll student to course successfully");
+            response.setStatus(HttpStatus.CREATED.value());
+            response.setValues(result);
+            return response;
+        } catch (Exception e) {
+            response.setMessage("Failed to enroll student to course");
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setError(e.getMessage());
+            return response;
+        }
     }
 }

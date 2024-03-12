@@ -3,7 +3,6 @@ package com.example.codeE.model.course;
 import com.example.codeE.constant.Constant;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.group.Group;
-import com.example.codeE.model.group.GroupStudent;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.course.CreateCourseRequest;
 import com.example.codeE.security.BCryptPassword;
