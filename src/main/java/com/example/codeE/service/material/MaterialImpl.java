@@ -114,4 +114,9 @@ public class MaterialImpl implements MaterialService{
         }
         return false;
     }
+
+    @Override
+    public List<Material> getMaterialBy(String studentId, String materialId) {
+        return this.materialRepository.getMaterialById(studentId, materialId);
+    }
 }
