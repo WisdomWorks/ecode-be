@@ -6,6 +6,7 @@ import com.example.codeE.request.course.ImportStudentToCourseRequest;
 import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
 import com.example.codeE.request.course.UpdateCourseRequest;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
+import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
@@ -64,6 +65,9 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
         } else if (object instanceof CreateMaterialRequest) {
             CreateMaterialRequest createMaterialRequest = (CreateMaterialRequest) object;
             return topicRepository.existsById(createMaterialRequest.getTopicId());
+        } else if (object instanceof CreateEssayExerciseRequest) {
+            CreateEssayExerciseRequest createEssayExerciseRequest = (CreateEssayExerciseRequest) object;
+            return topicRepository.existsById(createEssayExerciseRequest.getTopicId());
         }
         return false;
     }

@@ -109,4 +109,17 @@ public class CourseController {
         courseStudentService.deleteStudentInCourse(request);
         return ResponseEntity.ok(Map.of("message" , "Delete course successfully"));
     }
+
+    @PostMapping
+    @RequestMapping(value = "enrollment", method = RequestMethod.POST)
+    public ResponseEntity<?> enrollUserToCourse(@RequestBody CourseEnrollmentRequest request){
+        var response = this.courseService.enrollStudentToCourse(request);
+        return switch (response.getStatus()) {
+            case 404 -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            case 409 -> ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            case 201 -> ResponseEntity.status(HttpStatus.CREATED).body(response);
+            case 400 -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        };
+    }
 }

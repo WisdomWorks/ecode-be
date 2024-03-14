@@ -80,4 +80,10 @@ public class TopicController {
     public ResponseEntity<?> removeViewPermission(@RequestParam String topicId, @RequestParam List<String> groupIds){
         return ResponseEntity.ok(this.topicService.removeViewPermission(topicId, groupIds));
     }
+
+    @GetMapping
+    @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getTopicByUserId(@PathVariable String userId, @RequestParam String courseId){
+        return ResponseEntity.ok(this.topicService.getTopicByUserId(userId, courseId));
+    }
 }

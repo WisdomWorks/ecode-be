@@ -10,5 +10,6 @@ import java.util.List;
 public interface CourseStudentService {
     List<CourseStudent> addStudentToCourse(AddStudentToCourseRequest request);
     List<String> importStudentsToCourse(ImportStudentToCourseRequest request);
-    boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request);
+    Boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request);
+    Boolean checkStudentInCourse(String studentId, String courseId);
 }
