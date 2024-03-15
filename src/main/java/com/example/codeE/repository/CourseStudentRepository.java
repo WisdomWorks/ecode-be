@@ -21,6 +21,10 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudent, St
     @Query(value = checkExistingStudentIdAndCourseIdSql, nativeQuery = true)
     Long existsByStudentIdAndCourseId(String studentId, String courseId);
 
-
+    String deleteAllStudentsByCourseIdSql = "DELETE FROM course_student cs WHERE cs.course_id = ?1";
+    @Modifying
+    @Transactional
+    @Query(value = deleteAllStudentsByCourseIdSql, nativeQuery = true)
+    void deleteAllStudentsByCourseId(String courseId);
     //new u.user_id, u.username, u.name, u.email, u.password, u.role, u.created_date, u.updated_date
 }
