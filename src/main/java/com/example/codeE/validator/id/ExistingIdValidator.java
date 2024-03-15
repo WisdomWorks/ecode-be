@@ -1,10 +1,7 @@
 package com.example.codeE.validator.id;
 
 import com.example.codeE.repository.*;
-import com.example.codeE.request.course.AddStudentToCourseRequest;
-import com.example.codeE.request.course.ImportStudentToCourseRequest;
-import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
-import com.example.codeE.request.course.UpdateCourseRequest;
+import com.example.codeE.request.course.*;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.material.CreateMaterialRequest;
@@ -68,6 +65,10 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
         } else if (object instanceof CreateEssayExerciseRequest) {
             CreateEssayExerciseRequest createEssayExerciseRequest = (CreateEssayExerciseRequest) object;
             return topicRepository.existsById(createEssayExerciseRequest.getTopicId());
+        } else if (object instanceof UpdateStudentsToCourseRequest){
+            UpdateStudentsToCourseRequest updateStudentsToCourseRequest = (UpdateStudentsToCourseRequest) object;
+            return courseRepository.existsById(updateStudentsToCourseRequest.getCourseId()) &&
+                    updateStudentsToCourseRequest.getStudentIds().stream().allMatch(studentId -> userRepository.existsById(studentId));
         }
         return false;
     }

@@ -5,6 +5,7 @@ import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.course.CreateCourseRequest;
+import com.example.codeE.request.course.UpdateCourseRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -98,6 +99,14 @@ public class Course {
         this.courseName = courseRequest.getCourseName();
         this.semester = courseRequest.getSemester();
         this.enrollKey = BCryptPassword.generateRandomPassword();
+        this.description = courseRequest.getDescription();
+    }
+
+    public Course(UpdateCourseRequest courseRequest){
+        this.courseId = courseRequest.getCourseId();
+        this.courseName = courseRequest.getCourseName();
+        this.semester = courseRequest.getSemester();
+        this.enrollKey = courseRequest.getEnrollKey();
         this.description = courseRequest.getDescription();
     }
 }

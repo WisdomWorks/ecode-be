@@ -1,5 +1,6 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.model.course.Course;
 import com.example.codeE.request.course.*;
 import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.courseStudent.CourseStudentService;
@@ -9,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,10 +66,18 @@ public class CourseController {
         return result;
     }
 
-    @PatchMapping
-    @RequestMapping(value = "", method = RequestMethod.PATCH)
+    @PutMapping
+    @RequestMapping(value = "", method = RequestMethod.PUT)
     public ResponseEntity<?> updateById(@Valid @RequestBody UpdateCourseRequest updates){
-        return ResponseEntity.status(HttpStatus.CREATED).body(courseService.updateById(updates.getCourseId(), updates));
+        Course course = courseService.updateById(updates.getCourseId(), updates);
+        return ResponseEntity.status(HttpStatus.CREATED).body(course);
+    }
+
+    @PutMapping
+    @RequestMapping(value = "students", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateStudentsInCourse(@Valid @RequestBody UpdateStudentsToCourseRequest request) {
+        var result = courseStudentService.updateStudentsInCourse(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @DeleteMapping
@@ -84,7 +93,7 @@ public class CourseController {
     public ResponseEntity<?> addStudentToCourse(@Valid @RequestBody AddStudentToCourseRequest request) {
         var result = courseStudentService.addStudentToCourse(request);
         if(result == null){
-            return ResponseEntity.status(HttpStatus.CREATED).body("Failed to add student into course");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to add student into course");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
