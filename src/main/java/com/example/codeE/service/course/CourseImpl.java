@@ -106,14 +106,10 @@ public class CourseImpl implements CourseService {
         // Delete all existing students associated with the course
         courseTeacherRepository.deleteTeacherInCourseByCourseId(id);
 
-        for (CourseTeacherDTO dto : request.getTeachers()) {
-            // Kiểm tra xem giáo viên có tồn tại không trước khi thêm
-            userRepository.findById(dto.getTeacherId()).orElseThrow(() -> new NoSuchElementException("No Teacher found with ID:" + dto.getTeacherId()));
-            // Tạo mới và lưu giáo viên vào bảng `course_teacher`
-            CourseTeacher ct = new CourseTeacher(dto.getTeacherId(), id, dto.getIsMain());
-            courseTeacherRepository.save(ct);
-        }
-//        course.setCourseTeachers(courseTeachers);
+        userRepository.findById(request.getTeacherId()).orElseThrow(() -> new NoSuchElementException("No Teacher found with ID:" + request.getTeacherId()));
+        // Tạo mới và lưu giáo viên vào bảng `course_teacher`
+        CourseTeacher ct = new CourseTeacher(request.getTeacherId(), id, true);
+        courseTeacherRepository.save(ct);
 
         return courseRepository.save(course);
     }

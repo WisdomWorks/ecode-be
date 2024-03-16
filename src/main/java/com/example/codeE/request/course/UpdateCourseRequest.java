@@ -34,5 +34,5 @@ public class UpdateCourseRequest {
 
     private String description;
 
-    private List<CourseTeacherDTO> teachers;
+    private String teacherId;
 }
