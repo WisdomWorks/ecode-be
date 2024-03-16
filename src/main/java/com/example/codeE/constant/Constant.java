@@ -18,7 +18,19 @@ public class Constant {
 
     //file path in docker container
     public static final String DOCKER_CONTAINER_FILE_PATH = "app/student-submission/";
-
     public static final List<String> VALID_ROLES = Arrays.asList("student", "teacher", "admin");
 
+    //first param: name
+    //second param: username
+    //third param: password
+    public static final String MAIL_TEMPLATE = """
+            Hi, %s,
+            
+            This is your account to login CODEE system:
+                User name: %s
+                Password: %s
+            
+            Thank a lot.
+            
+            WisdomWorks.""";
 }
