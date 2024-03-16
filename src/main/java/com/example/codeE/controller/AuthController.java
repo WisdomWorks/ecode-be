@@ -54,13 +54,13 @@ public class AuthController {
     }
 
     @GetMapping
-    @RequestMapping(value = "/check-session", method = RequestMethod.GET)
-    public ResponseEntity<?> checkSession(HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "/check-session/user", method = RequestMethod.GET)
+    public ResponseEntity<?> checkSessionUser(HttpServletRequest request, HttpServletResponse response) {
         String token = "";
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
+                if ("accessTokenUser".equals(cookie.getName())) {
                     token = cookie.getValue();
                 }
             }
@@ -72,7 +72,7 @@ public class AuthController {
                 responseResult.setError("UNAUTHORIZED");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
             }
-            var responseResult = this.authenService.createNewSession(token, response);
+            var responseResult = this.authenService.createNewSessionUser(token, response);
             return ResponseEntity.status(HttpStatus.OK).body(responseResult);
         }else {
             var responseResult = new UserAuthenRequest();
@@ -82,12 +82,45 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
         }
     }
-
+    @GetMapping
+    @RequestMapping(value = "/check-session/admin", method = RequestMethod.GET)
+    public ResponseEntity<?> checkSessionAdmin(HttpServletRequest request, HttpServletResponse response) {
+        String token = "";
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessTokenAdmin".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                }
+            }
+            var checkExpired = jwtHelper.isTokenExpired(token);
+            if(checkExpired){
+                var responseResult = new UserAuthenRequest();
+                responseResult.setStatusCode(401);
+                responseResult.setMessage("token has been expired, please login again");
+                responseResult.setError("UNAUTHORIZED");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
+            }
+            var responseResult = this.authenService.createNewSessionAdmin(token, response);
+            return ResponseEntity.status(HttpStatus.OK).body(responseResult);
+        }else {
+            var responseResult = new UserAuthenRequest();
+            responseResult.setStatusCode(401);
+            responseResult.setMessage("No user has been saved in cookie, please login again");
+            responseResult.setError("UNAUTHORIZED");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
+        }
+    }
     private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
+                if ("accessTokenUser".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+                if ("accessTokenAdmin".equals(cookie.getName())) {
                     cookie.setMaxAge(0);
                     cookie.setPath("/");
                     response.addCookie(cookie);

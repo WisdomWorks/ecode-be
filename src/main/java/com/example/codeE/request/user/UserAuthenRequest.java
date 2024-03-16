@@ -1,7 +1,7 @@
 package com.example.codeE.request.user;
 
-import com.example.codeE.model.course.Course;
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.course.CourseResultLoginResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -19,5 +19,5 @@ public class UserAuthenRequest {
     private String refreshToken;
     private String expirationTime;
     private User user;
-    private List<Course> courses;
+    private List<CourseResultLoginResponse> courses;
 }
