@@ -1,6 +1,7 @@
 package com.example.codeE.request.course;
 
 import com.example.codeE.constant.Constant;
+import com.example.codeE.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,5 +23,5 @@ public class CourseResultLoginResponse {
     private LocalDateTime createdDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
-    private String teacherName;
+    private User teacherName;
 }

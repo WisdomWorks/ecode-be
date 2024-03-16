@@ -185,7 +185,7 @@ public class AuthenImpl implements  AuthenService{
                             item.getDescription(),
                             item.getCreatedDate(),
                             item.getUpdatedDate(),
-                            teacher != null ? teacher.getName() : ""
+                            teacher
                     );
                     courseResponseList.add(temp);
                 }
@@ -205,7 +205,7 @@ public class AuthenImpl implements  AuthenService{
                             item.getDescription(),
                             item.getCreatedDate(),
                             item.getUpdatedDate(),
-                            teacher != null ? teacher.getName() : ""
+                            teacher
                     );
                     courseResponseList.add(temp);
                 }
