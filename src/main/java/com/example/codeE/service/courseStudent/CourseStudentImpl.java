@@ -9,6 +9,7 @@ import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.AddStudentToCourseRequest;
 import com.example.codeE.request.course.ImportStudentToCourseRequest;
 import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
+import com.example.codeE.request.course.UpdateStudentsToCourseRequest;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -46,6 +47,23 @@ public class CourseStudentImpl implements CourseStudentService {
             return result;
         }
     }
+
+    @Override
+    public List<CourseStudent> updateStudentsInCourse(UpdateStudentsToCourseRequest request) {
+        courseStudentRepository.deleteAllStudentsByCourseId(request.getCourseId());
+        var result = new ArrayList<CourseStudent>();
+        try {
+            for(String studentId : request.getStudentIds()){
+                CourseStudent courseStudent = new CourseStudent(studentId, request.getCourseId());
+                result.add(this.courseStudentRepository.save(courseStudent));
+            }
+            return result;
+        }catch (Exception e) {
+            LoggerHelper.logInfo(e.getMessage());
+            return result;
+        }
+    }
+
 
     @Override
     public List<String> importStudentsToCourse(ImportStudentToCourseRequest request) {

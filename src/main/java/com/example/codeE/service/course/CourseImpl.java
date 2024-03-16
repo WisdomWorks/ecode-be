@@ -3,11 +3,13 @@ package com.example.codeE.service.course;
 import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
+import com.example.codeE.mapper.course.CourseTeacherDTO;
 import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
+import com.example.codeE.repository.CourseStudentRepository;
 import com.example.codeE.repository.CourseTeacherRepository;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.AddStudentToCourseRequest;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseImpl implements CourseService {
@@ -37,6 +40,8 @@ public class CourseImpl implements CourseService {
     private CourseTeacherRepository courseTeacherRepository;
     @Autowired
     private CourseStudentService courseStudentService;
+    @Autowired
+    private  CourseStudentRepository courseStudentRepository;
     @Override
     public CourseResponse createOne(CreateCourseRequest courseRequest) {
         try {
@@ -89,20 +94,24 @@ public class CourseImpl implements CourseService {
     }
 
     @Override
-    public Course updateById(String id, UpdateCourseRequest update) {
-        Course existingCourse = courseRepository.findById(id).get();
+    public Course updateById(String id, UpdateCourseRequest request) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Course not found"));
 
-        if(update.getCourseName() != null){
-            existingCourse.setCourseName(update.getCourseName());
-        }
-        if (update.getSemester() != null) {
-            existingCourse.setSemester(update.getSemester());
-        }
-        if (update.getDescription() != null) {
-            existingCourse.setDescription(update.getDescription());
-        }
+        course.setCourseName(request.getCourseName());
+        course.setSemester(request.getSemester());
+        course.setEnrollKey(request.getEnrollKey());
+        course.setDescription(request.getDescription());
 
-        return courseRepository.save(existingCourse);
+        // Delete all existing students associated with the course
+        courseTeacherRepository.deleteTeacherInCourseByCourseId(id);
+
+        userRepository.findById(request.getTeacherId()).orElseThrow(() -> new NoSuchElementException("No Teacher found with ID:" + request.getTeacherId()));
+        // Tạo mới và lưu giáo viên vào bảng `course_teacher`
+        CourseTeacher ct = new CourseTeacher(request.getTeacherId(), id, true);
+        courseTeacherRepository.save(ct);
+
+        return courseRepository.save(course);
     }
 
     @Override
