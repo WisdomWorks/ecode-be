@@ -8,6 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface AuthenService {
     UserAuthenRequest signInAdmin(LoginRequest signInRequest, HttpServletResponse response);
     UserAuthenRequest signIn(LoginRequest signInRequest, HttpServletResponse response);
-    UserAuthenRequest createNewSession(String token, HttpServletResponse response);
-    User getUserToken(String token);
+    UserAuthenRequest createNewSessionAdmin(String token, HttpServletResponse response);
+    UserAuthenRequest createNewSessionUser(String token, HttpServletResponse response);
 }
