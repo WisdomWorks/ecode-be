@@ -69,7 +69,7 @@ public class CourseController {
     @PutMapping
     @RequestMapping(value = "", method = RequestMethod.PUT)
     public ResponseEntity<?> updateById(@Valid @RequestBody UpdateCourseRequest updates){
-        Course course = courseService.updateById(updates.getCourseId(), updates);
+        courseService.updateById(updates.getCourseId(), updates);
         CourseResponse courseResponse = courseService.getById(updates.getCourseId());
         return ResponseEntity.status(HttpStatus.OK).body(courseResponse);
     }
@@ -77,7 +77,7 @@ public class CourseController {
     @PutMapping
     @RequestMapping(value = "students", method = RequestMethod.PUT)
     public ResponseEntity<?> updateStudentsInCourse(@Valid @RequestBody UpdateStudentsToCourseRequest request) {
-        var result = courseStudentService.updateStudentsInCourse(request);
+        courseStudentService.updateStudentsInCourse(request);
         CourseResponse course = courseService.getById(request.getCourseId());
         return ResponseEntity.status(HttpStatus.OK).body(course);
     }
