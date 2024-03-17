@@ -1,7 +1,8 @@
-version: "3.3"
+version: '3.3'
 services:
   sql-db:
     image: wisdomwork/sql:latest
+    platform: linux/amd64
     restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -13,29 +14,30 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       # <Port exposed> : <MySQL Port running inside container>
-      - "3306:3306"
+      - '3306:3306'
     expose:
       # Opens port 3306 on the container
-      - "3306"
+      - '3306'
       # Where our data will be persisted
   # Names our volume
 
   nosql-db:
     image: wisdomwork/mongo:latest
+    platform: linux/amd64
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     ports:
-      - "27017:27017"
+      - '27017:27017'
     expose:
-      - "27017"
+      - '27017'
 
   be:
     image: wisdomwork/codee-be:latest
-
+    platform: linux/amd64
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       - sql-db
       - nosql-db
