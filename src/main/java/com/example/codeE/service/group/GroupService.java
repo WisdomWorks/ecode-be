@@ -6,6 +6,7 @@ import com.example.codeE.entity.group.StudentInGroupEntity;
 import com.example.codeE.entity.group.StudentNotInGroupEntity;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.group.GroupStudent;
+import com.example.codeE.model.group.UpdateGroupRequest;
 import com.example.codeE.request.group.CreateGroupRequest;
 import com.example.codeE.service.common.CommonService;
 
@@ -16,4 +17,5 @@ public interface GroupService extends CommonService<Group, CreateGroupRequest> {
     List<StudentInGroupEntity> getUsersInGroup(String groupId);
     List<StudentNotInGroupEntity> getStudentNotInGroup(String groupId);
     void deleteStudentInGroup(String groupId, List<String> studentIds);
+    Group updateGroup(String groupId, UpdateGroupRequest groupUpdate);
 }

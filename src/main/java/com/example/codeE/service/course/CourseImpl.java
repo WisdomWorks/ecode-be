@@ -3,9 +3,7 @@ package com.example.codeE.service.course;
 import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
-import com.example.codeE.mapper.course.CourseTeacherDTO;
 import com.example.codeE.model.course.Course;
-import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
@@ -23,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CourseImpl implements CourseService {
@@ -43,7 +40,6 @@ public class CourseImpl implements CourseService {
             String courseId = UUID.randomUUID().toString();
             var course = new Course(courseRequest, courseId);
             var courseSaved = this.courseRepository.save(course);
-
             var teacherInCourse = new CourseTeacher(courseRequest.getTeacherId(), courseSaved.getCourseId(), true);
             var teacher = this.courseTeacherRepository.save(teacherInCourse);
             return new
@@ -148,26 +144,14 @@ public class CourseImpl implements CourseService {
             response.setError("Can not enroll in course");
             return response;
         }
-        var course = this.courseRepository.findById(request.courseId).orElse(null);
-        if (course == null) {
-            response.setMessage("Course not found");
-            response.setStatus(HttpStatus.NOT_FOUND.value());
-            response.setError("Can not find course with ID: " + request.courseId);
-            return response;
-        }
+        var course = this.courseRepository.findById(request.courseId).orElseThrow(()-> new NoSuchElementException("GCan not find course with ID: " + request.courseId));
         if (!course.getEnrollKey().equals(request.enrollmentKey)) {
             response.setMessage("Your key not match, please try again");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
             response.setError("Invalid enrollment key");
             return response;
         }
-        var student = this.userRepository.findById(request.studentId).orElse(null);
-        if (student == null) {
-            response.setMessage( "Student not found");
-            response.setStatus(HttpStatus.NOT_FOUND.value());
-            response.setError("Can not find student with ID: " + request.studentId);
-            return response;
-        }
+        var student = this.userRepository.findById(request.studentId).orElseThrow(()-> new NoSuchElementException("Can not find student with ID: " + request.studentId));
         try {
             var listUsers = new ArrayList<String>();
             listUsers.add(request.studentId);

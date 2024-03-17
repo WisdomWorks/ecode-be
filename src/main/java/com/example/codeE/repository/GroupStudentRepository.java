@@ -4,8 +4,10 @@ import com.example.codeE.entity.group.StudentInGroupEntity;
 import com.example.codeE.entity.group.StudentNotInGroupEntity;
 import com.example.codeE.model.group.GroupStudent;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,7 +23,8 @@ public interface GroupStudentRepository extends JpaRepository<GroupStudent, Stri
 
      @Query(value = getUserInNotCourseQuery)
      List<StudentNotInGroupEntity> getStudentNotInGroup(String groupId);
-
+     @Modifying
+     @Transactional
      @Query(value = deleteStudentInGroup, nativeQuery = true)
      void deleteStudentInGroup(String studentId, String GroupId);
 }

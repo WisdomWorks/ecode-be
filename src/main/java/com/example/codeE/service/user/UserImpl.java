@@ -1,5 +1,7 @@
 package com.example.codeE.service.user;
 
+import com.example.codeE.constant.Constant;
+import com.example.codeE.helper.EmailHelper;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
@@ -65,6 +67,17 @@ public class UserImpl implements UserService, UserDetailsService {
     public User createOne(CreateUserRequest userRequest) {
         String passwordString = BCryptPassword.generateRandomPassword();
         var user = new User(userRequest, UUID.randomUUID().toString(), BCryptPassword.passwordEncoder(passwordString));
+        //send mail to user
+        try{
+            //need to change
+            String  messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),user.getUsername(), user.getPassword());
+            EmailHelper emailHelper = new EmailHelper();
+            emailHelper.sendMail(
+                    "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail()
+            );
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
         return this.userRepository.save(user);
     }
 
