@@ -1,5 +1,6 @@
 package com.example.codeE.service.group;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -8,6 +9,7 @@ import java.util.UUID;
 import com.example.codeE.entity.group.StudentInGroupEntity;
 import com.example.codeE.entity.group.StudentNotInGroupEntity;
 import com.example.codeE.model.group.GroupStudent;
+import com.example.codeE.model.group.UpdateGroupRequest;
 import com.example.codeE.repository.GroupStudentRepository;
 import com.example.codeE.service.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,5 +96,12 @@ public class GroupImpl implements GroupService{
         for(String studentId: studentIds){
             this.groupStudentRepository.deleteStudentInGroup(studentId, groupId);
         }
+    }
+    @Override
+    public Group updateGroup(String groupId, UpdateGroupRequest updateGroup){
+        var group = this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("Group not found"));
+        group.setGroupName(updateGroup.getGroupName());
+        group.setUpdateDate(LocalDateTime.now());
+        return this.groupRepository.save(group);
     }
 }
