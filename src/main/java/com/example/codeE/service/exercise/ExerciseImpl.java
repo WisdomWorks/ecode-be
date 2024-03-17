@@ -41,6 +41,11 @@ public class ExerciseImpl implements ExerciseService{
     }
 
     @Override
+    public Exercise getExerciseById(String exerciseId) {
+        return this.exerciseRepository.findById(exerciseId).get();
+    }
+
+    @Override
     public void deleteExerciseById(String exerciseId) {
         this.exerciseRepository.deleteById(exerciseId);
     }

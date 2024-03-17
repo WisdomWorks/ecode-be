@@ -1,10 +1,10 @@
 package com.example.codeE.model.course;
 
-import com.example.codeE.request.course.AddStudentToCourseRequest;
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.Entity;
-import jakarta.persistence.IdClass;
+import com.example.codeE.constant.Constant;
+import com.example.codeE.model.user.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -40,13 +40,19 @@ public class CourseStudent {
 //    private Course course;
 
     @Column(name = "join_date", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime joinDate;
 
-    public CourseStudent(AddStudentToCourseRequest request) {
-        this.studentId = request.getStudentId();
-        this.courseId = request.getCourseId();
-        this.joinDate = LocalDateTime.now();
-    }
+    @JsonIgnore
+    @ManyToOne(optional=false)
+    @JoinColumn(name = "course_id", insertable=false, updatable=false)
+    private Course course;
+
+    @JsonIgnore
+    @ManyToOne(optional=false)
+    @JoinColumn(name = "student_id", insertable=false, updatable=false)
+    private User student;
+    
 
     public CourseStudent(@NotNull String studentId, @NotNull String courseId) {
         this.studentId = studentId;

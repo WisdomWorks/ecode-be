@@ -24,5 +24,9 @@ public class UpdateCourseRequest {
     @Size(max = 4)
     private String semester;
 
+    private String enrollKey;
+
     private String description;
+
+    private String teacherId;
 }

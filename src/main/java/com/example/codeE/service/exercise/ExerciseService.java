@@ -9,5 +9,7 @@ public interface ExerciseService {
 
     List<Exercise> getExercisesByCourseId(String courseId);
 
+    Exercise getExerciseById(String exerciseId);
+
     void deleteExerciseById(String exerciseId);
 }

@@ -82,16 +82,36 @@ public class ExcelHelper {
                     Cell cell = cellIterator.next();
                     Field field = clazz.getDeclaredFields()[cellIndex];
                     field.setAccessible(true);
+
+                    String cellValue = null;
+                    switch (cell.getCellType()) {
+                        case STRING:
+                            cellValue = cell.getStringCellValue();
+                            break;
+                        case NUMERIC:
+                            cellValue = String.valueOf(cell.getNumericCellValue());
+                            break;
+                        case BOOLEAN:
+                            cellValue = String.valueOf(cell.getBooleanCellValue());
+                            break;
+                        case FORMULA:
+                            cellValue = cell.getCellFormula();
+                            break;
+                        default:
+                            cellValue = "";
+                    }
+
                     // Set value from Excel cell to corresponding field in the instance
                     if (field.getType() == String.class) {
-                        field.set(instance, cell.getStringCellValue());
+                        field.set(instance, cellValue);
                     } else if (field.getType() == int.class) {
-                        field.set(instance, (int) cell.getNumericCellValue());
+                        field.set(instance, Integer.parseInt(cellValue));
                     } else if (field.getType() == double.class) {
-                        field.set(instance, cell.getNumericCellValue());
+                        field.set(instance, Double.parseDouble(cellValue));
                     } else if (field.getType() == UUID.class) {
                         field.set(instance, UUID.randomUUID().toString());
                     }
+
                     if (!cell.toString().trim().isEmpty()) {
                         rowHasData = true;
                     }

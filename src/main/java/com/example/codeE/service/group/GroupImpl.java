@@ -1,14 +1,20 @@
 package com.example.codeE.service.group;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import com.example.codeE.entity.group.StudentInGroupEntity;
+import com.example.codeE.entity.group.StudentNotInGroupEntity;
+import com.example.codeE.model.group.GroupStudent;
+import com.example.codeE.model.group.UpdateGroupRequest;
+import com.example.codeE.repository.GroupStudentRepository;
 import com.example.codeE.service.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.codeE.model.group.Group;
-import com.example.codeE.model.user.User;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.request.group.CreateGroupRequest;
 
@@ -21,6 +27,8 @@ public class GroupImpl implements GroupService{
     private GroupRepository groupRepository;
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private GroupStudentRepository groupStudentRepository;
 
     @Override
     public Group createOne(CreateGroupRequest groupRequest) {
@@ -35,8 +43,7 @@ public class GroupImpl implements GroupService{
 
     @Override
     public Group getById(String GroupId) {
-       Optional<Group> groupOptional = this.groupRepository.findById(GroupId);
-        return groupOptional.orElse(null);
+        return this.groupRepository.findById(GroupId).orElseThrow(() -> new NoSuchElementException("No group found with ID:" + GroupId));
     }
 
     @Override
@@ -49,31 +56,52 @@ public class GroupImpl implements GroupService{
     }
 
     @Override
-    public boolean deleteById(String id) {
-        if (!groupRepository.existsById(id)) {
-            return false;
+    public void deleteById(String id) {
+        if (groupRepository.existsById(id)) {
+            this.groupRepository.deleteById(id);
+        } else {
+            throw new NoSuchElementException("Group not found with id " + id);
         }
-        this.groupRepository.deleteById(id);
-        return true;
     }
 
+    @Override
+    public List<GroupStudent> addStudentsToGroup(List<String> studentIds, String groupId, String description) {
+        var result = new ArrayList<GroupStudent>();
+        System.out.println(studentIds);
+        System.out.println(groupId);
+        for (String studentId: studentIds
+             ) {
+            var groupStudent = this.groupStudentRepository.save(new GroupStudent(studentId, groupId, description));
+            result.add(groupStudent);
+        }
+        return result;
+    }
+    
     @Override
     public List<Group> getGroupsByCourseId(String courseId) {
         return this.groupRepository.getAllCourseByCourseId(courseId);
     }
 
     @Override
-    public List<User> getUsersInGroup(String groupId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUsersInGroup'");
+    public List<StudentInGroupEntity> getUsersInGroup(String groupId) {
+        return this.groupStudentRepository.getStudentInGroup(groupId);
     }
-
+    @Override
+    public List<StudentNotInGroupEntity> getStudentNotInGroup(String groupId) {
+        return this.groupStudentRepository.getStudentNotInGroup(groupId);
+    }
 
     @Override
-    public Boolean updateGroupById(String groupId, Group updatedGroup) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateGroupById'");
+    public void deleteStudentInGroup(String groupId, List<String> studentIds) {
+        for(String studentId: studentIds){
+            this.groupStudentRepository.deleteStudentInGroup(studentId, groupId);
+        }
     }
-
-    
+    @Override
+    public Group updateGroup(String groupId, UpdateGroupRequest updateGroup){
+        var group = this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("Group not found"));
+        group.setGroupName(updateGroup.getGroupName());
+        group.setUpdateDate(LocalDateTime.now());
+        return this.groupRepository.save(group);
+    }
 }
