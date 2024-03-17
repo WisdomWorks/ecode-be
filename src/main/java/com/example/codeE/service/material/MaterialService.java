@@ -18,4 +18,5 @@ public interface MaterialService extends CommonService<Material, CreateMaterialR
     List<Group> getAllGroupsByMaterialId(String materialId);
     boolean removeViewPermission(String materialId, List<String> groupIds);
     boolean addViewPermission(String materialId, List<String> groupIds);
+    List<Material> getMaterialBy(String studentId, String materialId);
 }

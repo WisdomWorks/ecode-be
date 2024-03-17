@@ -45,7 +45,7 @@ public class AllExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Map<String, String>> handleNoSuchElementException(NoSuchElementException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
+        response.put("errorMessage", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 

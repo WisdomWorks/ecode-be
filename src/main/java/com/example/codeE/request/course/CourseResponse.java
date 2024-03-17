@@ -33,7 +33,9 @@ public class CourseResponse {
     @Column(name = "semester")
     @Size(max = 4, message = "Semester cannot exceed 4 characters")
     private String semester;
-
+    @Column(name = "enroll_key")
+    @NotBlank(message = "Enroll key is required")
+    private String enrollKey;
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
@@ -54,6 +56,7 @@ public class CourseResponse {
         this.courseId = course.getCourseId();
         this.courseName = course.getCourseName();
         this.semester = course.getSemester();
+        this.enrollKey = course.getEnrollKey();
         this.description = course.getDescription();
         this.updatedDate = course.getUpdatedDate();
         this.createdDate = course.getCreatedDate();
@@ -62,6 +65,7 @@ public class CourseResponse {
         this.courseId = course.getCourseId();
         this.courseName = course.getCourseName();
         this.semester = course.getSemester();
+        this.enrollKey = course.getEnrollKey();
         this.description = course.getDescription();
         this.updatedDate = course.getUpdatedDate();
         this.createdDate = course.getCreatedDate();
@@ -72,6 +76,7 @@ public class CourseResponse {
         this.courseId = course.getCourseId();
         this.courseName = course.getCourseName();
         this.semester = course.getSemester();
+        this.enrollKey = course.getEnrollKey();
         this.description = course.getDescription();
         this.updatedDate = course.getUpdatedDate();
         this.createdDate = course.getCreatedDate();

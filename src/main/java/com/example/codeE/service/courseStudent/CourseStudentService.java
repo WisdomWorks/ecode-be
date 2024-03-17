@@ -4,11 +4,14 @@ import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.request.course.AddStudentToCourseRequest;
 import com.example.codeE.request.course.ImportStudentToCourseRequest;
 import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
+import com.example.codeE.request.course.UpdateStudentsToCourseRequest;
 
 import java.util.List;
 
 public interface CourseStudentService {
-    CourseStudent addStudentToCourse(AddStudentToCourseRequest request);
+    List<CourseStudent> addStudentToCourse(AddStudentToCourseRequest request);
+    List<CourseStudent> updateStudentsInCourse(UpdateStudentsToCourseRequest request);
     List<String> importStudentsToCourse(ImportStudentToCourseRequest request);
-    boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request);
+    Boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request);
+    Boolean checkStudentInCourse(String studentId, String courseId);
 }

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -48,7 +47,7 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(value = "",method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest user){
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest user){
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.createOne(user));
     }
 
@@ -73,8 +72,10 @@ public class UserController {
     @PostMapping
     @RequestMapping(value = "/import-users",method = RequestMethod.POST)
     public ResponseEntity<?> importUsersByExcel(@Valid @RequestParam("file") MultipartFile file) {
-        ResponseEntity<Map<String, String>> result = this.userService.saveUserToDatabase(file);
-        return result;
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+        }
+        return this.userService.saveUserToDatabase(file);
     }
 
     @DeleteMapping

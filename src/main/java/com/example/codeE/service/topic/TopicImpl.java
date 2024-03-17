@@ -5,11 +5,14 @@ import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.request.topic.CreateTopicRequest;
+import com.example.codeE.request.topic.TopicByUserResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
 import com.example.codeE.service.course.CourseService;
+import com.example.codeE.service.material.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -20,9 +23,10 @@ public class TopicImpl implements TopicService{
     private TopicRepository topicRepository;
     @Autowired
     private CourseService courseService;
-
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private MaterialService materialService;
     @Override
     public List<Topic> getAllTopicsByCourseId(String courseId) {
         return this.topicRepository.getAllTopicsByCourseId(courseId);
@@ -74,6 +78,17 @@ public class TopicImpl implements TopicService{
             this.topicRepository.addViewPermission(topicId, groupId);
         }
         return true;
+    }
+
+    @Override
+    public List<TopicByUserResponse> getTopicByUserId(String studentId, String courseId) {
+        var response = new ArrayList<TopicByUserResponse>();
+        var topics =  this.topicRepository.getTopicByUser(studentId, courseId);
+        for(var item: topics){
+            var materials = this.materialService.getMaterialBy(studentId, item.getTopicId());
+            response.add(new TopicByUserResponse(item, materials));
+        }
+        return response;
     }
 
     @Override

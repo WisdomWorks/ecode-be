@@ -2,7 +2,6 @@ package com.example.codeE.model.course;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.model.user.User;
-import com.example.codeE.request.course.AddStudentToCourseRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -53,12 +52,7 @@ public class CourseStudent {
     @ManyToOne(optional=false)
     @JoinColumn(name = "student_id", insertable=false, updatable=false)
     private User student;
-
-    public CourseStudent(AddStudentToCourseRequest request) {
-        this.studentId = request.getStudentId();
-        this.courseId = request.getCourseId();
-        this.joinDate = LocalDateTime.now();
-    }
+    
 
     public CourseStudent(@NotNull String studentId, @NotNull String courseId) {
         this.studentId = studentId;

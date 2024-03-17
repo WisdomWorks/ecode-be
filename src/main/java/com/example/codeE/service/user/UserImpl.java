@@ -1,5 +1,7 @@
 package com.example.codeE.service.user;
 
+import com.example.codeE.constant.Constant;
+import com.example.codeE.helper.EmailHelper;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
@@ -9,8 +11,9 @@ import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.security.BCryptPassword;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,11 +30,13 @@ import static com.example.codeE.constant.Constant.VALID_ROLES;
 
 @Service
 public class UserImpl implements UserService, UserDetailsService {
+    private static final Logger logger = LoggerFactory.getLogger(UserImpl.class);
+
     @Autowired
     private UserRepository userRepository;
 
     @Override
-    public User getById(@NotBlank String userId) {;
+    public User getById(@NotBlank String userId) {    
         return this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found with ID:" + userId));
     }
 
@@ -62,6 +67,17 @@ public class UserImpl implements UserService, UserDetailsService {
     public User createOne(CreateUserRequest userRequest) {
         String passwordString = BCryptPassword.generateRandomPassword();
         var user = new User(userRequest, UUID.randomUUID().toString(), BCryptPassword.passwordEncoder(passwordString));
+        //send mail to user
+        try{
+            //need to change
+            String  messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),user.getUsername(), user.getPassword());
+            EmailHelper emailHelper = new EmailHelper();
+            emailHelper.sendMail(
+                    "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail()
+            );
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
         return this.userRepository.save(user);
     }
 
@@ -114,30 +130,29 @@ public class UserImpl implements UserService, UserDetailsService {
 
     @Override
     public ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file) {
-            String passwordHash = BCryptPassword.generateRandomPassword();
+        String passwordHash = BCryptPassword.generateRandomPassword();
         Map<String, String> response = new HashMap<>();
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
                 List<User> users = new ArrayList<>();
+                List<String> unsuccessfulUsers = new ArrayList<>();
                 List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(), UserFromExcel.class);
                 for (UserFromExcel excelUser : importedUsers) {
-                    excelUser.setRole(excelUser.getRole().toLowerCase());
-                    users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
+                    try {
+                        excelUser.setRole(excelUser.getRole().toLowerCase());
+                        users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
+                        userRepository.save(users.get(users.size() - 1));
+                    } catch (Exception ex) {
+                        unsuccessfulUsers.add(excelUser.getUsername());
+                        logger.error("Error saving user to database", ex);
+                    }
                 }
-                userRepository.saveAll(users);
                 response.put("message", "Users saved successfully");
+                response.put("unsuccessfulUsers", unsuccessfulUsers.toString());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error processing the file", e);
                 response.put("message", e.getMessage());
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-            } catch (DataIntegrityViolationException ex) {
-                ex.printStackTrace();
-                response.put("message", ex.getMessage());
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                response.put("message", ex.getMessage());
                 return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
