@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import lombok.Setter;
 public class CreateMaterialRequest {
 
     @NotBlank(message = "Material type is required")
-    @Pattern(regexp = "^(file|url)$", message = "Invalid material type. Allowed types are file and url.")
+    @Pattern(regexp = "^(file|string)$", message = "Invalid material type. Allowed types are file and string.")
     private String materialType;
 
     @NotBlank(message = "Topic ID is required")
@@ -27,4 +28,6 @@ public class CreateMaterialRequest {
     private String url;
 
     private String description;
+
+    private MultipartFile file;
 }

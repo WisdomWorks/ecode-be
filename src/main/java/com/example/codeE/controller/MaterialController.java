@@ -35,8 +35,9 @@ public class MaterialController {
     }
 
     @PostMapping
-    @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<?> createOne(@Valid @RequestBody CreateMaterialRequest request, MultipartFile file) {
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {"multipart/mixed"})
+    public ResponseEntity<?> createOne(@Valid @ModelAttribute CreateMaterialRequest request) {
+        System.out.println(request.getFile().getOriginalFilename());
         Material result = materialService.createOne(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
