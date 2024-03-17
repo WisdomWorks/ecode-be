@@ -7,7 +7,6 @@ import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
-import com.example.codeE.repository.CourseStudentRepository;
 import com.example.codeE.repository.CourseTeacherRepository;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.*;
@@ -32,8 +31,6 @@ public class CourseImpl implements CourseService {
     private CourseTeacherRepository courseTeacherRepository;
     @Autowired
     private CourseStudentService courseStudentService;
-    @Autowired
-    private  CourseStudentRepository courseStudentRepository;
     @Override
     public CourseResponse createOne(CreateCourseRequest courseRequest) {
         try {
@@ -174,6 +171,15 @@ public class CourseImpl implements CourseService {
             response.setError(e.getMessage());
             return response;
         }
+    }
+
+    @Override
+    public List<Course> getCourseByUserId(String userId) {
+        var user = this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find student with ID: " + userId));
+        if (user.getRole().equals("student")){
+            return this.courseRepository.getCourseByStudentId(userId);
+        }else
+            return this.courseRepository.getCourseByTeacherId(userId);
     }
 
     @Override

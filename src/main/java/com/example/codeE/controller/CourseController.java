@@ -135,13 +135,8 @@ public class CourseController {
     }
 
     @GetMapping
-    @RequestMapping(value = "student/{studentId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getCourseByUserId(@Valid @PathVariable String studentId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.courseService.getCourseByStudentId(studentId));
-    }
-    @GetMapping
-    @RequestMapping(value = "teacher/{teacherId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getCourseByTeacherId(@Valid @PathVariable String teacherId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.courseService.getCourseByTeacherId(teacherId));
+    @RequestMapping(value = "user/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getCourseByUserId(@Valid @PathVariable String userId){
+        return ResponseEntity.status(HttpStatus.OK).body(this.courseService.getCourseByUserId(userId));
     }
 }
