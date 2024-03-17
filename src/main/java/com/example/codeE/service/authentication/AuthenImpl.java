@@ -1,11 +1,9 @@
 package com.example.codeE.service.authentication;
 
 import com.example.codeE.helper.JWTUtils;
-import com.example.codeE.model.course.Course;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
-import com.example.codeE.request.course.CourseResponse;
-import com.example.codeE.request.course.CourseResultLoginResponse;
+import com.example.codeE.request.course.CourseTeacherResponse;
 import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.service.course.CourseService;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 @Service
 public class AuthenImpl implements  AuthenService{
@@ -175,10 +172,10 @@ public class AuthenImpl implements  AuthenService{
         if(user.getRole().equals("student")){
             var course = this.courseService.getCourseByStudentId(user.getUserId());
             if(!course.isEmpty()) {
-                var courseResponseList = new ArrayList<CourseResultLoginResponse>();
+                var courseResponseList = new ArrayList<CourseTeacherResponse>();
                 for(var item: course){
                     var teacher = this.userRepository.getTeacherInCourse(item.getCourseId());
-                    var temp = new CourseResultLoginResponse(
+                    var temp = new CourseTeacherResponse(
                             item.getCourseId(),
                             item.getCourseName(),
                             item.getSemester(),
@@ -195,10 +192,10 @@ public class AuthenImpl implements  AuthenService{
         if(user.getRole().equals("teacher")){
             var course = this.courseService.getCourseByTeacherId(user.getUserId());
             if(!course.isEmpty()){
-                var courseResponseList = new ArrayList<CourseResultLoginResponse>();
+                var courseResponseList = new ArrayList<CourseTeacherResponse>();
                 for(var item: course){
                     var teacher = this.userRepository.getTeacherInCourse(item.getCourseId());
-                    var temp = new CourseResultLoginResponse(
+                    var temp = new CourseTeacherResponse(
                             item.getCourseId(),
                             item.getCourseName(),
                             item.getSemester(),

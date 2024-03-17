@@ -12,12 +12,7 @@ import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.repository.CourseStudentRepository;
 import com.example.codeE.repository.CourseTeacherRepository;
 import com.example.codeE.repository.UserRepository;
-import com.example.codeE.request.course.AddStudentToCourseRequest;
-import com.example.codeE.request.course.CourseEnrollmentRequest;
-import com.example.codeE.request.course.CourseEnrollmentResponse;
-import com.example.codeE.request.course.CourseResponse;
-import com.example.codeE.request.course.CreateCourseRequest;
-import com.example.codeE.request.course.UpdateCourseRequest;
+import com.example.codeE.request.course.*;
 import com.example.codeE.service.courseStudent.CourseStudentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,8 +140,8 @@ public class CourseImpl implements CourseService {
         return this.courseRepository.findById(courseId).isPresent();
     }
     @Override
-    public CourseEnrollmentResponse<CourseStudent> enrollStudentToCourse(CourseEnrollmentRequest request) {
-        var response = new CourseEnrollmentResponse<CourseStudent>();
+    public CourseEnrollmentResponse<CourseTeacherResponse> enrollStudentToCourse(CourseEnrollmentRequest request) {
+        var response = new CourseEnrollmentResponse<CourseTeacherResponse>();
         if(this.courseStudentService.checkStudentInCourse(request.studentId, request.courseId)){
             response.setStatus(HttpStatus.CONFLICT.value());
             response.setMessage("User already enrolled in course");
@@ -177,10 +172,19 @@ public class CourseImpl implements CourseService {
             var listUsers = new ArrayList<String>();
             listUsers.add(request.studentId);
             var requestAddStudentToCourse = new AddStudentToCourseRequest(listUsers, request.studentId);
-            var result = this.courseStudentService.addStudentToCourse(requestAddStudentToCourse);
+            var courseStudent = this.courseStudentService.addStudentToCourse(requestAddStudentToCourse);
             response.setMessage( "Enroll student to course successfully");
             response.setStatus(HttpStatus.CREATED.value());
-            response.setValues(result);
+            var result = new CourseTeacherResponse(
+                course.getCourseId(),
+                    course.getCourseName(),
+                    course.getSemester(),
+                    course.getDescription(),
+                    course.getCreatedDate(),
+                    course.getUpdatedDate(),
+                    this.userRepository.getTeacherInCourse(course.getCourseId())
+            );
+            response.setValue(result);
             return response;
         } catch (Exception e) {
             response.setMessage("Failed to enroll student to course");

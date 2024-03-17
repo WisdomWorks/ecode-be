@@ -123,7 +123,7 @@ public class CourseController {
 
     @PostMapping
     @RequestMapping(value = "enrollment", method = RequestMethod.POST)
-    public ResponseEntity<?> enrollUserToCourse(@RequestBody CourseEnrollmentRequest request){
+    public ResponseEntity<?> enrollUserToCourse(@Valid @RequestBody CourseEnrollmentRequest request){
         var response = this.courseService.enrollStudentToCourse(request);
         return switch (response.getStatus()) {
             case 404 -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

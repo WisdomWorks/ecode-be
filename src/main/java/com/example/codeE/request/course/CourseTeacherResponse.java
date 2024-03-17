@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseResultLoginResponse {
+public class CourseTeacherResponse {
     private String courseId;
     private String courseName;
     private String semester;
@@ -23,5 +23,5 @@ public class CourseResultLoginResponse {
     private LocalDateTime createdDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
-    private User teacherName;
+    private User teacher;
 }
