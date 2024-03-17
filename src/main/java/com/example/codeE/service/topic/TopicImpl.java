@@ -1,6 +1,5 @@
 package com.example.codeE.service.topic;
 
-import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.GroupRepository;

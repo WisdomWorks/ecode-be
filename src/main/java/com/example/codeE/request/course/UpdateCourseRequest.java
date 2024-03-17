@@ -1,18 +1,12 @@
 package com.example.codeE.request.course;
 
-import com.example.codeE.constant.Constant;
-import com.example.codeE.mapper.course.CourseTeacherDTO;
 import com.example.codeE.validator.id.ExistingId;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Getter
