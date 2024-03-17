@@ -57,9 +57,7 @@ public class CourseImpl implements CourseService {
     public CourseResponse getById(String courseId) {
         var course = courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID:" + courseId));
         List<User> studentInCourse = this.userRepository.getUserInCourse(courseId);
-        System.out.println(studentInCourse);
         var teacher = this.userRepository.getTeacherInCourse(courseId);
-        System.out.println(teacher);
         return new CourseResponse(course, studentInCourse, teacher);
     }
 
@@ -144,7 +142,7 @@ public class CourseImpl implements CourseService {
             response.setError("Can not enroll in course");
             return response;
         }
-        var course = this.courseRepository.findById(request.courseId).orElseThrow(()-> new NoSuchElementException("GCan not find course with ID: " + request.courseId));
+        var course = this.courseRepository.findById(request.courseId).orElseThrow(()-> new NoSuchElementException("Can not find course with ID: " + request.courseId));
         if (!course.getEnrollKey().equals(request.enrollmentKey)) {
             response.setMessage("Your key not match, please try again");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -180,11 +178,13 @@ public class CourseImpl implements CourseService {
 
     @Override
     public List<Course> getCourseByStudentId(String userId) {
+        var student = this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find student with ID: " + userId));
         return this.courseRepository.getCourseByStudentId(userId);
     }
 
     @Override
     public List<Course> getCourseByTeacherId(String userId) {
+        var student = this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find teacher with ID: " + userId));
         return this.courseRepository.getCourseByTeacherId(userId);
     }
 }
