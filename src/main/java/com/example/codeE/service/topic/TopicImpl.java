@@ -1,9 +1,12 @@
 package com.example.codeE.service.topic;
 
+import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.topic.Topic;
+import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.TopicRepository;
+import com.example.codeE.repository.ViewPermissionTopicRepository;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.TopicByUserResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
@@ -18,64 +21,81 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
-public class TopicImpl implements TopicService{
+public class TopicImpl implements TopicService {
     @Autowired
     private TopicRepository topicRepository;
     @Autowired
+    private ViewPermissionTopicRepository viewPermissionTopicRepository;
+    @Autowired
     private CourseService courseService;
+    @Autowired
+    private CourseRepository courseRepository;
     @Autowired
     private GroupRepository groupRepository;
     @Autowired
     private MaterialService materialService;
+
     @Override
     public List<Topic> getAllTopicsByCourseId(String courseId) {
+        this.courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID: " + courseId));
         return this.topicRepository.getAllTopicsByCourseId(courseId);
     }
 
     @Override
     public Topic updateTopic(UpdateTopicRequest topicRequest) {
-        if (this.topicRepository.existsById(topicRequest.getTopicId())) {
+        this.topicRepository.findById(topicRequest.getTopicId()).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + topicRequest.getTopicId()));
+        try {
             Topic topic = this.topicRepository.findById(topicRequest.getTopicId()).get();
             topic.setTopicName(topicRequest.getTopicName());
             topic.setDescription(topicRequest.getDescription());
             return this.topicRepository.save(topic);
+        } catch (Exception e) {
+            LoggerHelper.logError(e.getMessage());
+            throw new RuntimeException("Can not update topic");
         }
-        return null;
     }
 
     @Override
     public List<Group> getAllGroupsByTopicId(String topicId) {
-        if (this.topicRepository.existsById(topicId)) {
-            return this.topicRepository.getAllGroupsByTopicId(topicId);
+        this.topicRepository.findById(topicId).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + topicId));
+        List<Group> result = new ArrayList<Group>();
+        var permission = this.viewPermissionTopicRepository.getAllGroupsByTopicId(topicId);
+        for (var p : permission) {
+            var group = this.groupRepository.findById(p.getGroupId()).get();
+            result.add(group);
         }
-        return null;
+        return result;
     }
 
     @Override
     public boolean removeViewPermission(String topicId, List<String> groupIds) {
-        if (!this.topicRepository.existsById(topicId)) {
-            return false;
-        }
-        for (String groupId : groupIds) {
-            if (!this.groupRepository.existsById(groupId)) {
-                return false;
+        this.topicRepository.findById(topicId).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + topicId));
+        for (String groupId : groupIds)
+            this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + groupId));
+        try {
+            for (String groupId : groupIds) {
+                this.viewPermissionTopicRepository.removeViewPermission(topicId, groupId);
             }
-            this.topicRepository.removeViewPermission(topicId, groupId);
-    }
+
+        } catch (Exception e) {
+            LoggerHelper.logError(e.getMessage());
+            throw new RuntimeException("Something wrong when delete view permission");
+        }
         return true;
     }
 
     @Override
     public boolean addViewPermission(String topicId, List<String> groupIds) {
-        if (!this.topicRepository.existsById(topicId)) {
-            return false;
-        }
-        for (String groupId : groupIds) {
-            if (!this.groupRepository.existsById(groupId)) {
-                return false;
+        this.topicRepository.findById(topicId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + topicId));
+        for (String groupId : groupIds)
+            this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + groupId));
+        try {
+            for (String groupId : groupIds) {
+                this.viewPermissionTopicRepository.addViewPermission(topicId, groupId);
             }
-            System.out.println(groupId);
-            this.topicRepository.addViewPermission(topicId, groupId);
+        } catch (Exception e) {
+            LoggerHelper.logError(e.getMessage());
+            throw new RuntimeException("Something wrong when delete view permission");
         }
         return true;
     }
@@ -83,8 +103,8 @@ public class TopicImpl implements TopicService{
     @Override
     public List<TopicByUserResponse> getTopicByUserId(String studentId, String courseId) {
         var response = new ArrayList<TopicByUserResponse>();
-        var topics =  this.topicRepository.getTopicByUser(studentId, courseId);
-        for(var item: topics){
+        var topics = this.topicRepository.getTopicByUser(studentId, courseId);
+        for (var item : topics) {
             var materials = this.materialService.getMaterialBy(studentId, item.getTopicId());
             response.add(new TopicByUserResponse(item, materials));
         }
@@ -93,22 +113,23 @@ public class TopicImpl implements TopicService{
 
     @Override
     public Topic createOne(CreateTopicRequest topicRequest) {
-        String courseId = topicRequest.getCourseId();
-        System.out.println(courseId);
-        if (this.courseService.checkCourseExistById(courseId)) {
+        this.courseRepository.findById(topicRequest.getCourseId()).orElseThrow(() -> new NoSuchElementException("No course found with ID: " + topicRequest.getCourseId()));
+        try {
             Topic topic = new Topic();
             topic.setTopicId(UUID.randomUUID().toString());
-            topic.setCourseId(courseId);
+            topic.setCourseId(topicRequest.getCourseId());
             topic.setTopicName(topicRequest.getTopicName());
             topic.setDescription(topicRequest.getDescription());
             return this.topicRepository.save(topic);
+        } catch (Exception e) {
+            LoggerHelper.logError(e.getMessage());
+            throw new RuntimeException("Can not create new topic");
         }
-        return null;
     }
 
     @Override
     public Topic getById(String id) {
-        return this.topicRepository.findById(id).orElse(null);
+        return this.topicRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + id));
     }
 
     @Override
@@ -121,7 +142,7 @@ public class TopicImpl implements TopicService{
         if (topicRepository.existsById(id)) {
             this.topicRepository.deleteById(id);
         } else {
-            throw new NoSuchElementException("Topic not found with id " + id);
+            throw new NoSuchElementException("Topic not found with id: " + id);
         }
     }
 }
