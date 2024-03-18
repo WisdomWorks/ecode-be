@@ -1,13 +1,11 @@
 package com.example.codeE.model.material;
 
 import com.example.codeE.constant.Constant;
+import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -31,9 +29,13 @@ public class Material {
     @NotBlank(message = "Material ID is required")
     private String materialId;
 
+    @Column(name = "material_name")
+    @NotBlank(message = "Material name is required")
+    private String materialName;
+
     @Column(name = "material_type", nullable = false)
     @NotBlank(message = "Material type is required")
-    @Pattern(regexp = "^(file|text)$", message = "Invalid material type. Allowed types are file and folder.")
+    @Pattern(regexp = "^(file|string)$", message = "Invalid material type. Allowed types are file and link.")
     private String materialType;
 
     @Column(name = "topic_id", length = 36, nullable = false)
@@ -55,8 +57,14 @@ public class Material {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
 
+    @JsonIgnore
+    @ManyToOne(optional=false)
+    @JoinColumn(name = "topic_id", insertable=false, updatable=false)
+    private Topic topic;
+
     public Material(String materialId, CreateMaterialRequest request) {
         this.materialId = materialId;
+        this.materialName = request.getMaterialName();
         this.materialType = request.getMaterialType();
         this.topicId = request.getTopicId();
         this.storageUrl = request.getUrl();
@@ -73,5 +81,19 @@ public class Material {
     @PreUpdate
     protected void onUpdate() {
         this.updatedDate = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "Material{" +
+                "materialId='" + materialId + '\'' +
+                ", materialName='" + materialName + '\'' +
+                ", materialType='" + materialType + '\'' +
+                ", topicId='" + topicId + '\'' +
+                ", storageUrl='" + storageUrl + '\'' +
+                ", description='" + description + '\'' +
+                ", createdDate=" + createdDate +
+                ", updatedDate=" + updatedDate +
+                '}';
     }
 }

@@ -4,10 +4,12 @@ import com.example.codeE.model.group.Group;
 import com.example.codeE.model.material.Material;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.MaterialRepository;
+import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,7 +20,8 @@ public class MaterialImpl implements MaterialService{
 
     @Autowired
     private MaterialRepository materialRepository;
-
+    @Autowired
+    private TopicRepository topicRepository;
     @Autowired
     private GroupRepository groupRepository;
 
@@ -37,6 +40,22 @@ public class MaterialImpl implements MaterialService{
     @Override
     public Material getById(String id) {
         return materialRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No material found with ID: " + id));
+    }
+
+    @Override
+    public Material CreateMaterial(CreateMaterialRequest createRequest, MultipartFile file) {
+        this.topicRepository.findById(createRequest.getTopicId())
+                .orElseThrow(() -> new NoSuchElementException("No material found with ID: " + createRequest.getTopicId()));
+        if(createRequest.getMaterialType().equals("file")){
+            //upload file in to google buckget and get storeUrl back
+            //save into db
+            throw new UnsupportedOperationException("not support yet");
+        }
+        if(createRequest.getMaterialType().equals("string")){
+            var material = new Material(UUID.randomUUID().toString(), createRequest);
+            return this.materialRepository.save(material);
+        }
+        return null;
     }
 
     @Override
@@ -78,14 +97,14 @@ public class MaterialImpl implements MaterialService{
         return materialRepository.save(material);
     }
 
-    @Override
-    public List<Group> getAllGroupsByMaterialId(String materialId) {
-        List<Group> groups = materialRepository.getAllGroupsByMaterialId(materialId);
-        if(groups.isEmpty()){
-            throw new NoSuchElementException("No group found with materialID: " + materialId);
-        }
-        return groups;
-    }
+//    @Override
+//    public List<Group> getAllGroupsByMaterialId(String materialId) {
+//        List<Group> groups = materialRepository.getAllGroupsByMaterialId(materialId);
+//        if(groups.isEmpty()){
+//            throw new NoSuchElementException("No group found with materialID: " + materialId);
+//        }
+//        return groups;
+//    }
 
     @Override
     public boolean removeViewPermission(String materialId, List<String> groupIds) {

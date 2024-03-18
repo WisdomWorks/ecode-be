@@ -28,8 +28,8 @@ public interface MaterialRepository extends JpaRepository<Material, String> {
     Material findByMaterialIdAndTopicId(String materialId, String topicId);
 
 
-    @Query(value = getAllGroupsByMaterialIdSql, nativeQuery = true)
-    List<Group> getAllGroupsByMaterialId(String materialId);
+//    @Query(value = getAllGroupsByMaterialIdSql, nativeQuery = true)
+//    List<Group> getAllGroupsByMaterialId(String materialId);
 
     @Modifying
     @Transactional

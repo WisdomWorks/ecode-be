@@ -1,6 +1,7 @@
 package com.example.codeE.request.material;
 
 import com.example.codeE.validator.id.ExistingId;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -16,8 +17,12 @@ import lombok.Setter;
 @ExistingId(targetClasses = {CreateMaterialRequest.class})
 public class CreateMaterialRequest {
 
+    @Column(name = "material_name")
+    @NotBlank(message = "Material name is required")
+    private String materialName;
+
     @NotBlank(message = "Material type is required")
-    @Pattern(regexp = "^(file|url)$", message = "Invalid material type. Allowed types are file and url.")
+    @Pattern(regexp = "^(file|string)$", message = "Invalid material type. Allowed types are file and link.")
     private String materialType;
 
     @NotBlank(message = "Topic ID is required")

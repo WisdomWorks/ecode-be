@@ -2,6 +2,7 @@ package com.example.codeE.model.topic;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.material.Material;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -54,6 +55,10 @@ public class Topic {
     @JsonIgnore
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
     private List<ViewPermissionTopic> viewPermissionTopics;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
+    private List<Material> materials;
 
     @PrePersist
     protected void onCreate() {
