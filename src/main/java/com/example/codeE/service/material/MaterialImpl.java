@@ -1,5 +1,6 @@
 package com.example.codeE.service.material;
 
+import com.example.codeE.helper.CloudStorageHelper;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.material.Material;
 import com.example.codeE.repository.GroupRepository;
@@ -24,6 +25,9 @@ public class MaterialImpl implements MaterialService{
     private TopicRepository topicRepository;
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private CloudStorageHelper cloudStorageHelper;
 
     @Override
     public Material createOne(CreateMaterialRequest request) {

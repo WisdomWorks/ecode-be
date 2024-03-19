@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -32,4 +33,6 @@ public class CreateMaterialRequest {
     private String url;
 
     private String description;
+
+    private MultipartFile file;
 }
