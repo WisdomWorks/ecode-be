@@ -1,6 +1,7 @@
 package com.example.codeE.service.topic;
 
 import com.example.codeE.helper.LoggerHelper;
+import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.CourseRepository;
@@ -9,6 +10,7 @@ import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.repository.ViewPermissionTopicRepository;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.TopicByUserResponse;
+import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
 import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.material.MaterialService;
@@ -36,9 +38,16 @@ public class TopicImpl implements TopicService {
     private MaterialService materialService;
 
     @Override
-    public List<Topic> getAllTopicsByCourseId(String courseId) {
+    public List<TopicGetResponse> getAllTopicsByCourseId(String courseId) {
         this.courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID: " + courseId));
-        return this.topicRepository.getAllTopicsByCourseId(courseId);
+        var topics = this.topicRepository.getAllTopicsByCourseId(courseId);
+        List<TopicGetResponse> result = new ArrayList<>();
+        for (var item : topics) {
+            var materials = this.materialService.getAllByTopicId(item.getTopicId());
+            List<Exercise> exercises = new ArrayList<Exercise>();
+            result.add(new TopicGetResponse(item, materials, exercises));
+        }
+        return result;
     }
 
     @Override
