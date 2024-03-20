@@ -15,6 +15,7 @@ import lombok.Setter;
 public class UpdateTopicRequest {
     @NotBlank(message = "Topic ID is required")
     private String topicId;
+    @NotBlank(message = "Topic Name is required")
     private String topicName;
     private String description;
 }
