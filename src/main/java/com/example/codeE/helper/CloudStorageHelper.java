@@ -11,12 +11,10 @@ import java.io.IOException;
 
 @Component
 public class CloudStorageHelper {
-
+    private final String PUBLIC_URL = "https://storage.googleapis.com/";
     @Autowired
     private Environment environment;
-
     private Storage storage;
-    private String projectId;
     private String bucketName;
 
     public CloudStorageHelper() {
@@ -26,50 +24,62 @@ public class CloudStorageHelper {
     @PostConstruct
     void init() {
         // This method will be executed after dependency injection is done to perform any initialization
-        this.projectId = environment.getProperty("google.projectId");
+        var projectId = environment.getProperty("google.projectId");
         this.bucketName = environment.getProperty("storage.bucketName");
-        System.out.println(this.projectId);
-        System.out.println(this.bucketName);
-        this.storage = StorageOptions.newBuilder().setProjectId(this.projectId).build().getService();
+//        System.out.println(projectId);
+//        System.out.println(bucketName);
+        this.storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
     }
 
-    public String uploadFile(MultipartFile file, boolean isPublic) throws IOException {
+    public String uploadFile(MultipartFile file, boolean isPublic, String store) throws Exception {
         String objectName = file.getOriginalFilename();
         if (objectName == null) {
             throw new IOException("File name is null");
         }
-        BlobId blobId = BlobId.of(this.bucketName, objectName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-
-        Storage.BlobWriteOption precondition;
-        if (storage.get(bucketName, objectName) == null) {
-            precondition = Storage.BlobWriteOption.doesNotExist();
-        } else {
-            precondition = Storage.BlobWriteOption.generationMatch(
-                    storage.get(bucketName, objectName).getGeneration());
+        try {
+            BlobId blobId = BlobId.of(this.bucketName, store + objectName);
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+            Storage.BlobWriteOption precondition;
+            if (storage.get(bucketName, store + objectName) == null) {
+                precondition = Storage.BlobWriteOption.doesNotExist();
+            } else {
+                precondition = Storage.BlobWriteOption.generationMatch(
+                        storage.get(bucketName, store + objectName).getGeneration());
+            }
+            storage.createFrom(blobInfo, file.getInputStream(), precondition);
+            if (isPublic) {
+                storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
+            }
+        } catch (Exception e) {
+            throw new Exception("Can not upload file to cloud storage");
         }
-        storage.createFrom(blobInfo, file.getInputStream(), precondition);
-        if (isPublic) {
-            storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
-        }
-        return blobInfo.getMediaLink();
+        return PUBLIC_URL + this.bucketName + store + file.getOriginalFilename();
     }
 
 
-    public String uploadFile(MultipartFile file) throws IOException {
-        return this.uploadFile(file, false);
+    public String uploadFile(MultipartFile file, String store) throws Exception {
+        return this.uploadFile(file, false, store);
     }
 
-    public boolean deleteFile(String fileUrl) throws IOException {
-        BlobId blobId = BlobId.of(this.bucketName, fileUrl);
-        Blob blob = storage.get(blobId);
+    public boolean deleteFile(String fileUrl) throws Exception {
+        String objectName = getFileNameFromPath(fileUrl);
+        System.out.println(objectName);
+        System.out.println(bucketName);
+        Blob blob = storage.get(bucketName, objectName);
         if (blob == null) {
-            throw new IOException("File  not found");
+            throw new IOException("File not found");
         }
-
-        Storage.BlobSourceOption precondition = Storage.BlobSourceOption.generationMatch(blob.getGeneration());
-
-        storage.delete(blobId, precondition);
+        try {
+            Storage.BlobSourceOption precondition = Storage.BlobSourceOption.generationMatch(blob.getGeneration());
+            storage.delete(BlobId.of(this.bucketName, objectName));
+        } catch (Exception e) {
+            throw new Exception("Can not delete this material on cloud");
+        }
         return true;
+    }
+
+    public String getFileNameFromPath(String filePath) {
+        String[] pathParts = filePath.split("/");
+        return pathParts[pathParts.length - 2] + "/" + pathParts[pathParts.length - 1];
     }
 }
