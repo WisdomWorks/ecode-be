@@ -53,7 +53,7 @@ public class CloudStorageHelper {
         } catch (Exception e) {
             throw new Exception("Can not upload file to cloud storage");
         }
-        return PUBLIC_URL + this.bucketName + store + file.getOriginalFilename();
+        return PUBLIC_URL + this.bucketName + "/"+ store + file.getOriginalFilename();
     }
 
 
@@ -71,9 +71,10 @@ public class CloudStorageHelper {
         }
         try {
             Storage.BlobSourceOption precondition = Storage.BlobSourceOption.generationMatch(blob.getGeneration());
-            storage.delete(BlobId.of(this.bucketName, objectName));
+            storage.delete(BlobId.of(this.bucketName, objectName), precondition);
         } catch (Exception e) {
-            throw new Exception("Can not delete this material on cloud");
+            LoggerHelper.logError(e.getMessage());
+            throw new Exception("Can not delete this material on cloud / "+e.getMessage());
         }
         return true;
     }

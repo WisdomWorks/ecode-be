@@ -54,7 +54,7 @@ public class MaterialImpl implements MaterialService{
                 .orElseThrow(() -> new NoSuchElementException("No material found with ID: " + createRequest.getTopicId()));
         if(createRequest.getMaterialType().equals("file")){
             try{
-                String url = cloudStorageHelper.uploadFile(file, true, "/materials/");
+                String url = cloudStorageHelper.uploadFile(file, true, "materials/");
                 createRequest.setUrl(url);
                 var material = new Material(UUID.randomUUID().toString(), createRequest);
                 return this.materialRepository.save(material);
