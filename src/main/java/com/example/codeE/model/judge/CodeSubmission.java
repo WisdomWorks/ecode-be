@@ -38,12 +38,7 @@ public class CodeSubmission extends Submission {
 
 //    private LocalDateTime judgedDate;
 
-//    private LocalDateTime rejudgedDate;
-
     private boolean isPretested;
-
-//    @ManyToOne
-//    private Contest contestObject;
 
     private LocalDateTime lockedAfter;
 

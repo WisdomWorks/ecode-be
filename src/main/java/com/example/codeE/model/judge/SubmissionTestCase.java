@@ -1,8 +1,15 @@
 package com.example.codeE.model.judge;
 
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
 public class SubmissionTestCase {
-    private Submission submission;
-    private int caseId;
+    private CodeSubmission submission;
+    private int testCaseId;
     private String status;
     private Float time;
     private Float memory;
