@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
-public class MaterialImpl implements MaterialService{
+public class MaterialImpl implements MaterialService {
 
     @Autowired
     private MaterialRepository materialRepository;
@@ -52,18 +52,20 @@ public class MaterialImpl implements MaterialService{
     public Material CreateMaterial(CreateMaterialRequest createRequest, MultipartFile file) {
         this.topicRepository.findById(createRequest.getTopicId())
                 .orElseThrow(() -> new NoSuchElementException("No material found with ID: " + createRequest.getTopicId()));
-        if(createRequest.getMaterialType().equals("file")){
-            try{
-                String url = cloudStorageHelper.uploadFile(file, true, "materials/");
+        if (createRequest.getMaterialType().equals("file")) {
+            try {
+                String courseId = this.topicRepository.findById(createRequest.getTopicId()).get().getCourseId();
+                String store = "materials/" + courseId + "/" + createRequest.getTopicId()+"/";
+                String url = cloudStorageHelper.uploadFile(file, true, store);
                 createRequest.setUrl(url);
                 var material = new Material(UUID.randomUUID().toString(), createRequest);
                 return this.materialRepository.save(material);
-            }catch (Exception e){
+            } catch (Exception e) {
                 LoggerHelper.logError(e.getMessage());
                 throw new IllegalArgumentException("Some thing wrong when create new material.");
             }
         }
-        if(createRequest.getMaterialType().equals("string")){
+        if (createRequest.getMaterialType().equals("string")) {
             var material = new Material(UUID.randomUUID().toString(), createRequest);
             return this.materialRepository.save(material);
         }
@@ -73,7 +75,7 @@ public class MaterialImpl implements MaterialService{
     @Override
     public List<Material> getAllByTopicId(String topicId) {
         List<Material> material = materialRepository.findByTopicId(topicId);
-        if(material == null){
+        if (material == null) {
             throw new NoSuchElementException("No material found with topicID: " + topicId);
         }
         return material;
@@ -92,11 +94,11 @@ public class MaterialImpl implements MaterialService{
                 if (cloudStorageHelper.deleteFile(material.getStorageUrl())) {
                     this.materialRepository.deleteById(id);
                 } else
-                    throw new IllegalArgumentException("Some thing wrong when delete new material.");
+                    throw new IllegalArgumentException("Some thing wrong when delete material.");
             } else
                 this.materialRepository.deleteById(id);
-        }catch (Exception e){
-            throw new IllegalArgumentException("Some thing wrong when delete new material.");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Some thing wrong when delete material.");
         }
     }
 
@@ -126,16 +128,17 @@ public class MaterialImpl implements MaterialService{
 
     @Override
     public boolean addViewPermission(String materialId, List<String> groupIds) {
-        if (!this.materialRepository.existsById(materialId)) {
-            throw new NoSuchElementException("No material found with ID: " + materialId);
-        }
-        for (String groupId : groupIds) {
-            if (!this.groupRepository.existsById(groupId)) {
-                throw new NoSuchElementException("No group found with ID: " + groupId);
+        try {
+            this.materialRepository.findById(materialId).orElseThrow(() -> new NoSuchElementException("No material found with ID: " + materialId));
+            for (String groupId : groupIds) {
+                this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + groupId));
+                this.materialRepository.addViewPermission(materialId, groupId);
             }
-            this.materialRepository.addViewPermission(materialId, groupId);
+        } catch (Exception e) {
+            LoggerHelper.logError(e.getMessage());
+            throw new RuntimeException("Can not grant permission for this materials");
         }
-        return false;
+        return true;
     }
 
     @Override

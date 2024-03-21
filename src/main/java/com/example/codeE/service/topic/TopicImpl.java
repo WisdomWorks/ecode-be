@@ -110,12 +110,13 @@ public class TopicImpl implements TopicService {
     }
 
     @Override
-    public List<TopicByUserResponse> getTopicByUserId(String studentId, String courseId) {
-        var response = new ArrayList<TopicByUserResponse>();
+    public List<TopicGetResponse> getTopicByUserId(String studentId, String courseId) {
+        var response = new ArrayList<TopicGetResponse>();
         var topics = this.topicRepository.getTopicByUser(studentId, courseId);
         for (var item : topics) {
             var materials = this.materialService.getMaterialBy(studentId, item.getTopicId());
-            response.add(new TopicByUserResponse(item, materials));
+            var exercises = new ArrayList<Exercise>();
+            response.add(new TopicGetResponse(item, materials, exercises));
         }
         return response;
     }

@@ -30,30 +30,33 @@ public class MaterialController {
 
     @GetMapping
     @RequestMapping(value = "{materialId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getById(@PathVariable String materialId){
+    public ResponseEntity<?> getById(@PathVariable String materialId) {
         return ResponseEntity.ok(materialService.getById(materialId));
     }
 
     @GetMapping
     @RequestMapping(value = "topic/{topicId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getMaterialsByTopicId(@PathVariable String topicId){
+    public ResponseEntity<?> getMaterialsByTopicId(@PathVariable String topicId) {
         return ResponseEntity.ok(materialService.getAllByTopicId(topicId));
     }
+
     @PostMapping
-    @RequestMapping(value = "", method = RequestMethod.POST, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> createOne(@Valid @ModelAttribute CreateMaterialRequest request,@RequestPart(required = false) MultipartFile file) {
-        if(request.getMaterialType().equals("file")){
-            if(file == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Please upload your material file"));
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> createOne(@Valid @ModelAttribute CreateMaterialRequest request, @RequestPart(required = false) MultipartFile file) {
+        if (request.getMaterialType().equals("file")) {
+            if (file == null)
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Please upload your material file"));
         }
-        if(request.getMaterialType().equals("string"))
-            if (request.getUrl() == null) return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Please enter link material"));
+        if (request.getMaterialType().equals("string"))
+            if (request.getUrl() == null)
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Please enter link material"));
         Material result = materialService.CreateMaterial(request, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PatchMapping
     @RequestMapping(value = "", method = RequestMethod.PATCH)
-    public ResponseEntity<?> updateByMaterialAndTopicId(@Valid @RequestBody UpdateMaterialRequest updates){
+    public ResponseEntity<?> updateByMaterialAndTopicId(@Valid @RequestBody UpdateMaterialRequest updates) {
         return ResponseEntity.status(HttpStatus.CREATED).body(materialService.updateById(updates));
     }
 
@@ -61,7 +64,7 @@ public class MaterialController {
     @RequestMapping(value = "{materialId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteById(@Valid @PathVariable String materialId) {
         materialService.deleteById(materialId);
-        return ResponseEntity.ok(Map.of("message" , "Delete material successfully"));
+        return ResponseEntity.ok(Map.of("message", "Delete material successfully"));
     }
 
 //    @GetMapping
@@ -71,14 +74,17 @@ public class MaterialController {
 //    }
 
     @PostMapping
-    @RequestMapping(value="/view", method = RequestMethod.POST)
-    public ResponseEntity<?> addViewPermission(@RequestParam String materialId, @RequestParam List<String> groupIds){
-        return ResponseEntity.ok(this.materialService.addViewPermission(materialId, groupIds));
+    @RequestMapping(value = "/view", method = RequestMethod.POST)
+    public ResponseEntity<?> addViewPermission(@RequestParam String materialId, @RequestParam List<String> groupIds) {
+        if (this.materialService.addViewPermission(materialId, groupIds))
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Grant permission for material successful"));
+        else
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("massage", "Can not grant permission for this material"));
     }
 
     @DeleteMapping
-    @RequestMapping(value="/view", method = RequestMethod.DELETE)
-    public ResponseEntity<?> removeViewPermission(@RequestParam String materialId, @RequestParam List<String> groupIds){
+    @RequestMapping(value = "/view", method = RequestMethod.DELETE)
+    public ResponseEntity<?> removeViewPermission(@RequestParam String materialId, @RequestParam List<String> groupIds) {
         return ResponseEntity.ok(this.materialService.removeViewPermission(materialId, groupIds));
     }
 }
