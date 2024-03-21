@@ -150,7 +150,7 @@ public class CourseImpl implements CourseService {
         try {
             var listUsers = new ArrayList<String>();
             listUsers.add(request.studentId);
-            var requestAddStudentToCourse = new AddStudentToCourseRequest(listUsers, request.studentId);
+            var requestAddStudentToCourse = new AddStudentToCourseRequest(listUsers, request.courseId);
             var courseStudent = this.courseStudentService.addStudentToCourse(requestAddStudentToCourse);
             response.setMessage( "Enroll student to course successfully");
             response.setStatus(HttpStatus.CREATED.value());
