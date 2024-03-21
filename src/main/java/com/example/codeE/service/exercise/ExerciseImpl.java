@@ -3,6 +3,7 @@ package com.example.codeE.service.exercise;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.ExerciseRepository;
+import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.service.topic.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class ExerciseImpl implements ExerciseService{
     @Override
     public List<Exercise> getExercisesByCourseId(String courseId) {
         List<String> topicIdList = new ArrayList<>();
-        for(Topic topic: this.topicService.getAllTopicsByCourseId(courseId)) {
+        for(TopicGetResponse topic: this.topicService.getAllTopicsByCourseId(courseId)) {
             topicIdList.add(topic.getTopicId());
         }
         List<Exercise> exercises = new ArrayList<>();

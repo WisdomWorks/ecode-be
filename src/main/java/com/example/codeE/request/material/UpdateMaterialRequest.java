@@ -19,13 +19,5 @@ public class UpdateMaterialRequest {
     @NotBlank(message = "Material ID is required")
     private String materialId;
 
-    @Pattern(regexp = "^(file|folder)$", message = "Invalid material type. Allowed types are file and folder.")
-    private String materialType;
-
-    @Size(max = 36, message = "TopicID is GUID type")
-    private String topicId;
-
-    private String url;
-
     private String description;
 }

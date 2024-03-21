@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.topic.ViewPermissionTopic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import com.example.codeE.constant.Constant;
@@ -57,6 +58,10 @@ public class Group {
     @ManyToOne(optional=false)
     @JoinColumn(name = "course_id", insertable=false, updatable=false)
     private Course course;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    private List<ViewPermissionTopic> viewPermissionTopics;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
