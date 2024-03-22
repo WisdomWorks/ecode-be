@@ -63,14 +63,14 @@ public class ExerciseController {
             String id = this.testcaseService.createTestcase(tc).getTestcaseId();
             testcaseIds.add(id);
         }
-        CodeExercise codeExercise = this.codeExerciseService.createCodeExercise(
-                new CodeExercise(request.getTopicId(), request.getExerciseName(), request.getKey(),
+        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.createCodeExercise(
+                new CodeExerciseWBD(request.getTopicId(), request.getExerciseName(), request.getKey(),
                         request.getStartTime(), request.getEndTime(), request.getType(), request.getPublicGroupIds(),
                         request.getLanguage(), request.getFunctionName(), request.getTemplate(),
                         request.getDescription(), testcaseIds)
         );
-        this.exerciseService.saveExercise((Exercise) codeExercise);
-        return ResponseEntity.status(HttpStatus.CREATED).body(codeExercise);
+        this.exerciseService.saveExercise((Exercise) codeExerciseWBD);
+        return ResponseEntity.status(HttpStatus.CREATED).body(codeExerciseWBD);
     }
 
     @PostMapping
@@ -156,7 +156,7 @@ public class ExerciseController {
 
     @PutMapping
     @RequestMapping(value = "code", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExercise exercise) {
+    public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExerciseWBD exercise) {
         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(exercise));
     }
 

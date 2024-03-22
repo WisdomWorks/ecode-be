@@ -1,13 +1,13 @@
 package com.example.codeE.service.exercise;
 
-import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.model.exercise.CodeExerciseWBD;
 
 public interface CodeExerciseService {
-    CodeExercise createCodeExercise (CodeExercise codeExercise);
+    CodeExerciseWBD createCodeExercise (CodeExerciseWBD codeExerciseWBD);
 
-    CodeExercise getCodeExerciseById(String exerciseId);
+    CodeExerciseWBD getCodeExerciseById(String exerciseId);
 
     void deleteCodeExerciseById(String exerciseId);
 
-    CodeExercise updateCodeExercise(CodeExercise codeExercise);
+    CodeExerciseWBD updateCodeExercise(CodeExerciseWBD codeExerciseWBD);
 }

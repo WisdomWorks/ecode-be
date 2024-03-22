@@ -1,7 +1,6 @@
 package com.example.codeE.model.exercise.common;
 
-import com.example.codeE.model.exercise.CodeExercise;
-import jakarta.persistence.Entity;
+import com.example.codeE.model.exercise.CodeExerciseWBD;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -38,7 +37,7 @@ public class Judge {
     private String lastIp;
 
     @ManyToMany
-    private List<CodeExercise> problems;
+    private List<CodeExerciseWBD> problems;
 
     @ManyToMany
     private List<Language> runtimes;
