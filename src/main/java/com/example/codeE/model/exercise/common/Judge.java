@@ -1,10 +1,12 @@
 package com.example.codeE.model.exercise.common;
 
 import com.example.codeE.model.exercise.CodeExerciseWBD;
+import com.example.codeE.service.judge.JudgeService;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,11 +38,23 @@ public class Judge {
 
     private String lastIp;
 
+    //??
     @ManyToMany
     private List<CodeExerciseWBD> problems;
 
+    //??
     @ManyToMany
     private List<Language> runtimes;
 
-    // Constructors, getters, and setters
+    @Autowired
+    private JudgeService judgeService;
+
+    public void disconnect(boolean force) {
+        judgeService.disconnectJudge(this, force);
+    }
+
+    public void toggleDisabled() {
+        isDisabled = !isDisabled;
+        judgeService.updateDisableJudge(this);
+    }
 }
