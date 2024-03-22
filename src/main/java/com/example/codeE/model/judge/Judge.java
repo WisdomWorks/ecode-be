@@ -1,10 +1,11 @@
 package com.example.codeE.model.judge;
 
 import com.example.codeE.model.exercise.CodeExercise;
-import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,9 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+//@Entity(name = "Judge")
 public class Judge {
     @NotBlank(message = "Name is required")
     private String name = "DefaultJudge";

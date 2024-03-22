@@ -1,34 +1,42 @@
 package com.example.codeE.model.judge;
 
 import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.model.user.User;
-import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Document(collection = "CodeExercise")
 public class CodeExercise extends Exercise {
+    @Field
     @NotBlank(message = "Code is required")
     private String code;
+    @Field
     private String description;
+    @Field
     @NotNull(message = "Time limit is required")
     private Float timeLimit;
+    @Field
     @NotNull(message = "Memory limit is required")
     private Integer memoryLimit;
+    @Field
     private boolean shortCircuit = false;
+    @Field
     @NotNull(message = "Points is required")
     private Float points;
+    @Field
     private boolean partial;
     @ManyToMany
     private List<Language> allowedLanguages;

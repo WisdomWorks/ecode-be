@@ -1,12 +1,15 @@
 package com.example.codeE.model.judge;
 
-import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+//@Entity
 public class RuntimeVersion {
     private Language language;
     private Judge judge;
