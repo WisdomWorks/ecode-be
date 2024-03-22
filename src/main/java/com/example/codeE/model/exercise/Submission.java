@@ -28,7 +28,7 @@ public class Submission {
     @NotNull(message = "Exercise ID is required")
     private String exerciseId;
 
-    private float score;
+    private Float score;
 
     @Field
     @CreatedDate
@@ -48,7 +48,7 @@ public class Submission {
         this.reviewable = reviewable;
     }
 
-    public Submission(String studentId, String exerciseId, float score, boolean reviewable) {
+    public Submission(String studentId, String exerciseId, Float score, boolean reviewable) {
         this.studentId = studentId;
         this.exerciseId = exerciseId;
         this.score = score;

@@ -17,10 +17,10 @@ import java.time.LocalDateTime;
 @Document(collection = "CodeSubmission")
 public class CodeSubmission extends Submission {
     @Field
-    private float time;
+    private Float time;
 
     @Field
-    private float memory;
+    private Float memory;
 
     @Field
     private String languageId;
@@ -41,10 +41,10 @@ public class CodeSubmission extends Submission {
     private boolean batch;
 
     @Field
-    private float casePoints;
+    private Float casePoints;
 
     @Field
-    private float caseTotal;
+    private Float caseTotal;
 
     @Field
     private String judgedOn;
@@ -55,7 +55,7 @@ public class CodeSubmission extends Submission {
     @Field
     private LocalDateTime lockedAfter;
 
-    public CodeSubmission(String studentId, String exerciseId, float score, boolean reviewable, float time, float memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, float casePoints, float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter) {
+    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Float time, Float memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter) {
         super(studentId, exerciseId, score, reviewable);
         this.time = time;
         this.memory = memory;
@@ -72,7 +72,7 @@ public class CodeSubmission extends Submission {
         this.lockedAfter = lockedAfter;
     }
 
-    public String getResultFromCode(String result, float casePoints, float caseTotal) {
+    public String getResultFromCode(String result, Float casePoints, Float caseTotal) {
         if (result.equals("AC")) {
             if (casePoints == caseTotal) {
                 return "AC";
@@ -89,7 +89,7 @@ public class CodeSubmission extends Submission {
         return getResultFromCode(this.result, this.casePoints, this.caseTotal);
     }
 
-    public float memoryBytes() {
+    public Float memoryBytes() {
         return this.memory * 1024;
     }
 
