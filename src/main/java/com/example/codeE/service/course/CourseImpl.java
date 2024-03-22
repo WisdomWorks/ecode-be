@@ -146,12 +146,12 @@ public class CourseImpl implements CourseService {
             response.setError("Invalid enrollment key");
             return response;
         }
-        var student = this.userRepository.findById(request.studentId).orElseThrow(()-> new NoSuchElementException("Can not find student with ID: " + request.studentId));
+        this.userRepository.findById(request.studentId).orElseThrow(()-> new NoSuchElementException("Can not find student with ID: " + request.studentId));
         try {
             var listUsers = new ArrayList<String>();
             listUsers.add(request.studentId);
             var requestAddStudentToCourse = new AddStudentToCourseRequest(listUsers, request.courseId);
-            var courseStudent = this.courseStudentService.addStudentToCourse(requestAddStudentToCourse);
+            this.courseStudentService.addStudentToCourse(requestAddStudentToCourse);
             response.setMessage( "Enroll student to course successfully");
             response.setStatus(HttpStatus.CREATED.value());
             var result = new CourseTeacherResponse(
@@ -184,13 +184,13 @@ public class CourseImpl implements CourseService {
 
     @Override
     public List<Course> getCourseByStudentId(String userId) {
-        var student = this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find student with ID: " + userId));
+        this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find student with ID: " + userId));
         return this.courseRepository.getCourseByStudentId(userId);
     }
 
     @Override
     public List<Course> getCourseByTeacherId(String userId) {
-        var student = this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find teacher with ID: " + userId));
+        this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find teacher with ID: " + userId));
         return this.courseRepository.getCourseByTeacherId(userId);
     }
 }

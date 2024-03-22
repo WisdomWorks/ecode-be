@@ -8,19 +8,15 @@ import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.repository.ViewPermissionTopicRepository;
+import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.topic.CreateTopicRequest;
-import com.example.codeE.request.topic.TopicByUserResponse;
 import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
-import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.material.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TopicImpl implements TopicService {
@@ -28,8 +24,6 @@ public class TopicImpl implements TopicService {
     private TopicRepository topicRepository;
     @Autowired
     private ViewPermissionTopicRepository viewPermissionTopicRepository;
-    @Autowired
-    private CourseService courseService;
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
@@ -45,7 +39,16 @@ public class TopicImpl implements TopicService {
         for (var item : topics) {
             var materials = this.materialService.getAllByTopicId(item.getTopicId());
             List<Exercise> exercises = new ArrayList<Exercise>();
-            result.add(new TopicGetResponse(item, materials, exercises));
+            List<GroupTopicResponse> groupsResponse = new ArrayList<>();
+            var groups = this.viewPermissionTopicRepository.getAllGroupsByTopicId(item.getTopicId());
+            for(var g: groups){
+                var group = this.groupRepository.findById(g.getGroupId()).get();
+                var groupItem = new GroupTopicResponse();
+                groupItem.setGroupName(group.getGroupName());
+                groupItem.setGroupId(group.getGroupId());
+                groupsResponse.add(groupItem);
+            }
+            result.add(new TopicGetResponse(item, materials, exercises, groupsResponse));
         }
         return result;
     }
@@ -99,6 +102,7 @@ public class TopicImpl implements TopicService {
         for (String groupId : groupIds)
             this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + groupId));
         try {
+            this.viewPermissionTopicRepository.removeViewPermissionByTopicId(topicId);
             for (String groupId : groupIds) {
                 this.viewPermissionTopicRepository.addViewPermission(topicId, groupId);
             }
@@ -111,12 +115,22 @@ public class TopicImpl implements TopicService {
 
     @Override
     public List<TopicGetResponse> getTopicByUserId(String studentId, String courseId) {
+
         var response = new ArrayList<TopicGetResponse>();
         var topics = this.topicRepository.getTopicByUser(studentId, courseId);
         for (var item : topics) {
             var materials = this.materialService.getMaterialBy(studentId, item.getTopicId());
             var exercises = new ArrayList<Exercise>();
-            response.add(new TopicGetResponse(item, materials, exercises));
+            List<GroupTopicResponse> groupsResponse = new ArrayList<>();
+            var groups = this.viewPermissionTopicRepository.getAllGroupsByTopicId(item.getTopicId());
+            for(var g: groups){
+                var group = this.groupRepository.findById(g.getGroupId()).get();
+                var groupItem = new GroupTopicResponse();
+                groupItem.setGroupName(group.getGroupName());
+                groupItem.setGroupId(group.getGroupId());
+                groupsResponse.add(groupItem);
+            }
+            response.add(new TopicGetResponse(item, materials, exercises, groupsResponse));
         }
         return response;
     }

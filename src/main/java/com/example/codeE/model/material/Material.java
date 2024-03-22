@@ -46,6 +46,9 @@ public class Material {
     @Column(name = "storage_url")
     private String storageUrl;
 
+    @Column(name = "is_show_all")
+    private boolean isShowAll;
+
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 

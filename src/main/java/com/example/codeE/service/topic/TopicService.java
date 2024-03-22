@@ -3,7 +3,6 @@ package com.example.codeE.service.topic;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.topic.CreateTopicRequest;
-import com.example.codeE.request.topic.TopicByUserResponse;
 import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
 import com.example.codeE.service.common.CommonService;
