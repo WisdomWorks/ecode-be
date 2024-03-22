@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ExistingId(targetClasses = {UpdateTopicRequest.class})
 public class UpdateTopicRequest {
     @NotBlank(message = "Topic ID is required")
     private String topicId;
