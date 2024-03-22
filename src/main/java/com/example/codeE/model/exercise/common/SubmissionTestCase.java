@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubmissionTestCase {
-    private CodeSubmission submission;
+    private String submission;
     private int testCaseId;
     private String status;
     private Float time;

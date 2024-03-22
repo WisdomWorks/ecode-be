@@ -1,5 +1,6 @@
 package com.example.codeE;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.judge.Server;
 import com.example.codeE.judge.handlers.JudgeHandler;
 import com.example.codeE.judge.handlers.SpringBootHandler;
@@ -19,8 +20,8 @@ public class CodeEApplication {
 	@Bean
 	public ApplicationRunner applicationRunner() {
 		return args -> {
-			InetSocketAddress address1 = new InetSocketAddress("127.0.0.1", 9998);
-			InetSocketAddress address2 = new InetSocketAddress("127.0.0.1", 9999);
+			InetSocketAddress address1 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT);
+			InetSocketAddress address2 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_JUDGE_PORT);
 
 			Server server1 = new Server(address1, new SpringBootHandler());
 			Server server2 = new Server(address2, new JudgeHandler());

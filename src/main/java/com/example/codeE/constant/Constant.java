@@ -36,6 +36,10 @@ public class Constant {
             
             WisdomWorks.""";
 
+    public static final String BRIDGED_HOST = "127.0.0.1";
+    public static final int BRIDGED_SPRING_BOOT_PORT = 9998;
+    public static final int BRIDGED_JUDGE_PORT = 9999;
+
     public static final Map<String, String> USER_DISPLAY_CODES = new HashMap<>();
     static {
         USER_DISPLAY_CODES.put("AC", "Accepted");
@@ -80,4 +84,9 @@ public class Constant {
         STATUS.put("CE", "Compile Error");
         STATUS.put("AB", "Aborted");
     }
+
+    public static final int CONTEST_SUBMISSION_PRIORITY = 0;
+    public static final int DEFAULT_PRIORITY = 1;
+    public static final int REJUDGE_PRIORITY = 2;
+    public static final int BATCH_REJUDGE_PRIORITY = 3;
 }
