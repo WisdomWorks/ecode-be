@@ -12,7 +12,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity
 public class Judge {
     @NotBlank(message = "Name is required")
     private String name = "DefaultJudge";
