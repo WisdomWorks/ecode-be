@@ -1,6 +1,6 @@
 package com.example.codeE.service.exercise;
 
-import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.model.exercise.CodeExerciseWBD;
 import com.example.codeE.repository.CodeExerciseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,12 +10,12 @@ public class CodeExerciseImpl implements CodeExerciseService{
     @Autowired
     private CodeExerciseRepository codeExerciseRepository;
     @Override
-    public CodeExercise createCodeExercise(CodeExercise codeExercise) {
-        return this.codeExerciseRepository.save(codeExercise);
+    public CodeExerciseWBD createCodeExercise(CodeExerciseWBD codeExerciseWBD) {
+        return this.codeExerciseRepository.save(codeExerciseWBD);
     }
 
     @Override
-    public CodeExercise getCodeExerciseById(String exerciseId) {
+    public CodeExerciseWBD getCodeExerciseById(String exerciseId) {
         return this.codeExerciseRepository.findById(exerciseId).get();
     }
 
@@ -25,7 +25,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
     }
 
     @Override
-    public CodeExercise updateCodeExercise(CodeExercise codeExercise) {
-        return this.codeExerciseRepository.save(codeExercise);
+    public CodeExerciseWBD updateCodeExercise(CodeExerciseWBD codeExerciseWBD) {
+        return this.codeExerciseRepository.save(codeExerciseWBD);
     }
 }
