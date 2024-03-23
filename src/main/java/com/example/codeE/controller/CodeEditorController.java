@@ -1,6 +1,6 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.model.exercise.CodeExerciseWBD;
 import com.example.codeE.request.exercise.code.RunCodeRequest;
 import com.example.codeE.request.exercise.code.SubmitCodeRequest;
 import com.example.codeE.service.docker.DockerService;
@@ -31,13 +31,13 @@ public class CodeEditorController {
     @RequestMapping(value = "{exerciseId}/check-key", method = RequestMethod.POST)
     public ResponseEntity<?> checkCodeExerciseKey(@RequestBody String key, @PathVariable String exerciseId) {
         // create container if the entered key is true
-        CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(exerciseId);
+        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.getCodeExerciseById(exerciseId);
         // codeExercise.getKey().equals(key)
         // for test purpose, we won't use the real key of code exercise.
         if (key.equals("key")) {
-            switch (codeExercise.getLanguage()) {
+            switch (codeExerciseWBD.getLanguage()) {
                 case "java":
-                    String containerId = dockerService.createContainer("Dockerfile.java", codeExercise);
+                    String containerId = dockerService.createContainer("Dockerfile.java", codeExerciseWBD);
                     return ResponseEntity.status(HttpStatus.OK).body(Map.of("containerId", containerId));
             }
         } else {
@@ -49,13 +49,13 @@ public class CodeEditorController {
     @PutMapping
     @RequestMapping(value = "{exerciseId}/run", method = RequestMethod.PUT)
     public ResponseEntity<?> runCode(@RequestBody RunCodeRequest request, @PathVariable String exerciseId) {
-        CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(exerciseId);
+        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.getCodeExerciseById(exerciseId);
         String log = dockerService.runCode(
                 request.getContainerId(),
                 request.getContentFile(),
                 request.getFileName(),
                 request.getInputs(),
-                codeExercise);
+                codeExerciseWBD);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("log", log));
     }
 
