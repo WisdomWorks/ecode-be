@@ -15,11 +15,11 @@ public interface TopicRepository extends JpaRepository<Topic, String> {
     List<Topic> getAllTopicsByCourseId(String courseId);
 
     @Query(value =  "SELECT * FROM codee.topic " +
-                    "WHERE topic_id IN " +
+                    "WHERE (is_show_all = true OR topic_id IN " +
                     "   (SELECT topic_id FROM codee.view_permission_topic " +
                     "   WHERE group_id IN " +
                     "       (SELECT group_id FROM codee.group_student " +
-                    "       WHERE student_id = ?1 )) " +
+                    "       WHERE student_id = ?1 ))) " +
                     "AND course_id = ?2 ; ", nativeQuery = true)
     List<Topic> getTopicByUser(String studentId, String courseId);
 }

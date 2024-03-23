@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.material.ViewPermissionMaterial;
 import com.example.codeE.model.topic.ViewPermissionTopic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -62,6 +63,9 @@ public class Group {
     @JsonIgnore
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     private List<ViewPermissionTopic> viewPermissionTopics;
+    @JsonIgnore
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    private List<ViewPermissionMaterial> viewPermissionMaterials;
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();

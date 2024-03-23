@@ -53,7 +53,7 @@ public class CloudStorageHelper {
         } catch (Exception e) {
             throw new Exception("Can not upload file to cloud storage");
         }
-        return PUBLIC_URL + this.bucketName + "/"+ store + file.getOriginalFilename();
+        return PUBLIC_URL + this.bucketName + "/" + store + file.getOriginalFilename();
     }
 
 
@@ -61,10 +61,9 @@ public class CloudStorageHelper {
         return this.uploadFile(file, false, store);
     }
 
-    public boolean deleteFile(String fileUrl) throws Exception {
+    public boolean deleteFile(String fileUrl) throws IOException, RuntimeException {
         String objectName = getFileNameFromPath(fileUrl);
         System.out.println(objectName);
-        System.out.println(bucketName);
         Blob blob = storage.get(bucketName, objectName);
         if (blob == null) {
             throw new IOException("File not found");
@@ -72,15 +71,20 @@ public class CloudStorageHelper {
         try {
             Storage.BlobSourceOption precondition = Storage.BlobSourceOption.generationMatch(blob.getGeneration());
             storage.delete(BlobId.of(this.bucketName, objectName), precondition);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LoggerHelper.logError(e.getMessage());
-            throw new Exception("Can not delete this material on cloud / "+e.getMessage());
+            throw new RuntimeException("Can not delete this material on cloud / " + e.getMessage());
         }
         return true;
     }
 
     public String getFileNameFromPath(String filePath) {
-        String[] pathParts = filePath.split("/");
-        return pathParts[pathParts.length - 2] + "/" + pathParts[pathParts.length - 1];
+        String prefix = PUBLIC_URL + bucketName + "/";
+        System.out.println(prefix);
+        int index = filePath.indexOf(prefix);
+        if (index != -1) {
+            return filePath.substring(index + prefix.length());
+        }
+        return null;
     }
 }
