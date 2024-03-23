@@ -1,7 +1,9 @@
 package com.example.codeE.judge.handlers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.model.exercise.common.Judge;
+import com.example.codeE.model.exercise.common.RuntimeVersion;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
@@ -9,12 +11,39 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 @ChannelHandler.Sharable
 public class JudgeHandler extends ChannelInboundHandlerAdapter {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private Judge judge;
+
+    private List<CodeExercise> problems;
+    private List<RuntimeVersion> executors;
+    private String working;
+    private String name;
+    private boolean isDisabled;
+    private String judgeAddress;
+    private int timeout;
+
+    public JudgeHandler() {
+        this.judge = new Judge();
+        this.problems = new ArrayList<>();
+        this.executors = new ArrayList<>();
+        this.working = null;
+        this.name = null;
+        this.isDisabled = false;
+        this.judgeAddress = null;
+    }
+
+    public void onConnect() {
+        this.timeout = 15;
+        //Output log
+    }
 
     public static class Handlers {
         private static final Map<String, Function<ObjectNode, ObjectNode>> handlers;
