@@ -1,50 +1,55 @@
 package com.example.codeE.model.exercise.common;
 
-import com.example.codeE.model.exercise.CodeExerciseWBD;
 import com.example.codeE.service.judge.JudgeService;
-import jakarta.persistence.ManyToMany;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.example.codeE.constant.Constant.SERVER_NAME;
+
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Judge {
-    @NotBlank(message = "Name is required")
-    private String name = "DefaultJudge";
+    private String judgeId = "sgfdskbg23";
+
+    private String name = SERVER_NAME;
 
     private LocalDateTime created = LocalDateTime.now();
 
-    @NotBlank(message = "Auth key is required")
-    private String authKey;
+    private String authKey = "fdsf9h22re";
 
-    private boolean isBlocked = false;
+    private Boolean isBlocked = false;
 
-    private boolean isDisabled = false;
+    private Boolean isDisabled = false;
 
-    private boolean online = true;
+    private Boolean online = false;
 
     private LocalDateTime startTime = LocalDateTime.now();
 
-    private Float ping = null;
+    @Positive(message = "Response time must be positive")
+    private Double ping;
 
-    private Float load = null;
+    @Positive(message = "System load must be positive")
+    private Double load;
 
-    private String description = "Default judge for the online judge system";
+    private String description;
 
     private String lastIp;
 
-    //??
-    @ManyToMany
-    private List<CodeExerciseWBD> problems;
+//    @ManyToMany
+//    private List<CodeExerciseWBD> problems;
 
-    //??
-    @ManyToMany
-    private List<Language> runtimes;
+    private List<String> problemIds;
+
+    private List<String> runtimeIds;
 
     @Autowired
     private JudgeService judgeService;

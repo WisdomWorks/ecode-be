@@ -21,7 +21,7 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import java.util.zip.DataFormatException;
 
-public class JudgeImpl implements JudgeService{
+public class JudgeImpl implements JudgeService {
     public static final Gson gson = new Gson();
     ObjectMapper mapper = new ObjectMapper();
 
@@ -33,7 +33,7 @@ public class JudgeImpl implements JudgeService{
 
     @Override
     public Object judgeRequest(Object packet, boolean reply) {
-        try(Socket socket = new Socket(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT)){
+        try (Socket socket = new Socket(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT)) {
             // Convert to JSON
             String output = gson.toJson(packet);
             // Compress the JSON
@@ -69,7 +69,7 @@ public class JudgeImpl implements JudgeService{
                 // Return the decompressed data
                 return gson.fromJson(decompressedInput, Object.class);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -111,7 +111,7 @@ public class JudgeImpl implements JudgeService{
 
         boolean success = false;
 
-        try{
+        try {
             String response = (String) judgeRequest(mapper.writeValueAsString(packet), true);
 
             // If the response is not valid, return false
@@ -151,7 +151,7 @@ public class JudgeImpl implements JudgeService{
         ObjectNode packet = JsonNodeFactory.instance.objectNode();
         packet.put("name", "disable-judge");
         packet.put("judge-id", judge.getName());
-        packet.put("is-disabled", judge.isDisabled());
+        packet.put("is-disabled", judge.getIsDisabled());
 
         // Send the packet to the judge
         try {
