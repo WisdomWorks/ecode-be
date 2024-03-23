@@ -58,6 +58,19 @@ public class Exercise {
     private Date endTime;
 
     @Field
+    @NotNull(message = "Exercise opened time is required")
+    @Future(message = "Exercise opened time must be in the future")
+    private Date openedTime;
+
+    @Field
+    @NotNull(message = "Exercise closed time is required")
+    @Future(message = "Exercise closed time must be in the future")
+    private Date closedTime;
+
+    @Field
+    @NotNull(message = "Re-Attempt is required")
+    private int reAttempt;
+    @Field
     @NotNull(message = "Exercise type is required")
     @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
     private String type;
@@ -72,6 +85,19 @@ public class Exercise {
         this.key = key;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.type = type;
+        this.publicGroupIds = publicGroupIds;
+    }
+
+    public Exercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, Date openedTime, Date closedTime, int reAttempt, String type, List<String> publicGroupIds) {
+        this.topicId = topicId;
+        this.exerciseName = exerciseName;
+        this.key = key;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.openedTime = openedTime;
+        this.closedTime = closedTime;
+        this.reAttempt = reAttempt;
         this.type = type;
         this.publicGroupIds = publicGroupIds;
     }

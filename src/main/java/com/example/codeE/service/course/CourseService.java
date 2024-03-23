@@ -1,7 +1,6 @@
 package com.example.codeE.service.course;
 
 import com.example.codeE.model.course.Course;
-import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.request.course.*;
 import com.example.codeE.service.common.CommonService;
 import org.springframework.http.ResponseEntity;

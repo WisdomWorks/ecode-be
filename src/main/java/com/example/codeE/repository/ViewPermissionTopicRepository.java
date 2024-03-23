@@ -22,4 +22,9 @@ public interface ViewPermissionTopicRepository extends JpaRepository<ViewPermiss
     @Query(value="DELETE FROM codee.view_permission_topic WHERE topic_id = ?1 AND group_id = ?2", nativeQuery = true)
     void removeViewPermission(String topicId, String groupId);
 
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM codee.view_permission_topic WHERE topic_id = ?1", nativeQuery = true)
+    void removeViewPermissionByTopicId(String topicId);
+
 }

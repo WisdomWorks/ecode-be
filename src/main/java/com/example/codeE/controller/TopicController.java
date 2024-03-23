@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/topics")
@@ -74,9 +75,9 @@ public class TopicController {
     @RequestMapping(value = "/view", method = RequestMethod.POST)
     public ResponseEntity<?> addViewPermission(@RequestParam String topicId, @RequestParam List<String> groupIds) {
         if (this.topicService.addViewPermission(topicId, groupIds))
-            return ResponseEntity.status(HttpStatus.OK).body("add permission success");
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","add permission success"));
         else
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something wrong when add view permission");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message","Something wrong when add view permission"));
     }
 
     @DeleteMapping
