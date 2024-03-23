@@ -73,8 +73,8 @@ public class TopicController {
 
     @PostMapping
     @RequestMapping(value = "/view", method = RequestMethod.POST)
-    public ResponseEntity<?> addViewPermission(@RequestParam String topicId, @RequestParam List<String> groupIds) {
-        if (this.topicService.addViewPermission(topicId, groupIds))
+    public ResponseEntity<?> addViewPermission(@RequestParam String topicId, @RequestParam List<String> groupIds, @RequestParam boolean isShowAll) {
+        if (this.topicService.addViewPermission(topicId, groupIds, isShowAll))
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","add permission success"));
         else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message","Something wrong when add view permission"));

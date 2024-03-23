@@ -146,9 +146,9 @@ public class MaterialImpl implements MaterialService {
     }
 
     @Override
-    public boolean addViewPermission(String materialId, List<String> groupIds) {
+    public boolean addViewPermission(String materialId, List<String> groupIds, boolean isShowAll) {
         try {
-            this.materialRepository.findById(materialId).orElseThrow(() -> new NoSuchElementException("No material found with ID: " + materialId));
+            var material = this.materialRepository.findById(materialId).orElseThrow(() -> new NoSuchElementException("No material found with ID: " + materialId));
             for(var groupId :groupIds){
                 this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + groupId));
             }
@@ -156,6 +156,8 @@ public class MaterialImpl implements MaterialService {
             for (String groupId : groupIds) {
                 this.viewPermissionMaterialRepository.addViewPermission(materialId, groupId);
             }
+            material.setShowAll(isShowAll);
+            this.materialRepository.save(material);
         } catch (Exception e) {
             LoggerHelper.logError(e.getMessage());
             throw new RuntimeException("Can not grant permission for this materials");

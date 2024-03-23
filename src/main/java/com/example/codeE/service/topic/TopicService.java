@@ -18,7 +18,7 @@ public interface TopicService extends CommonService<Topic, CreateTopicRequest>{
 
     boolean removeViewPermission(String topicId, List<String> groupIds);
 
-    boolean addViewPermission(String topicId, List<String> groupIds);
+    boolean addViewPermission(String topicId, List<String> groupIds, boolean isShowAll);
 
     List<TopicGetResponse> getTopicByUserId(String studentId, String courseId);
 }
