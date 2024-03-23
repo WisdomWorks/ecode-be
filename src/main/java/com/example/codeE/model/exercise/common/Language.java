@@ -2,7 +2,6 @@ package com.example.codeE.model.exercise.common;
 
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,22 +21,22 @@ public class Language {
     private String languageId;
 
     @NotBlank(message = "Language key is required")
-    @Size(max = 10, message = "Language key must not exceed 10 characters")
+    @Size(max = 6, message = "Language key must not exceed 6 characters")
     @Indexed(unique = true)
     @Field("key")
     private String key;
 
     @NotBlank(message = "Language name is required")
-    @Size(max = 50, message = "Language name must not exceed 50 characters")
+    @Size(max = 20, message = "Language name must not exceed 20 characters")
     @Field("name")
     private String name;
 
-    @Size(max = 20, message = "Short name must not exceed 20 characters")
+    @Size(max = 10, message = "Short name must not exceed 10 characters")
     @Field("short_name")
     private String shortName;
 
     @NotBlank(message = "Common name is required")
-    @Size(max = 20, message = "Common name must not exceed 20 characters")
+    @Size(max = 10, message = "Common name must not exceed 10 characters")
     @Field("common_name")
     private String commonName;
 
@@ -49,7 +48,6 @@ public class Language {
 
     @NotBlank(message = "Extension is required")
     @Size(max = 10, message = "Extension must not exceed 10 characters")
-    @Pattern(regexp = "^\\.\\w+$", message = "Invalid extension format. It should start with a dot followed by alphanumeric characters.")
     @Field("extension")
     private String extension;
 }

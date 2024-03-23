@@ -63,7 +63,4 @@ public class ExerciseTestCase {
 
     @Field("checker_args")
     private String checkerArgs;
-
-    @Field("batch_dependencies")
-    private String batchDependencies;
 }

@@ -25,8 +25,8 @@ public class ExerciseData {
     @Field("exercise_id")
     private String problemId;
 
-//    @Field("zipfile")
-//    private String zipfile;
+    @Field("zipfile")
+    private String zipfile;
 
     @Field("generator")
     private String generator;
@@ -40,11 +40,11 @@ public class ExerciseData {
     private int outputLimit;
 
     @Field("feedback")
-    @Size(max = 1000, message = "Feedback must not exceed 1000 characters")
     private String feedback;
 
     @Field("checker")
     @NotBlank(message = "Checker is required")
+    @Size(max = 10, message = "Checker must not exceed 10 characters")
     private String checker;
 
     @Field("unicode")

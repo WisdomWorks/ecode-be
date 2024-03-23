@@ -43,7 +43,6 @@ public class CodeSubmission extends Submission {
     @Field
     private Float caseTotal;
 
-    @Field
     private String judgedOn;
 
     @Field
@@ -68,9 +67,10 @@ public class CodeSubmission extends Submission {
         this.lockedAfter = lockedAfter;
     }
 
-    public String getResultFromCode(String result, Float casePoints, Float caseTotal) {
+    public static String getResultFromCode(String result, Float casePoints, Float caseTotal) {
         if (result.equals("AC")) {
-            if (casePoints == caseTotal) {
+//            Number objects are compared using '==', not 'equals()'
+            if (casePoints.equals(caseTotal)) {
                 return "AC";
             }
             return "_AC";

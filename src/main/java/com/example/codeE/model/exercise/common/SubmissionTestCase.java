@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "submission_testcase")
 public class SubmissionTestCase {
     @Id
-    private String id;
+    private String submissionTestCaseId;
 
     @NotNull(message = "Submission ID is required")
     @Field("submission_id")
@@ -49,7 +49,7 @@ public class SubmissionTestCase {
     @Field("extended_feedback")
     private String extendedFeedback;
 
-    @Field("input")
+    @Field("output")
     private String output;
 
 }

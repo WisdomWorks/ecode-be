@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -31,13 +33,20 @@ public class CodeExercise extends Exercise {
     @Field
     private String description;
 
+    @NotNull(message = "Time limit is required")
+    @Field("time_limit")
+    private Double timeLimit;
+
     @Field
     @NotNull(message = "Memory limit is required")
     private Integer memoryLimit;
 
-    @Field
-    private boolean partial = false;
+    @Field("short_circuit")
+    private Boolean shortCircuit;
 
     @Field
-    private String allowedLanguageId;
+    private boolean partial = true;
+
+    @Field
+    private List<String> allowedLanguageIds;
 }

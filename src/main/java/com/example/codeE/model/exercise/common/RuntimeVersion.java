@@ -18,20 +18,23 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "runtime_version")
 public class RuntimeVersion {
     @Id
-    private String id;
+    private String runtimeVersionId;
 
     @NotNull(message = "Language ID is required")
     @Field("language_id")
     private String languageId;
 
+    private String judgeId;
+
     @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @Size(max = 64, message = "Name must not exceed 64 characters")
     @Field("name")
     private String name;
 
     @Field("version")
+    @Size(max = 64, message = "Version must not exceed 64 characters")
     private String version;
-
-    @Field("priority")
-    private int priority;
+//
+//    @Field("priority")
+//    private int priority;
 }

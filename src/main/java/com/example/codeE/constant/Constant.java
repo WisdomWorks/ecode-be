@@ -48,6 +48,7 @@ public class Constant {
     public static final int DEFAULT_PRIORITY = 1;
     public static final int REJUDGE_PRIORITY = 2;
     public static final int BATCH_REJUDGE_PRIORITY = 3;
+    public static final String SERVER_NAME = "DefaultJudge";
 
     static {
         USER_DISPLAY_CODES.put("AC", "Accepted");
