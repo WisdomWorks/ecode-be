@@ -5,6 +5,7 @@ import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.material.Material;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.group.GroupTopicResponse;
+import com.example.codeE.request.material.MaterialResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,10 +32,10 @@ public class TopicGetResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime updatedDate;
 
-    private List<Material> materials;
+    private List<MaterialResponse> materials;
     private List<Exercise> exercises;
     private List<GroupTopicResponse> groups;
-    public TopicGetResponse(Topic topic, List<Material> materials, List<Exercise> exercises, List<GroupTopicResponse> groups){
+    public TopicGetResponse(Topic topic, List<MaterialResponse> materials, List<Exercise> exercises, List<GroupTopicResponse> groups){
         this.topicId = topic.getTopicId();
         this.courseId = topic.getCourseId();
         this.topicName= topic.getTopicName();

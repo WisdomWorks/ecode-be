@@ -119,7 +119,7 @@ public class TopicImpl implements TopicService {
         var response = new ArrayList<TopicGetResponse>();
         var topics = this.topicRepository.getTopicByUser(studentId, courseId);
         for (var item : topics) {
-            var materials = this.materialService.getMaterialBy(studentId, item.getTopicId());
+            var materials = this.materialService.getMaterialByUserId(studentId, item.getTopicId());
             var exercises = new ArrayList<Exercise>();
             List<GroupTopicResponse> groupsResponse = new ArrayList<>();
             var groups = this.viewPermissionTopicRepository.getAllGroupsByTopicId(item.getTopicId());

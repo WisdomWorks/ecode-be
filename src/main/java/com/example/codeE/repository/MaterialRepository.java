@@ -13,8 +13,6 @@ public interface MaterialRepository extends JpaRepository<Material, String> {
     String findByTopicIdSql = "SELECT * FROM material WHERE topic_id = ?1";
     String findByMaterialIdAndTopicIdSql = "SELECT * FROM material WHERE material_id = ?1 AND topic_id = ?2";
     String getAllGroupsByMaterialIdSql = "SELECT * FROM codee.view_permission_material v WHERE v.material_id = ?1";
-    String addViewPermissionSql = "INSERT INTO view_permission_material (material_id, group_id) VALUES (?1, ?2)";
-    String removeViewPermissionSql = "DELETE FROM view_permission_material WHERE material_id = ?1 AND group_id = ?2";
     String getMaterialByUserId = "SELECT * FROM codee.material WHERE (is_show_all = true OR material_id IN " +
                                  "  (SELECT material_id FROM codee.view_permission_material " +
                                  "  WHERE group_id IN " +
@@ -31,15 +29,6 @@ public interface MaterialRepository extends JpaRepository<Material, String> {
 //    @Query(value = getAllGroupsByMaterialIdSql, nativeQuery = true)
 //    List<Group> getAllGroupsByMaterialId(String materialId);
 
-    @Modifying
-    @Transactional
-    @Query(value= addViewPermissionSql, nativeQuery = true)
-    void addViewPermission(String materialId, String groupId);
-
-    @Modifying
-    @Transactional
-    @Query(value= removeViewPermissionSql, nativeQuery = true)
-    void removeViewPermission(String materialId, String groupId);
 
     @Query(value = getMaterialByUserId, nativeQuery = true)
     List<Material> getMaterialById(String studentId, String topicId);

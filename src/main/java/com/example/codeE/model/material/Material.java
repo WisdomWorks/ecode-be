@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -64,6 +65,10 @@ public class Material {
     @ManyToOne(optional=false)
     @JoinColumn(name = "topic_id", insertable=false, updatable=false)
     private Topic topic;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "material", cascade = CascadeType.ALL)
+    private List<ViewPermissionMaterial> viewPermissionMaterials;
 
     public Material(String materialId, CreateMaterialRequest request) {
         this.materialId = materialId;
