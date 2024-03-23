@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "CodeSubmission")
+@Document(collection = "code_submission")
 public class CodeSubmission extends Submission {
     @Field
     private Float time;
@@ -36,9 +36,6 @@ public class CodeSubmission extends Submission {
 
     @Field
     private Integer currentTestcase;
-
-    @Field
-    private boolean batch;
 
     @Field
     private Float casePoints;
@@ -64,7 +61,6 @@ public class CodeSubmission extends Submission {
         this.result = result;
         this.error = error;
         this.currentTestcase = currentTestcase;
-        this.batch = batch;
         this.casePoints = casePoints;
         this.caseTotal = caseTotal;
         this.judgedOn = judgedOn;

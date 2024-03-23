@@ -27,13 +27,13 @@ public class Constant {
     //third param: password
     public static final String MAIL_TEMPLATE = """
             Hi, %s,
-            
+                        
             This is your account to login CODEE system:
                 User name: %s
                 Password: %s
-            
+                        
             Thank a lot.
-            
+                        
             WisdomWorks.""";
 
     public static final String BRIDGED_HOST = "127.0.0.1";
@@ -41,6 +41,14 @@ public class Constant {
     public static final int BRIDGED_JUDGE_PORT = 9999;
 
     public static final Map<String, String> USER_DISPLAY_CODES = new HashMap<>();
+    public static final Map<String, String> SUBMISSION_RESULT = new HashMap<>();
+    public static final Map<String, String> STATUS = new HashMap<>();
+    public static final Map<String, String> CHECKERS = new HashMap<>();
+    public static final int CONTEST_SUBMISSION_PRIORITY = 0;
+    public static final int DEFAULT_PRIORITY = 1;
+    public static final int REJUDGE_PRIORITY = 2;
+    public static final int BATCH_REJUDGE_PRIORITY = 3;
+
     static {
         USER_DISPLAY_CODES.put("AC", "Accepted");
         USER_DISPLAY_CODES.put("WA", "Wrong Answer");
@@ -59,7 +67,6 @@ public class Constant {
         USER_DISPLAY_CODES.put("AB", "Aborted");
     }
 
-    public static final Map<String, String> SUBMISSION_RESULT = new HashMap<>();
     static {
         SUBMISSION_RESULT.put("AC", "Accepted");
         SUBMISSION_RESULT.put("WA", "Wrong Answer");
@@ -74,7 +81,6 @@ public class Constant {
         SUBMISSION_RESULT.put("AB", "Aborted");
     }
 
-    public static final Map<String, String> STATUS = new HashMap<>();
     static {
         STATUS.put("QU", "Queued");
         STATUS.put("P", "Processing");
@@ -85,8 +91,14 @@ public class Constant {
         STATUS.put("AB", "Aborted");
     }
 
-    public static final int CONTEST_SUBMISSION_PRIORITY = 0;
-    public static final int DEFAULT_PRIORITY = 1;
-    public static final int REJUDGE_PRIORITY = 2;
-    public static final int BATCH_REJUDGE_PRIORITY = 3;
+    static {
+        CHECKERS.put("STANDARD", "standard");
+        CHECKERS.put("FLOATS", "floats");
+        CHECKERS.put("FLOATS_ABS", "floatsabs");
+        CHECKERS.put("FLOATS_REL", "floatsrel");
+        CHECKERS.put("RSTRIPPED", "rstripped");
+        CHECKERS.put("SORTED", "sorted");
+        CHECKERS.put("IDENTICAL", "identical");
+        CHECKERS.put("LINE_COUNT", "linecount");
+    }
 }
