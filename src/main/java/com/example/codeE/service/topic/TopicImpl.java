@@ -97,8 +97,8 @@ public class TopicImpl implements TopicService {
     }
 
     @Override
-    public boolean addViewPermission(String topicId, List<String> groupIds) {
-        this.topicRepository.findById(topicId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + topicId));
+    public boolean addViewPermission(String topicId, List<String> groupIds, boolean isShowAll) {
+        var topic = this.topicRepository.findById(topicId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + topicId));
         for (String groupId : groupIds)
             this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + groupId));
         try {
@@ -106,6 +106,8 @@ public class TopicImpl implements TopicService {
             for (String groupId : groupIds) {
                 this.viewPermissionTopicRepository.addViewPermission(topicId, groupId);
             }
+            topic.setShowAll(isShowAll);
+            this.topicRepository.save(topic);
         } catch (Exception e) {
             LoggerHelper.logError(e.getMessage());
             throw new RuntimeException("Something wrong when delete view permission");
@@ -115,7 +117,6 @@ public class TopicImpl implements TopicService {
 
     @Override
     public List<TopicGetResponse> getTopicByUserId(String studentId, String courseId) {
-
         var response = new ArrayList<TopicGetResponse>();
         var topics = this.topicRepository.getTopicByUser(studentId, courseId);
         for (var item : topics) {

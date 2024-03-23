@@ -75,8 +75,8 @@ public class MaterialController {
 
     @PostMapping
     @RequestMapping(value = "/view", method = RequestMethod.POST)
-    public ResponseEntity<?> addViewPermission(@RequestParam String materialId, @RequestParam List<String> groupIds) {
-        if (this.materialService.addViewPermission(materialId, groupIds))
+    public ResponseEntity<?> addViewPermission(@RequestParam String materialId, @RequestParam List<String> groupIds, @RequestParam boolean isShowAll) {
+        if (this.materialService.addViewPermission(materialId, groupIds, isShowAll))
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Grant permission for material successful"));
         else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("massage", "Can not grant permission for this material"));
