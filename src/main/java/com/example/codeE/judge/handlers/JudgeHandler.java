@@ -3,14 +3,23 @@ package com.example.codeE.judge.handlers;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.common.Judge;
 import com.example.codeE.model.exercise.common.RuntimeVersion;
+import com.example.codeE.service.exercise.common.RuntimeVersionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +28,7 @@ import java.util.function.Function;
 
 @ChannelHandler.Sharable
 public class JudgeHandler extends ChannelInboundHandlerAdapter {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
 
     private List<CodeExercise> problems;
@@ -40,13 +49,13 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         this.judgeAddress = null;
     }
 
-    public void onConnect() {
-        this.timeout = 15;
-        //Output log
-    }
-
     public static class Handlers {
         private static final Map<String, Function<ObjectNode, ObjectNode>> handlers;
+
+        @Autowired
+        private static RuntimeVersionService runtimeVersionService;
+
+        private static final JudgeHandler judgeHandler = new JudgeHandler();
 
         static {
             handlers = new HashMap<>();
@@ -70,10 +79,95 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             // Add more handlers as needed
         }
 
+
+        public static void onConnect() {
+            judgeHandler.timeout = 15;
+            //Output log
+        }
+
+        private static boolean authenticate(String id, String key) {
+            if(!judgeHandler.judge.getAuthKey().equals(key)) {
+                //log
+                return false;
+            }
+
+            if (judgeHandler.judge.getIsBlocked()) {
+                //log
+                return false;
+            }
+
+            return true;
+        }
+
+        private static void connected() {
+            judgeHandler.judge.setStartTime(LocalDateTime.now());
+            judgeHandler.judge.setOnline(true);
+            judgeHandler.judge.setProblemIds(
+                    judgeHandler.problems.stream().map(CodeExercise::getCode).toList()
+            );
+            judgeHandler.judge.setRuntimeIds(
+                    judgeHandler.executors.stream().map(RuntimeVersion::getLanguageId).toList()
+            ); //????
+
+            for(String langId: judgeHandler.judge.getRuntimeIds()) {
+                for(int i=0; i<judgeHandler.executors.size(); i++) {
+                    runtimeVersionService.saveRuntimeVersion(new RuntimeVersion(
+                            langId,
+                            judgeHandler.judge.getJudgeId(),
+                            judgeHandler.executors.get(i).getName(),
+                            judgeHandler.executors.get(i).getVersion(),
+                            i));
+                }
+            }
+
+            judgeHandler.judgeAddress = "localhost:9999";
+            //log judge successfully authenticated
+        }
+
+        private static void disconnected() {
+            judgeHandler.judge.setOnline(false);
+        }
+
         // Handler methods
         public static ObjectNode onHandshake(ObjectNode packet) {
-            // Handle handshake packet
-            return null;
+            if (!packet.has("id") || !packet.has("key")) {
+                //log
+                return null;
+            }
+
+            if(!authenticate(packet.get("id").asText(), packet.get("key").asText())) {
+                //log
+                return null;
+            }
+
+            judgeHandler.timeout = 60;
+
+            JsonNode problemsNode = packet.get("problems");
+            if (problemsNode.isArray()) {
+                for (JsonNode problemNode : problemsNode) {
+                    CodeExercise problem = new CodeExercise();
+                    problem.setExerciseId(problemNode.get("code").asText());
+                    problem.setExerciseName(problemNode.get("name").asText());
+                    problem.setDescription(problemNode.get("description").asText());
+                    problem.setTimeLimit(problemNode.get("time_limit").asDouble());
+                    problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
+                    problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
+                    JsonNode allowedLanguages = problemNode.get("allowed_languages");
+                    problem.setAllowedLanguageIds(new ArrayList<>());
+                    if (allowedLanguages.isArray()) {
+                        for (JsonNode language : allowedLanguages) {
+                            problem.getAllowedLanguageIds().add(language.get("key").asText());
+                        }
+                    }
+                    judgeHandler.problems.add(problem);
+                }
+            }
+            judgeHandler.name = packet.get("id").asText();
+
+            ObjectNode response = JsonNodeFactory.instance.objectNode();
+            response.put("name", "handshake-success");
+            connected();
+            return response;
         }
 
         public static ObjectNode onSubmissionRequest(ObjectNode packet) {
@@ -173,22 +267,42 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
     }
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        String receivedMessage = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = JsonNodeFactory.instance.objectNode();
+        System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
+        try {
+            String packetString = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
+            JsonNode packet = mapper.readTree(packetString);
+            Function<ObjectNode, ObjectNode> handler = JudgeHandler.Handlers.handlers.get(packet.get("name").asText());
+            result = handler.apply((ObjectNode) packet);
 
-        // Print the received message to the console
-        System.out.println("Received from client: " + receivedMessage);
-        System.out.println(msg);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            result = JsonNodeFactory.instance.objectNode();
+            result.put("name", "bad-request");
+        } finally {
+            System.out.println("Sending to client: " + mapper.writeValueAsString(result));
+            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
+            final SpringBootHandler.WriteListener listener = new SpringBootHandler.WriteListener() {
+                @Override
+                public void messageRespond(boolean success) {
+                    System.out.println(success ? "reply success" : "reply fail");
+                }
+            };
 
-        // Write the received message back to the client
-        ctx.write(msg);
-        ctx.flush();
+            ctx.writeAndFlush(buf).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (listener != null) {
+                        listener.messageRespond(future.isSuccess());
+                    }
+                }
+            });
+        }
+    }
 
-        // Log the outbound buffer's content before writing "a"
-
-        // Write a new String message "a"
-         ByteBuf buffer = ctx.alloc().buffer();
-         buffer.writeBytes("YOLO".getBytes());
-         ctx.write(buffer);
+    public interface WriteListener {
+        void messageRespond(boolean success);
     }
 }
