@@ -4,7 +4,7 @@ import com.example.codeE.model.exercise.CodeExerciseWBD;
 import com.example.codeE.request.exercise.code.RunCodeRequest;
 import com.example.codeE.request.exercise.code.SubmitCodeRequest;
 import com.example.codeE.service.docker.DockerService;
-import com.example.codeE.service.exercise.CodeExerciseService;
+import com.example.codeE.service.exercise.CodeExerciseServiceWBD;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +25,13 @@ public class CodeEditorController {
     private DockerService dockerService;
 
     @Autowired
-    private CodeExerciseService codeExerciseService;
+    private CodeExerciseServiceWBD codeExerciseServiceWBD;
 
     @PostMapping
     @RequestMapping(value = "{exerciseId}/check-key", method = RequestMethod.POST)
     public ResponseEntity<?> checkCodeExerciseKey(@RequestBody String key, @PathVariable String exerciseId) {
         // create container if the entered key is true
-        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.getCodeExerciseById(exerciseId);
+        CodeExerciseWBD codeExerciseWBD = this.codeExerciseServiceWBD.getCodeExerciseById(exerciseId);
         // codeExercise.getKey().equals(key)
         // for test purpose, we won't use the real key of code exercise.
         if (key.equals("key")) {
@@ -49,7 +49,7 @@ public class CodeEditorController {
     @PutMapping
     @RequestMapping(value = "{exerciseId}/run", method = RequestMethod.PUT)
     public ResponseEntity<?> runCode(@RequestBody RunCodeRequest request, @PathVariable String exerciseId) {
-        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.getCodeExerciseById(exerciseId);
+        CodeExerciseWBD codeExerciseWBD = this.codeExerciseServiceWBD.getCodeExerciseById(exerciseId);
         String log = dockerService.runCode(
                 request.getContainerId(),
                 request.getContentFile(),

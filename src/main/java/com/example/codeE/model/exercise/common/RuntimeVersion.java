@@ -34,7 +34,15 @@ public class RuntimeVersion {
     @Field("version")
     @Size(max = 64, message = "Version must not exceed 64 characters")
     private String version;
-//
-//    @Field("priority")
-//    private int priority;
+
+    @Field("priority")
+    private int priority;
+
+    public RuntimeVersion(String languageId, String judgeId, String name, String version, int priority) {
+        this.languageId = languageId;
+        this.judgeId = judgeId;
+        this.name = name;
+        this.version = version;
+        this.priority = priority;
+    }
 }
