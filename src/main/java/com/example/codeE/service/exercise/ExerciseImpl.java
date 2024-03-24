@@ -1,7 +1,9 @@
 package com.example.codeE.service.exercise;
 
 import com.example.codeE.helper.LoggerHelper;
+import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.model.exercise.Exercise;
+import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.GroupStudentRepository;
@@ -11,8 +13,7 @@ import jakarta.ws.rs.NotSupportedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ExerciseImpl implements ExerciseService{
@@ -23,8 +24,26 @@ public class ExerciseImpl implements ExerciseService{
     private GroupRepository groupRepository;
     @Autowired
     private GroupStudentRepository groupStudentRepository;
+
     @Override
-    public Exercise saveExercise(Exercise exercise) {
+    public Exercise saveQuizExercise(QuizExercise exercise) {
+        var questions = exercise.getQuestions();
+        for (var question : questions) {
+            for (var choice : question.getChoices()) {
+                for (var answer : question.getAnswers()) {
+                    if (Objects.equals(choice.getChoiceId(), answer.getChoiceId())){
+                        choice.setChoiceId(UUID.randomUUID().toString());
+                        answer.setChoiceId(choice.getChoiceId());
+                    }
+                }
+                choice.setChoiceId(UUID.randomUUID().toString());
+            }
+        }
+        return this.exerciseRepository.save(exercise);
+    }
+
+    @Override
+    public Exercise saveEsayExercise(EssayExercise exercise) {
         return this.exerciseRepository.save(exercise);
     }
 
@@ -48,7 +67,16 @@ public class ExerciseImpl implements ExerciseService{
 
     @Override
     public Exercise getExerciseById(String exerciseId) {
-        return this.exerciseRepository.findById(exerciseId).get();
+        return this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
+    }
+
+    @Override
+    public Exercise getDetailExercise(String exerciseId, String key) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
+        if(exercise.getKey().equals(key)){
+            return exercise;
+        }else
+            throw new IllegalArgumentException("Wrong key to enroll exercise");
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.example.codeE.request.exercise.essay;
 
 import com.example.codeE.validator.id.ExistingId;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -27,9 +25,6 @@ public class CreateEssayExerciseRequest {
     private Date endTime;
     private int durationTime;
     private int reAttempt;
-    @NotNull(message = "Exercise public option is required")
-    private List<String> publicGroupIds;
-
     @NotNull(message = "Question is required")
     private String question;
 }

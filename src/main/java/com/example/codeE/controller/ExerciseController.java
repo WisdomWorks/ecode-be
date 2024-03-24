@@ -1,30 +1,19 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.model.exercise.*;
-import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
+import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
-import com.example.codeE.service.exercise.common.TestcaseService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,55 +25,49 @@ import java.util.Map;
 public class ExerciseController {
     @Autowired
     private CodeExerciseService codeExerciseService;
-
     @Autowired
     private ExerciseService exerciseService;
-
-    @Autowired
-    private TestcaseService testcaseService;
-
     @Autowired
     private QuizExerciseService quizExerciseService;
-
     @Autowired
     private QuizSubmissionService quizSubmissionService;
-
     @Autowired
     private EssayExerciseService essayExerciseService;
-
     @Autowired
     private EssaySubmissionService essaySubmissionService;
 
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
     public ResponseEntity<?> createCodeExercise(@Valid @RequestBody CreateCodeExerciseRequest request){
-        List<String> testcaseIds = new ArrayList<>();
-        for(TestCase tc: request.getTestcases()){
-            String id = this.testcaseService.createTestcase(tc).getTestcaseId();
-            testcaseIds.add(id);
-        }
-        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.createCodeExercise(
-                new CodeExerciseWBD(request.getTopicId(), request.getExerciseName(), request.getKey(),
-                        request.getStartTime(), request.getEndTime(), request.getType(), request.getPublicGroupIds(),
-                        request.getLanguage(), request.getFunctionName(), request.getTemplate(),
-                        request.getDescription(), testcaseIds)
-        );
-        this.exerciseService.saveExercise((Exercise) codeExerciseWBD);
-        return ResponseEntity.status(HttpStatus.CREATED).body(codeExerciseWBD);
+//        List<String> testcaseIds = new ArrayList<>();
+//        for(TestCase tc: request.getTestcases()){
+//            String id = this.testcaseService.createTestcase(tc).getTestcaseId();
+//            testcaseIds.add(id);
+//        }
+//        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.createCodeExercise(
+//                new CodeExerciseWBD(request.getTopicId(), request.getExerciseName(), request.getKey(),
+//                        request.getStartTime(), request.getEndTime(), request.getType(), request.getPublicGroupIds(),
+//                        request.getLanguage(), request.getFunctionName(), request.getTemplate(),
+//                        request.getDescription(), testcaseIds)
+//        );
+//        this.exerciseService.saveExercise((Exercise) codeExerciseWBD);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(codeExerciseWBD);
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("Api is building");
     }
 
     @PostMapping
     @RequestMapping(value = "quiz", method = RequestMethod.POST)
-    public ResponseEntity<?> createQuizExercise(@Valid @RequestBody QuizExercise request){
-        this.exerciseService.saveExercise((Exercise) request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(quizExerciseService.createQuizExercise(request));
+    public ResponseEntity<?> createQuizExercise(@Valid @RequestBody CreateQuizExerciseRequest request){
+        QuizExercise quizExercise = new QuizExercise(request);
+        this.exerciseService.saveQuizExercise(quizExercise);
+        return ResponseEntity.status(HttpStatus.CREATED).body(quizExerciseService.createQuizExercise(quizExercise));
     }
 
     @PostMapping
     @RequestMapping(value = "essay", method = RequestMethod.POST)
     public ResponseEntity<?> createEssayExercise(@Valid @RequestBody CreateEssayExerciseRequest request){
         EssayExercise essayExercise = new EssayExercise(request);
-        this.exerciseService.saveExercise((Exercise) essayExercise);
+        this.exerciseService.saveEsayExercise(essayExercise);
         return ResponseEntity.status(HttpStatus.CREATED).body(this.essayExerciseService.createEssayExercise(essayExercise));
     }
 
@@ -104,19 +87,29 @@ public class ExerciseController {
     }
 
     @GetMapping
-    @RequestMapping(value = "exercise", method = RequestMethod.GET)
-    public ResponseEntity<?> getExerciseById(@RequestParam String exerciseId){
+    @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getExerciseById(@PathVariable String exerciseId){
         Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
-
-        switch (exercise.getType()){
-            case "quiz":
-                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
-            case "essay":
-                return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseById(exerciseId));
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
+        return switch (exercise.getType()) {
+            case "quiz" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+            case "essay" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseById(exerciseId));
+            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
+        };
     }
-
+    @GetMapping
+    @RequestMapping(value = "detail/{exerciseId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getExerciseDetail(@PathVariable String exerciseId, @RequestParam String key){
+        Exercise exercise = this.exerciseService.getDetailExercise(exerciseId, key);
+        return switch (exercise.getType()){
+            case "quiz" ->
+                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+            case "essay" ->
+                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseById(exerciseId));
+            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
+        };
+    }
     @PostMapping
     @RequestMapping(value = "quiz/submit", method = RequestMethod.POST)
     public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody QuizSubmission quizSubmission){
