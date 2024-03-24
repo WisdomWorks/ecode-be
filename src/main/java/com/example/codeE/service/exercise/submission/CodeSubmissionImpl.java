@@ -29,4 +29,14 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         }
         codeSubmissionRepository.save(submission);
     }
+
+    @Override
+    public void updateStatusAndResultBySubmissionIdAndStatus(String submissionId, String searchedStatus, String status, String result) {
+        CodeSubmission submission = codeSubmissionRepository.findById(submissionId).get();
+        if (submission.getStatus().equals(searchedStatus)) {
+            submission.setStatus(status);
+            submission.setResult(result);
+            codeSubmissionRepository.save(submission);
+        }
+    }
 }
