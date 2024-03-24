@@ -1,7 +1,6 @@
-package com.example.codeE.request.exercise.essay;
+package com.example.codeE.request.exercise.quiz;
 
-import com.example.codeE.validator.id.ExistingId;
-import jakarta.validation.constraints.Future;
+import com.example.codeE.model.exercise.common.QuizQuestion;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,13 +9,11 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ExistingId(targetClasses = {CreateEssayExerciseRequest.class})
-public class CreateEssayExerciseRequest {
+public class CreateQuizExerciseRequest {
     @NotNull(message = "Topic ID is required")
     private String topicId;
     @NotNull(message = "Exercise's name is required")
@@ -25,11 +22,8 @@ public class CreateEssayExerciseRequest {
     private String key;
     private Date startTime;
     private Date endTime;
-    private int durationTime;
+    private Date durationTime;
     private int reAttempt;
-    @NotNull(message = "Exercise public option is required")
-    private List<String> publicGroupIds;
-
-    @NotNull(message = "Question is required")
-    private String question;
+    @NotNull(message = "Exercise's questions is required")
+    private List<QuizQuestion> questions;
 }

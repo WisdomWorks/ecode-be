@@ -8,10 +8,12 @@ import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.repository.ViewPermissionTopicRepository;
+import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
+import com.example.codeE.service.exercise.ExerciseService;
 import com.example.codeE.service.material.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,8 @@ public class TopicImpl implements TopicService {
     private GroupRepository groupRepository;
     @Autowired
     private MaterialService materialService;
-
+    @Autowired
+    private ExerciseService exerciseService;
     @Override
     public List<TopicGetResponse> getAllTopicsByCourseId(String courseId) {
         this.courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID: " + courseId));
@@ -38,7 +41,7 @@ public class TopicImpl implements TopicService {
         List<TopicGetResponse> result = new ArrayList<>();
         for (var item : topics) {
             var materials = this.materialService.getAllByTopicId(item.getTopicId());
-            List<Exercise> exercises = new ArrayList<Exercise>();
+            List<ExerciseResponse> exercises = this.exerciseService.getExercisesByTopicId(item.getTopicId());
             List<GroupTopicResponse> groupsResponse = new ArrayList<>();
             var groups = this.viewPermissionTopicRepository.getAllGroupsByTopicId(item.getTopicId());
             for(var g: groups){
@@ -121,7 +124,7 @@ public class TopicImpl implements TopicService {
         var topics = this.topicRepository.getTopicByUser(studentId, courseId);
         for (var item : topics) {
             var materials = this.materialService.getMaterialByUserId(studentId, item.getTopicId());
-            var exercises = new ArrayList<Exercise>();
+            List<ExerciseResponse> exercises = this.exerciseService.getExercisesByUserId(item.getTopicId(), studentId);
             List<GroupTopicResponse> groupsResponse = new ArrayList<>();
             var groups = this.viewPermissionTopicRepository.getAllGroupsByTopicId(item.getTopicId());
             for(var g: groups){
