@@ -1,6 +1,8 @@
 package com.example.codeE.model.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.validator.date.DateComparison;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -42,18 +44,22 @@ public class Exercise {
 
     @Field
     @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private String createdDate;
 
     @Field
     @LastModifiedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private String updatedDate;
 
     @Field
     @NotNull(message = "Exercise start time is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private Date startTime;
 
     @Field
     @NotNull(message = "Exercise end time is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private Date endTime;
 
     @Field
