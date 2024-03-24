@@ -35,7 +35,7 @@ import java.util.Map;
 @Validated
 public class ExerciseController {
     @Autowired
-    private CodeExerciseService codeExerciseService;
+    private CodeExerciseServiceWBD codeExerciseServiceWBD;
 
     @Autowired
     private ExerciseService exerciseService;
@@ -63,7 +63,7 @@ public class ExerciseController {
             String id = this.testcaseService.createTestcase(tc).getTestcaseId();
             testcaseIds.add(id);
         }
-        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.createCodeExercise(
+        CodeExerciseWBD codeExerciseWBD = this.codeExerciseServiceWBD.createCodeExercise(
                 new CodeExerciseWBD(request.getTopicId(), request.getExerciseName(), request.getKey(),
                         request.getStartTime(), request.getEndTime(), request.getType(), request.getPublicGroupIds(),
                         request.getLanguage(), request.getFunctionName(), request.getTemplate(),
@@ -144,7 +144,7 @@ public class ExerciseController {
     public ResponseEntity<?> deleteExerciseById(@Valid @ModelAttribute DeleteExerciseRequest request) {
         switch (request.getType()) {
             case "code":
-                this.codeExerciseService.deleteCodeExerciseById(request.getExerciseId());
+                this.codeExerciseServiceWBD.deleteCodeExerciseById(request.getExerciseId());
                 break;
             case "quiz":
                 this.quizExerciseService.deleteQuizExerciseById(request.getExerciseId());
@@ -157,7 +157,7 @@ public class ExerciseController {
     @PutMapping
     @RequestMapping(value = "code", method = RequestMethod.PUT)
     public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExerciseWBD exercise) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(exercise));
+        return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseServiceWBD.updateCodeExercise(exercise));
     }
 
     @PatchMapping
