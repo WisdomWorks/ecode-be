@@ -4,6 +4,7 @@ import com.example.codeE.constant.Constant;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.material.Material;
 import com.example.codeE.model.topic.Topic;
+import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.material.MaterialResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -33,9 +34,9 @@ public class TopicGetResponse {
     private LocalDateTime updatedDate;
 
     private List<MaterialResponse> materials;
-    private List<Exercise> exercises;
+    private List<ExerciseResponse> exercises;
     private List<GroupTopicResponse> groups;
-    public TopicGetResponse(Topic topic, List<MaterialResponse> materials, List<Exercise> exercises, List<GroupTopicResponse> groups){
+    public TopicGetResponse(Topic topic, List<MaterialResponse> materials, List<ExerciseResponse> exercises, List<GroupTopicResponse> groups){
         this.topicId = topic.getTopicId();
         this.courseId = topic.getCourseId();
         this.topicName= topic.getTopicName();

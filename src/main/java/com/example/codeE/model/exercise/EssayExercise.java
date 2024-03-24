@@ -28,7 +28,7 @@ public class EssayExercise extends Exercise{
     }
 
     public EssayExercise(CreateEssayExerciseRequest request) {
-        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), "essay", request.getPublicGroupIds());
+        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "essay", true, request.getPublicGroupIds());
         this.question = request.getQuestion();
     }
 }

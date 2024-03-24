@@ -27,4 +27,7 @@ public interface GroupStudentRepository extends JpaRepository<GroupStudent, Stri
      @Transactional
      @Query(value = deleteStudentInGroup, nativeQuery = true)
      void deleteStudentInGroup(String studentId, String GroupId);
+
+     @Query(value = "SELECT * FROM codee.group_student WHERE student_id = ?1 AND group_id = ?2", nativeQuery = true)
+     GroupStudent isStudentInGroup(String studentId, String groupId);
 }

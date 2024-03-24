@@ -22,8 +22,8 @@ public class QuizExercise extends Exercise {
     @NotNull(message = "Exercise's questions is required")
     private List<QuizQuestion> questions;
 
-    public QuizExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime,Date openedTime, Date closedTime, int reAttempt, String type, List<String> publicGroupIds, List<QuizQuestion> questions) {
-        super(topicId, exerciseName, key, startTime, endTime,openedTime, closedTime, reAttempt,  type, publicGroupIds);
+    public QuizExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, boolean isShowAll, List<String> publicGroupIds, List<QuizQuestion> questions) {
+        super(topicId, exerciseName, key, startTime, endTime, durationTime, reAttempt, type, isShowAll, publicGroupIds);
         this.questions = questions;
     }
 }

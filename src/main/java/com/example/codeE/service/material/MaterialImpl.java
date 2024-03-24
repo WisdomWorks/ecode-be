@@ -2,9 +2,7 @@ package com.example.codeE.service.material;
 
 import com.example.codeE.helper.CloudStorageHelper;
 import com.example.codeE.helper.LoggerHelper;
-import com.example.codeE.model.group.Group;
 import com.example.codeE.model.material.Material;
-import com.example.codeE.model.material.ViewPermissionMaterial;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.MaterialRepository;
 import com.example.codeE.repository.TopicRepository;
@@ -17,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
