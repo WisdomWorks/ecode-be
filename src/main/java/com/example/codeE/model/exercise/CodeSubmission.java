@@ -1,10 +1,12 @@
 package com.example.codeE.model.exercise;
 
 import com.example.codeE.constant.Constant;
+import com.example.codeE.service.judge.JudgeImpl;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -50,6 +52,8 @@ public class CodeSubmission extends Submission {
 
     @Field
     private LocalDateTime lockedAfter;
+    @Autowired
+    private JudgeImpl judgeImpl;
 
     public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Float time, Float memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter) {
         super(studentId, exerciseId, score, reviewable);
@@ -101,12 +105,14 @@ public class CodeSubmission extends Submission {
         return this.lockedAfter != null && this.lockedAfter.isBefore(LocalDateTime.now());
     }
 
-    public void judge(boolean rejudge) {
-//        judgeSubmission(this, rejudge);
+    public void judge(boolean rejudge, boolean forceJudge) {
+        if (forceJudge || !this.isLocked()) {
+            judgeImpl.judgeSubmission(this, rejudge);
+        }
     }
 
     public void abort() {
-//        abortSubmission(this);
+        judgeImpl.abortSubmission(this);
     }
 
     public boolean isGraded() {
