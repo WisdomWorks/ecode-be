@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +29,8 @@ public class EssayExercise extends Exercise{
     }
 
     public EssayExercise(CreateEssayExerciseRequest request) {
-        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "essay", true, request.getPublicGroupIds());
+        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "essay", true,
+                new ArrayList<String>());
         this.question = request.getQuestion();
     }
 }

@@ -20,9 +20,12 @@ public class CreateQuizExerciseRequest {
     private String exerciseName;
     @NotNull(message = "Exercise's key is required")
     private String key;
+    @NotNull(message = "Start Time is required")
     private Date startTime;
+    @NotNull(message = "End Time is required")
     private Date endTime;
-    private Date durationTime;
+    @NotNull(message = "duration Time is required")
+    private int durationTime;
     private int reAttempt;
     @NotNull(message = "Exercise's questions is required")
     private List<QuizQuestion> questions;
