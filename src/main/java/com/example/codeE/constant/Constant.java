@@ -49,6 +49,10 @@ public class Constant {
     public static final int REJUDGE_PRIORITY = 2;
     public static final int BATCH_REJUDGE_PRIORITY = 3;
     public static final String SERVER_NAME = "DefaultJudge";
+    public static final int PROBLEM_MIN_TIME_LIMIT = 0;  // seconds
+    public static final int PROBLEM_MAX_TIME_LIMIT = 60;  // seconds
+    public static final int PROBLEM_MIN_MEMORY_LIMIT = 0;  // kilobytes
+    public static final int PROBLEM_MAX_MEMORY_LIMIT = 1048576; // kilobytes
 
     static {
         USER_DISPLAY_CODES.put("AC", "Accepted");
