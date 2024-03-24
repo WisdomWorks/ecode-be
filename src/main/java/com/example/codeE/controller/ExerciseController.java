@@ -104,9 +104,9 @@ public class ExerciseController {
         Exercise exercise = this.exerciseService.getDetailExercise(exerciseId, key);
         return switch (exercise.getType()){
             case "quiz" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(exerciseId));
             case "essay" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseById(exerciseId));
+                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(exerciseId));
             default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
         };
     }

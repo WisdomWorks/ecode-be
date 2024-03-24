@@ -6,11 +6,13 @@ import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.repository.QuizChoiceRepository;
 import com.example.codeE.repository.QuizExerciseRepository;
 import com.example.codeE.repository.QuizQuestionRepository;
+import com.example.codeE.request.exercise.quiz.QuizDetailResponse;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class QuizExerciseImpl implements QuizExerciseService{
@@ -50,9 +52,13 @@ public class QuizExerciseImpl implements QuizExerciseService{
 
     @Override
     public QuizExercise getQuizExerciseById(String exerciseId) {
-        return quizExerciseRepository.findById(exerciseId).get();
+        return quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
     }
-
+    @Override
+    public QuizDetailResponse getQuizExerciseDetail(String exerciseId){
+       var quiz = quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
+       return new QuizDetailResponse(quiz);
+    }
     @Override
     public QuizQuestion getQuizQuestionByQuestionId(String questionId) {
         return this.quizQuestionRepository.findById(questionId).get();

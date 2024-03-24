@@ -4,6 +4,7 @@ import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.repository.EssayExerciseRepository;
 import com.example.codeE.repository.GroupRepository;
+import com.example.codeE.request.exercise.essay.EssayDetailResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,9 +34,13 @@ public class EssayExerciseImpl implements EssayExerciseService{
 
     @Override
     public EssayExercise getEssayExerciseById(String exerciseId) {
-        return this.essayExerciseRepository.findById(exerciseId).get();
+        return this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
     }
-
+    @Override
+    public EssayDetailResponse getEssayExerciseDetail(String exerciseId) {
+        var exercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
+        return new EssayDetailResponse(exercise);
+    }
     @Override
     public void deleteEssayExerciseById(String exerciseId) {
         this.essayExerciseRepository.deleteById(exerciseId);
