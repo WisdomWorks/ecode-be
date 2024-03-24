@@ -5,5 +5,6 @@ import com.example.codeE.model.exercise.CodeExercise;
 import java.util.List;
 
 public interface CodeExerciseService {
-    public List<String> getProblemIds(List<CodeExercise> problems);
+    List<String> getProblemIds(List<CodeExercise> problems);
+    CodeExercise getProblemById(String problemId);
 }

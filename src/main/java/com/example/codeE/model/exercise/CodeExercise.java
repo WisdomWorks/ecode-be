@@ -39,7 +39,7 @@ public class CodeExercise extends Exercise {
 
     @Field
     @NotNull(message = "Memory limit is required")
-    private Integer memoryLimit;
+    private Double memoryLimit;
 
     @Field("short_circuit")
     private Boolean shortCircuit;
