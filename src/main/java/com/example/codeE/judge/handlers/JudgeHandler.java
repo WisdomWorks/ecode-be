@@ -1,6 +1,7 @@
 package com.example.codeE.judge.handlers;
 
 import com.example.codeE.helper.LoggerHelper;
+import com.example.codeE.helper.ZlibCompression;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.common.Judge;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -414,7 +416,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
     }
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws JsonProcessingException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode result = JsonNodeFactory.instance.objectNode();
         System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
@@ -430,7 +432,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             result.put("name", "bad-request");
         } finally {
             System.out.println("Sending to client: " + mapper.writeValueAsString(result));
-            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
+            byte[] compressed = ZlibCompression.zlibify(mapper.writeValueAsString(result));
+//            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
+            ByteBuf buf = Unpooled.wrappedBuffer(compressed);
             final SpringBootHandler.WriteListener listener = new SpringBootHandler.WriteListener() {
                 @Override
                 public void messageRespond(boolean success) {
