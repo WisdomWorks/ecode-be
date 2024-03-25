@@ -5,6 +5,9 @@ import com.example.codeE.repository.SubmissionTestCaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class SubmissionTestCaseImpl implements SubmissionTestCaseService{
     @Autowired
@@ -12,19 +15,21 @@ public class SubmissionTestCaseImpl implements SubmissionTestCaseService{
 
     @Override
     public void deleteAllTcBySubmissionId(String submissionId) {
-        SubmissionTestCase testCase = submissionTestCaseRepository.findById(submissionId).get();
-        submissionTestCaseRepository.delete(testCase);
+        List<SubmissionTestCase> testCases = submissionTestCaseRepository.findBySubmissionId(submissionId);
+        submissionTestCaseRepository.deleteAll(testCases);
     }
 
     @Override
-    public SubmissionTestCase getTcBySubmissionId(String submissionId) {
-//        return submissionTestCaseRepository.findBy();
-        return null;
+    public int getMaxPosition(List<SubmissionTestCase> testCases) {
+        List<Integer> positions = new ArrayList<>();
+        for (SubmissionTestCase testCase : testCases) {
+            positions.add(Integer.parseInt(testCase.getTestCaseId()));
+        }
+        return positions.stream().max(Integer::compare).get();
     }
 
     @Override
-    public void deleteTcBySubmissionId(String submissionId) {
-//        List<SubmissionTestCase> testCases = submissionTestCaseRepository.findBySubmissionId(submissionId);
-//        submissionTestCaseRepository.deleteAll(testCases);
+    public void saveAll(List<SubmissionTestCase> testCases) {
+        submissionTestCaseRepository.saveAll(testCases);
     }
 }
