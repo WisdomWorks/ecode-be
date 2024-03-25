@@ -8,9 +8,11 @@ import com.example.codeE.model.exercise.common.Judge;
 import com.example.codeE.model.exercise.common.LanguageLimit;
 import com.example.codeE.model.exercise.common.RuntimeVersion;
 import com.example.codeE.model.exercise.common.SubmissionData;
+import com.example.codeE.model.exercise.common.SubmissionTestCase;
 import com.example.codeE.repository.CodeSubmissionRepository;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.common.RuntimeVersionService;
+import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.judge.LanguageLimitService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -78,6 +80,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         @Autowired
         private static LanguageLimitService languageLimitService;
+
+        @Autowired
+        private static SubmissionTestCaseService submissionTestCaseService;
 
         private static final JudgeHandler judgeHandler = new JudgeHandler();
 
@@ -337,46 +342,20 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         public static ObjectNode onGradingBegin(ObjectNode packet) {
             // log Grading has begun
-            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(packet.get("submission-id").asText());
+            String submissionId = packet.get("submission-id").asText();
+            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
             codeSubmission.setStatus("G");
             codeSubmission.setPretested(packet.get("pretested").asBoolean());
             codeSubmission.setCurrentTestcase(1);
 
             if (codeSubmissionService.updateCodeSubmission(codeSubmission) != null){
+                submissionTestCaseService.deleteAllTcBySubmissionId(submissionId);
                 //log
             } else {
                 //log
             }
             return null;
         }
-
-//        def on_grading_begin(self, packet):
-//                logger.info("%s: Grading has begun on: %s", self.name, packet["submission-id"])
-//                # self.batch_id = None
-//
-//        if Submission.objects.filter(id=packet["submission-id"]).update(
-//                status="G",
-//                is_pretested=packet["pretested"],
-//                current_testcase=1,
-//                batch=False,
-//                judged_date=timezone.now(),
-//        ):
-//                SubmissionTestCase.objects.filter(
-//        submission_id=packet["submission-id"]
-//                ).delete()
-//            # event.post(
-//                    #     "sub_%s" % Submission.get_id_secret(packet["submission-id"]),
-//                #     {"type": "grading-begin"},
-//                # )
-//                # self._post_update_submission(packet["submission-id"], "grading-begin")
-//                json_log.info(self._make_json_log(packet, action="grading-begin"))
-//                else:
-//                logger.warning("Unknown submission: %s", packet["submission-id"])
-//                json_log.error(
-//                self._make_json_log(
-//        packet, action="grading-begin", info="unknown submission"
-//                )
-//                )
 
         public static ObjectNode onGradingEnd(ObjectNode packet) {
             return null;
@@ -438,9 +417,63 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
 
         public static ObjectNode onTestCaseStatus(ObjectNode packet) {
-            return null;
+            //log
+            String submissionId = packet.get("submission-id").asText();
+            List<SubmissionTestCase> updates = new ArrayList<>();
+            JsonNode cases = packet.get("cases");
+            if (cases.isArray()) {
+                for (JsonNode testCase : cases) {
+                    SubmissionTestCase submissionTestCase = new SubmissionTestCase();
 
-            // Handle test case status packet
+                    submissionTestCase.setSubmissionId(submissionId);
+                    int status = testCase.get("status").asInt();
+                    switch (status) {
+                        case 4:
+                            submissionTestCase.setStatus("TLE");
+                            break;
+                        case 8:
+                            submissionTestCase.setStatus("MLE");
+                            break;
+                        case 64:
+                            submissionTestCase.setStatus("OLE");
+                            break;
+                        case 2:
+                            submissionTestCase.setStatus("RTE");
+                            break;
+                        case 16:
+                            submissionTestCase.setStatus("IR");
+                            break;
+                        case 1:
+                            submissionTestCase.setStatus("WA");
+                            break;
+                        case 32:
+                            submissionTestCase.setStatus("SC");
+                            break;
+                        default:
+                            submissionTestCase.setStatus("AC");
+                            break;
+                    }
+                    submissionTestCase.setTime(testCase.get("time").asDouble());
+                    submissionTestCase.setMemory(testCase.get("memory").asDouble());
+                    submissionTestCase.setPoints(testCase.get("points").asDouble());
+                    submissionTestCase.setTotal(testCase.get("total-points").asDouble());
+                    submissionTestCase.setFeedback(testCase.get("feedback").asText());
+                    submissionTestCase.setExtendedFeedback(testCase.get("extended-feedback").asText());
+                    submissionTestCase.setOutput(testCase.get("output").asText());
+
+                    updates.add(submissionTestCase);
+                }
+            }
+            int maxPosition = submissionTestCaseService.getMaxPosition(updates);
+            CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(submissionId);
+            submission.setCurrentTestcase(maxPosition);
+            if (codeSubmissionService.updateCodeSubmission(submission) == null){
+                //log
+            }
+
+            submissionTestCaseService.saveAll(updates);
+
+            return null;
         }
 
         public static ObjectNode onMalformedPacket(ObjectNode packet) {
