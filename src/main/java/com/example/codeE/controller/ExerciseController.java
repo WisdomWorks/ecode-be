@@ -1,7 +1,7 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.model.exercise.*;
-import com.example.codeE.request.exercise.DeleteExerciseRequest;
+import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
@@ -104,9 +104,9 @@ public class ExerciseController {
         Exercise exercise = this.exerciseService.getDetailExercise(exerciseId, key);
         return switch (exercise.getType()){
             case "quiz" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
+                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(exerciseId));
             case "essay" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseById(exerciseId));
+                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(exerciseId));
             default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
         };
     }
@@ -133,17 +133,13 @@ public class ExerciseController {
     }
 
     @DeleteMapping
-    @RequestMapping(value = "", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteExerciseById(@Valid @ModelAttribute DeleteExerciseRequest request) {
-        switch (request.getType()) {
-            case "code":
-                this.codeExerciseService.deleteCodeExerciseById(request.getExerciseId());
-                break;
-            case "quiz":
-                this.quizExerciseService.deleteQuizExerciseById(request.getExerciseId());
-                break;
+    @RequestMapping(value = "{exerciseId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteExerciseById(@Valid @PathVariable String exerciseId, @Valid @RequestParam String type) {
+        switch (type) {
+            case "code" -> this.codeExerciseService.deleteCodeExerciseById(exerciseId);
+            case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(exerciseId);
+            default -> this.exerciseService.deleteExerciseById(exerciseId);
         }
-        this.exerciseService.deleteExerciseById(request.getExerciseId());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true));
     }
 
@@ -158,5 +154,11 @@ public class ExerciseController {
     public ResponseEntity<?> updateQuizExercise(@RequestParam String exerciseId, @RequestBody UpdateQuizExerciseRequest request){
         QuizExercise updatedExercise = this.quizExerciseService.updateQuizExercise(exerciseId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
+    }
+
+    @PostMapping
+    @RequestMapping(value = "view", method = RequestMethod.POST)
+    public ResponseEntity<?> addPermissionExercise(@RequestBody CreatePermissionExerciseRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.modifiedPermission(request));
     }
 }

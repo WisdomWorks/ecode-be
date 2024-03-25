@@ -7,6 +7,7 @@ import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.GroupStudentRepository;
+import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import jakarta.ws.rs.NotSupportedException;
@@ -83,7 +84,23 @@ public class ExerciseImpl implements ExerciseService{
     public void deleteExerciseById(String exerciseId) {
         this.exerciseRepository.deleteById(exerciseId);
     }
-
+    @Override
+    public ExerciseResponse modifiedPermission(CreatePermissionExerciseRequest request){
+        try{
+            var exercise = this.exerciseRepository.findById(request.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + request.getExerciseId()));
+            exercise.setPublicGroupIds(request.getGroupIds());
+            exercise.setShowAll(request.isShowAll());
+            this.exerciseRepository.save(exercise);
+            var groupResponse = new ArrayList<GroupTopicResponse>();
+            for(var item: exercise.getPublicGroupIds()){
+                var group = this.groupRepository.findById(item).get();
+                groupResponse.add(new GroupTopicResponse(group.getGroupName(), group.getGroupId()));
+            }
+            return new ExerciseResponse(exercise, groupResponse);
+        }catch (Exception e){
+            throw new RuntimeException("Something wrong when change permission.");
+        }
+    }
     @Override
     public List<ExerciseResponse> getExercisesByTopicId(String topicId) {
         try {

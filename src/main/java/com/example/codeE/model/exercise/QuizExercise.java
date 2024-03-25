@@ -10,6 +10,8 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +39,7 @@ public class QuizExercise extends Exercise {
                 request.getDurationTime(),
                 request.getReAttempt(),
                 "quiz",
-                true,
+                false,
                 new ArrayList<String>());
         this.questions = request.getQuestions();
     }
