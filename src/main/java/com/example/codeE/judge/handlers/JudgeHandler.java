@@ -7,7 +7,6 @@ import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.common.Judge;
 import com.example.codeE.model.exercise.common.LanguageLimit;
 import com.example.codeE.model.exercise.common.RuntimeVersion;
-import com.example.codeE.model.exercise.common.SubmissionData;
 import com.example.codeE.model.exercise.common.SubmissionTestCase;
 import com.example.codeE.repository.CodeSubmissionRepository;
 import com.example.codeE.service.exercise.CodeExerciseService;
@@ -24,7 +23,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.util.CharsetUtil;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -89,10 +90,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         static {
             handlers = new HashMap<>();
             handlers.put("handshake", Handlers::onHandshake);
-            handlers.put("submission-request", Handlers::onSubmissionRequest);
             handlers.put("submission-processing", Handlers::onSubmissionProcessing);
             handlers.put("submission-acknowledged", Handlers::onSubmissionAcknowledged);
-            handlers.put("submission-wrong-acknowledge", Handlers::onSubmissionWrongAcknowledge);
             handlers.put("supported-problems", Handlers::onSupportedProblems);
             handlers.put("grading-begin", Handlers::onGradingBegin);
             handlers.put("grading-end", Handlers::onGradingEnd);
@@ -173,7 +172,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                     problem.setExerciseName(problemNode.get("name").asText());
                     problem.setDescription(problemNode.get("description").asText());
                     problem.setTimeLimit(problemNode.get("time_limit").asDouble());
-                    problem.setMemoryLimit(problemNode.get("memory_limit").asDouble());
+                    problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
                     problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
                     JsonNode allowedLanguages = problemNode.get("allowed_languages");
                     problem.setAllowedLanguageIds(new ArrayList<>());
@@ -190,11 +189,10 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             ObjectNode response = JsonNodeFactory.instance.objectNode();
             response.put("name", "handshake-success");
             connected();
-            System.out.println(response);
             return response;
         }
 
-        public static ObjectNode onSubmissionRequest(ObjectNode packet) {
+        public static ObjectNode submit(ObjectNode packet) {
             String submissionId = packet.get("submission-id").asText();
             String problemId = packet.get("problem-id").asText();
             String language = packet.get("language").asText();
@@ -225,12 +223,16 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         private static SubmissionData getRelatedSubmissionData(String id) {
             try {
-                CodeSubmission submission = codeSubmissionRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Submission not found"));
+                CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
+                if (submission == null) {
+                    LoggerHelper.logError("Submission vanished: " + id);
+                    return null;
+                }
 
                 CodeExercise problem = codeExerciseService.getProblemById(submission.getExerciseId());
                 String problemId = submission.getExerciseId();
                 Double timeLimit = problem.getTimeLimit();
-                Double memoryLimit = problem.getMemoryLimit();
+                Integer memoryLimit = problem.getMemoryLimit();
                 Boolean shortCircuit = problem.getShortCircuit();
                 String languageId = submission.getLanguageId();
                 Boolean isPretested = submission.isPretested();
@@ -238,12 +240,11 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                 try {
                     LanguageLimit languageLimit = languageLimitService.findByProblemIdAndLanguageId(problemId, languageId);
 
-                    Double timeLimitLanguageLimit = languageLimit.getTimeLimit();
-                    Integer memoryLimitLanguageLimit = languageLimit.getMemoryLimit();
-                } catch (Exception e) {
-                    LoggerHelper.logError("Submission data not found: " + id);
-                    return null;
-                } //???
+                    timeLimit = languageLimit.getTimeLimit();
+                    memoryLimit = languageLimit.getMemoryLimit();
+                } catch (Exception ignored) {
+
+                }
 
                 return new SubmissionData(
                         timeLimit,
@@ -252,23 +253,20 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                         isPretested
                 );
             } catch (Exception e) {
-                LoggerHelper.logError("Submission data not found: " + id);
+                LoggerHelper.logError("Something wrong with submission " + id);
                 return null;
             }
         }
 
         public static ObjectNode onSubmissionProcessing(ObjectNode packet) {
             String id = packet.get("submission-id").asText();
-            String judgeId = packet.get("judge-id").asText();
 
+            CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
 
-            Optional<CodeSubmission> submissionOptional = codeSubmissionRepository.findById(id);
-
-            if (submissionOptional.isPresent()) {
-                CodeSubmission submission = submissionOptional.get();
+            if (submission != null) {
                 submission.setStatus("P");
-                submission.setJudgedOn(judgeId);
-                codeSubmissionRepository.save(submission);
+                submission.setJudgedOn(judgeHandler.judge.getJudgeId());
+                codeSubmissionService.updateCodeSubmission(submission);
 
                 LoggerHelper.logInfo("Submission processing: " + submission);
             } else {
@@ -283,9 +281,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             String working = judgeHandler.working; // judgeId
             if (submissionId == null || !submissionId.equals(working)) {
                 LoggerHelper.logError("Wrong acknowledgement: "+ judgeHandler.getName() + ": "+ submissionId+ ", expected: " + working);
-                onSubmissionWrongAcknowledge(JsonNodeFactory.instance.objectNode()
-                        .put("expected", working)
-                        .put("got", submissionId));
+                onSubmissionWrongAcknowledge(packet, working, submissionId);
             } else {
                 LoggerHelper.logInfo("Submission acknowledged: " + working);
                 onSubmissionProcessing(packet);
@@ -294,13 +290,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             return packet;
         }
 
-        public static ObjectNode onSubmissionWrongAcknowledge(ObjectNode packet) {
-            String expected = packet.get("expected").asText();
-            String got = packet.get("got").asText();
-
+        public static void onSubmissionWrongAcknowledge(ObjectNode packet, String expected, String got) {
             codeSubmissionService.updateStatusAndResult(expected, "IE", "IE");
             codeSubmissionService.updateStatusAndResultBySubmissionIdAndStatus(got, "QU", "IE", "IE");
-            return packet;
         }
 
         public static ObjectNode onSupportedProblems(ObjectNode packet) {
@@ -314,7 +306,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                     problem.setExerciseName(problemNode.get("name").asText());
                     problem.setDescription(problemNode.get("description").asText());
                     problem.setTimeLimit(problemNode.get("time_limit").asDouble());
-                    problem.setMemoryLimit(problemNode.get("memory_limit").asDouble());
+                    problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
                     problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
                     JsonNode allowedLanguages = problemNode.get("allowed_languages");
                     problem.setAllowedLanguageIds(new ArrayList<>());
@@ -486,6 +478,29 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             return null;
 
             // Handle ping response packet
+        }
+
+        @Getter
+        @Setter
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class SubmissionData {
+            private String submissionDataId;
+
+            private Double time;
+
+            private Integer memory;
+
+            private Boolean shortCircuit;
+
+            private boolean pretests_only;
+
+            public SubmissionData(Double time, Integer memory, Boolean shortCircuit, boolean isPretested) {
+                this.time = time;
+                this.memory = memory;
+                this.shortCircuit = shortCircuit;
+                this.pretests_only = isPretested;
+            }
         }
     }
     @Override
