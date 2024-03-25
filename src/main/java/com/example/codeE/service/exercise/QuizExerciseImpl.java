@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class QuizExerciseImpl implements QuizExerciseService{
@@ -30,13 +31,12 @@ public class QuizExerciseImpl implements QuizExerciseService{
         List<QuizQuestion> questions = quizExercise.getQuestions();
         for(int i=0; i<questions.size(); i++){
             QuizQuestion quizQuestion = quizExercise.getQuestions().get(i);
-
             List<QuizChoice> choices = questions.get(i).getChoices();
             for(int j=0; j<choices.size(); j++){
+                choices.get(j).setChoiceId(UUID.randomUUID().toString());
                 QuizChoice savedChoice = quizChoiceRepository.save(choices.get(j));
                 quizQuestion.getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
                 quizExercise.getQuestions().get(i).getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
-
                 List<QuizChoice> answers = questions.get(i).getAnswers();
                 for(int k=0; k<answers.size(); k++){
                     if(answers.get(k).getContent().equals(choices.get(j).getContent())){

@@ -59,8 +59,7 @@ public class ExerciseController {
     @RequestMapping(value = "quiz", method = RequestMethod.POST)
     public ResponseEntity<?> createQuizExercise(@Valid @RequestBody CreateQuizExerciseRequest request){
         QuizExercise quizExercise = new QuizExercise(request);
-        this.exerciseService.saveQuizExercise(quizExercise);
-        return ResponseEntity.status(HttpStatus.CREATED).body(quizExerciseService.createQuizExercise(quizExercise));
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.quizExerciseService.createQuizExercise(quizExercise));
     }
 
     @PostMapping
