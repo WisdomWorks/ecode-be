@@ -9,6 +9,7 @@ import com.example.codeE.request.exercise.ExerciseResponse;
 import java.util.List;
 
 public interface ExerciseService {
+    Exercise saveQuizExercise(QuizExercise exercise);
     Exercise saveEsayExercise(EssayExercise exercise);
     List<Exercise> getExercisesByCourseId(String courseId);
     Exercise getExerciseById(String exerciseId);

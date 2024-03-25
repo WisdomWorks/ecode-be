@@ -55,11 +55,11 @@ public class QuizExerciseImpl implements QuizExerciseService{
 
     @Override
     public QuizExercise getQuizExerciseById(String exerciseId) {
-        return quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
+        return quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise quiz found by Id: "+ exerciseId));
     }
     @Override
     public QuizDetailResponse getQuizExerciseDetail(String exerciseId){
-       var quiz = quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
+       var quiz = quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: "+ exerciseId));
        return new QuizDetailResponse(quiz);
     }
     @Override

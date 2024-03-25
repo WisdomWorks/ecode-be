@@ -28,6 +28,11 @@ public class ExerciseImpl implements ExerciseService{
 
 
     @Override
+    public Exercise saveQuizExercise(QuizExercise exercise) {
+        return this.exerciseRepository.save(exercise);
+    }
+
+    @Override
     public Exercise saveEsayExercise(EssayExercise exercise) {
         return this.exerciseRepository.save(exercise);
     }
