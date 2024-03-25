@@ -39,4 +39,14 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
             codeSubmissionRepository.save(submission);
         }
     }
+    
+    @Override
+    public CodeSubmission getCodeSubmissionById(String id) {
+        return codeSubmissionRepository.findById(id).get();
+    }
+
+    @Override
+    public CodeSubmission updateCodeSubmission(CodeSubmission codeSubmission) {
+        return codeSubmissionRepository.save(codeSubmission);
+    }
 }

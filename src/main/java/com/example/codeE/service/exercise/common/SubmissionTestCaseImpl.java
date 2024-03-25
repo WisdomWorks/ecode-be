@@ -15,4 +15,16 @@ public class SubmissionTestCaseImpl implements SubmissionTestCaseService{
         SubmissionTestCase testCase = submissionTestCaseRepository.findById(submissionId).get();
         submissionTestCaseRepository.delete(testCase);
     }
+
+    @Override
+    public SubmissionTestCase getTcBySubmissionId(String submissionId) {
+//        return submissionTestCaseRepository.findBy();
+        return null;
+    }
+
+    @Override
+    public void deleteTcBySubmissionId(String submissionId) {
+//        List<SubmissionTestCase> testCases = submissionTestCaseRepository.findBySubmissionId(submissionId);
+//        submissionTestCaseRepository.deleteAll(testCases);
+    }
 }
