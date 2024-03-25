@@ -1,6 +1,5 @@
 package com.example.codeE.request.exercise.essay;
 
-import com.example.codeE.validator.id.ExistingId;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,13 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ExistingId(targetClasses = {CreateEssayExerciseRequest.class})
-public class CreateEssayExerciseRequest {
+public class UpdateEssayExerciseRequest {
     @NotNull(message = "Topic ID is required")
     private String topicId;
     @NotNull(message = "Exercise's name is required")

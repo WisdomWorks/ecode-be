@@ -1,6 +1,7 @@
 package com.example.codeE.request.exercise.quiz;
 
 import com.example.codeE.model.exercise.common.QuizQuestion;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,30 +16,20 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateQuizExerciseRequest {
+    @NotNull(message = "Topic ID is required")
     private String topicId;
-
+    @NotNull(message = "Exercise's name is required")
     private String exerciseName;
-
+    @NotNull(message = "Exercise's key is required")
     private String key;
-
+    @NotNull(message = "Start time is required")
     private Date startTime;
-
+    @NotNull(message = "End time is required")
     private Date endTime;
-
-    private List<String> publicGroupIds;
-
+    @NotNull(message = "Duration time is required")
+    private int durationTime;
+    private int reAttempt;
     private List<QuizQuestion> questions;
 
-    @Override
-    public String toString() {
-        return "UpdateQuizExerciseRequest{" +
-                "topicId='" + topicId + '\'' +
-                ", exerciseName='" + exerciseName + '\'' +
-                ", key='" + key + '\'' +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", publicGroupIds=" + publicGroupIds +
-                ", questions=" + questions +
-                '}';
-    }
+
 }

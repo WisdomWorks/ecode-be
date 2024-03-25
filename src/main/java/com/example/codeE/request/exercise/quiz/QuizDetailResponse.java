@@ -49,10 +49,13 @@ public class QuizDetailResponse {
         if(startTime == endTime){
             return new Date(0);
         }
+        var current = new Date().getTime();
+        if(current > endTime.getTime()){
+            return new Date(0);
+        }
         if (startTime.getTime() + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
             return new Date((long) durationTime * 60 * 1000);
         } else {
-            var current = new Date().getTime();
             return new Date((long) endTime.getTime() - current);
         }
     }
