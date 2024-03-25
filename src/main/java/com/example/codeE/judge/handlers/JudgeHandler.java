@@ -185,6 +185,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             ObjectNode response = JsonNodeFactory.instance.objectNode();
             response.put("name", "handshake-success");
             connected();
+            System.out.println(response);
             return response;
         }
 
@@ -304,10 +305,47 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
 
         public static ObjectNode onGradingBegin(ObjectNode packet) {
-            return null;
+            // log Grading has begun
+            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(packet.get("submission-id").asText());
+            codeSubmission.setStatus("G");
+            codeSubmission.setPretested(packet.get("pretested").asBoolean());
+            codeSubmission.setCurrentTestcase(1);
 
-            // Handle grading begin packet
+            if (codeSubmissionService.updateCodeSubmission(codeSubmission) != null){
+                //log
+            } else {
+                //log
+            }
+            return null;
         }
+
+//        def on_grading_begin(self, packet):
+//                logger.info("%s: Grading has begun on: %s", self.name, packet["submission-id"])
+//                # self.batch_id = None
+//
+//        if Submission.objects.filter(id=packet["submission-id"]).update(
+//                status="G",
+//                is_pretested=packet["pretested"],
+//                current_testcase=1,
+//                batch=False,
+//                judged_date=timezone.now(),
+//        ):
+//                SubmissionTestCase.objects.filter(
+//        submission_id=packet["submission-id"]
+//                ).delete()
+//            # event.post(
+//                    #     "sub_%s" % Submission.get_id_secret(packet["submission-id"]),
+//                #     {"type": "grading-begin"},
+//                # )
+//                # self._post_update_submission(packet["submission-id"], "grading-begin")
+//                json_log.info(self._make_json_log(packet, action="grading-begin"))
+//                else:
+//                logger.warning("Unknown submission: %s", packet["submission-id"])
+//                json_log.error(
+//                self._make_json_log(
+//        packet, action="grading-begin", info="unknown submission"
+//                )
+//                )
 
         public static ObjectNode onGradingEnd(ObjectNode packet) {
             return null;
@@ -322,9 +360,15 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
 
         public static ObjectNode onCompileMessage(ObjectNode packet) {
+            //log
+            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(packet.get("submission-id").asText());
+            codeSubmission.setError(packet.get("log").asText());
+            if (codeSubmissionService.updateCodeSubmission(codeSubmission) != null){
+                //log
+            } else {
+                //log
+            }
             return null;
-
-            // Handle compile message packet
         }
 
         public static ObjectNode onInternalError(ObjectNode packet) {
