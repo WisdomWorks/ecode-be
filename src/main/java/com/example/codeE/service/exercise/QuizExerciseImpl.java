@@ -1,8 +1,10 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.exercise.common.QuizChoice;
 import com.example.codeE.model.exercise.common.QuizQuestion;
+import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.QuizChoiceRepository;
 import com.example.codeE.repository.QuizExerciseRepository;
 import com.example.codeE.repository.QuizQuestionRepository;
@@ -19,13 +21,12 @@ import java.util.UUID;
 public class QuizExerciseImpl implements QuizExerciseService{
     @Autowired
     private QuizExerciseRepository quizExerciseRepository;
-
     @Autowired
     private QuizChoiceRepository quizChoiceRepository;
-
     @Autowired
     private QuizQuestionRepository quizQuestionRepository;
-
+    @Autowired
+    private ExerciseRepository exerciseRepository;
     @Override
     public QuizExercise createQuizExercise(QuizExercise quizExercise) {
         if (quizExercise.getReAttempt() <= 0) {
@@ -72,6 +73,7 @@ public class QuizExerciseImpl implements QuizExerciseService{
         try {
             QuizExercise quizExercise = this.quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: " + exerciseId));
             QuizExercise updateQuiz = new QuizExercise(updateExercise, quizExercise.isShowAll(), quizExercise.getPublicGroupIds());
+            this.exerciseRepository.save(updateQuiz);
         return this.quizExerciseRepository.save(updateQuiz);
         } catch (RuntimeException e) {
             throw new RuntimeException("Something wrong when update essay exercise");
