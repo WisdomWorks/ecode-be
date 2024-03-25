@@ -3,6 +3,7 @@ package com.example.codeE.service.exercise;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.repository.EssayExerciseRepository;
+import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.request.exercise.essay.EssayDetailResponse;
 import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
@@ -17,6 +18,8 @@ public class EssayExerciseImpl implements EssayExerciseService{
     private EssayExerciseRepository essayExerciseRepository;
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private ExerciseRepository exerciseRepository;
     @Override
     public EssayExercise createEssayExercise(EssayExercise essayExercise) {
         try{
@@ -52,6 +55,7 @@ public class EssayExerciseImpl implements EssayExerciseService{
         try{
             EssayExercise essayExercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: " + exerciseId));
             var updateExercise = new EssayExercise(updateRequest, essayExercise.isShowAll(), essayExercise.getPublicGroupIds());
+            this.exerciseRepository.save(updateExercise);
             return this.essayExerciseRepository.save(updateExercise);
         }catch (RuntimeException e){
             throw new RuntimeException("Something wrong when update essay exercise");
