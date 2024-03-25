@@ -1,6 +1,7 @@
 package com.example.codeE.judge.handlers;
 
 import com.example.codeE.helper.LoggerHelper;
+import com.example.codeE.helper.ZlibCompression;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.common.Judge;
@@ -27,6 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -98,8 +100,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             handlers.put("compile-message", Handlers::onCompileMessage);
             handlers.put("internal-error", Handlers::onInternalError);
             handlers.put("submission-terminated", Handlers::onSubmissionTerminated);
-            handlers.put("batch-begin", Handlers::onBatchBegin);
-            handlers.put("batch-end", Handlers::onBatchEnd);
             handlers.put("test-case-status", Handlers::onTestCaseStatus);
             handlers.put("malformed-packet", Handlers::onMalformedPacket);
             handlers.put("ping-response", Handlers::onPingResponse);
@@ -304,9 +304,40 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
 
         public static ObjectNode onSupportedProblems(ObjectNode packet) {
-            return null;
+            LoggerHelper.logInfo(judgeHandler.name + ": Updated problem list" );
+            JsonNode problemsNode = packet.get("problems");
 
-            // Handle supported problems packet
+            if (problemsNode.isArray()) {
+                for (JsonNode problemNode : problemsNode) {
+                    CodeExercise problem = new CodeExercise();
+                    problem.setExerciseId(problemNode.get("code").asText());
+                    problem.setExerciseName(problemNode.get("name").asText());
+                    problem.setDescription(problemNode.get("description").asText());
+                    problem.setTimeLimit(problemNode.get("time_limit").asDouble());
+                    problem.setMemoryLimit(problemNode.get("memory_limit").asDouble());
+                    problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
+                    JsonNode allowedLanguages = problemNode.get("allowed_languages");
+                    problem.setAllowedLanguageIds(new ArrayList<>());
+                    if (allowedLanguages.isArray()) {
+                        for (JsonNode language : allowedLanguages) {
+                            problem.getAllowedLanguageIds().add(language.get("key").asText());
+                        }
+                    }
+                    judgeHandler.problems.add(problem);
+                }
+            }
+
+//            self.problems = dict(self._problems)
+//            if not self.working:
+//            self.judges.update_problems(self)
+//
+//            self.judge.problems.set(
+//                    Problem.objects.filter(code__in=list(self.problems.keys()))
+//            )
+//            json_log.info(
+//                    self._make_json_log(action="update-problems", count=len(self.problems))
+//            )
+            return null;
         }
 
         public static ObjectNode onGradingBegin(ObjectNode packet) {
@@ -333,9 +364,16 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
 
         public static ObjectNode onCompileError(ObjectNode packet) {
-            return null;
+            String submissionId = packet.get("submission-id").asText();
+//            String log = packet.get("log").asText();
 
-            // Handle compile error packet
+            LoggerHelper.logInfo(judgeHandler.getName() + ": Submission failed to compile: " + submissionId);
+            if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
+                codeSubmissionService.updateStatusAndResult(submissionId, "CE", "CE");
+            } else {
+                LoggerHelper.logError("Unknown submission: " + submissionId);
+            }
+            return packet;
         }
 
         public static ObjectNode onCompileMessage(ObjectNode packet) {
@@ -351,27 +389,31 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
 
         public static ObjectNode onInternalError(ObjectNode packet) {
-            return null;
+            String submissionId = packet.get("submission-id").asText();
+            String message = packet.get("message").asText();
 
-            // Handle internal error packet
+            try {
+                throw new Exception("\n\n" + message);
+            } catch (Exception e) {
+                LoggerHelper.logError("Judge " + judgeHandler.getName() + " failed while handling submission " + submissionId, e);
+            }
+            if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
+                codeSubmissionService.updateStatusAndResult(submissionId, "IE", "IE");
+            } else {
+                LoggerHelper.logError("Unknown submission: " + submissionId);
+            }
+            return packet;
         }
 
         public static ObjectNode onSubmissionTerminated(ObjectNode packet) {
+            String submissionId = packet.get("submission-id").asText();
+            LoggerHelper.logInfo(judgeHandler.getName() + ": Submission aborted: " + submissionId);
+            if(codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
+                codeSubmissionService.updateStatusAndResult(submissionId, "AB", "AB");
+            } else {
+                LoggerHelper.logError("Unknown submission: " + submissionId);
+            }
             return null;
-
-            // Handle submission terminated packet
-        }
-
-        public static ObjectNode onBatchBegin(ObjectNode packet) {
-            return null;
-
-            // Handle batch begin packet
-        }
-
-        public static ObjectNode onBatchEnd(ObjectNode packet) {
-            return null;
-
-            // Handle batch end packet
         }
 
         public static ObjectNode onTestCaseStatus(ObjectNode packet) {
@@ -447,7 +489,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
     }
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws JsonProcessingException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode result = JsonNodeFactory.instance.objectNode();
         System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
@@ -463,7 +505,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             result.put("name", "bad-request");
         } finally {
             System.out.println("Sending to client: " + mapper.writeValueAsString(result));
-            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
+            byte[] compressed = ZlibCompression.zlibify(mapper.writeValueAsString(result));
+//            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
+            ByteBuf buf = Unpooled.wrappedBuffer(compressed);
             final SpringBootHandler.WriteListener listener = new SpringBootHandler.WriteListener() {
                 @Override
                 public void messageRespond(boolean success) {
