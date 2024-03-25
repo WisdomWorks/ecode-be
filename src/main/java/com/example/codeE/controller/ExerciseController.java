@@ -156,7 +156,7 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
     @PutMapping
-    @RequestMapping(value = "quiz", method = RequestMethod.PUT)
+    @RequestMapping(value = "essay", method = RequestMethod.PUT)
     public ResponseEntity<?> updateEssayExercise(@RequestParam String exerciseId, @RequestBody UpdateEssayExerciseRequest request){
         EssayExercise updatedExercise = this.essayExerciseService.updateEssayExercise(exerciseId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
