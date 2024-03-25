@@ -1,4 +1,5 @@
 package com.example.codeE.judge.handlers;
+import com.example.codeE.helper.ZlibCompression;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,7 +102,9 @@ public class SpringBootHandler extends ChannelInboundHandlerAdapter {
             result.put("name", "bad-request");
         } finally {
             System.out.println("Sending to client: " + mapper.writeValueAsString(result));
-            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
+            byte[] compressed = ZlibCompression.zlibify(mapper.writeValueAsString(result));
+//            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
+            ByteBuf buf = Unpooled.wrappedBuffer(compressed);
             final WriteListener listener = new WriteListener() {
                 @Override
                 public void messageRespond(boolean success) {
