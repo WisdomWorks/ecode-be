@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class QuizDetailResponse {
     private String type;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.TIME_FORMAT)
     private Date timeLess;
-    private List<QuizQuestion> questions;
+    private List<QuizQuestionResponse> questions;
 
     public QuizDetailResponse(QuizExercise quizExercise) {
         this.exerciseId = quizExercise.getExerciseId();
@@ -41,7 +42,7 @@ public class QuizDetailResponse {
         this.reAttempt = quizExercise.getReAttempt();
         this.type = quizExercise.getType();
         this.timeLess = GetTimeLess(quizExercise.getStartTime(), quizExercise.getEndTime(), quizExercise.getDurationTime());
-        this.questions = quizExercise.getQuestions();
+        this.questions = convertQuestion(quizExercise.getQuestions());
     }
 
     private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
@@ -55,4 +56,12 @@ public class QuizDetailResponse {
             return new Date((long) endTime.getTime() - current);
         }
     }
+    private List<QuizQuestionResponse> convertQuestion(List<QuizQuestion> questions){
+        List<QuizQuestionResponse> result = new ArrayList<>();
+        for(var i : questions){
+            result.add(new QuizQuestionResponse(i));
+        }
+        return result;
+    }
 }
+

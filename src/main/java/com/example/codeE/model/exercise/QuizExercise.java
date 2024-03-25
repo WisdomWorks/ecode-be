@@ -39,7 +39,7 @@ public class QuizExercise extends Exercise {
                 request.getDurationTime(),
                 request.getReAttempt(),
                 "quiz",
-                true,
+                false,
                 new ArrayList<String>());
         this.questions = request.getQuestions();
     }
