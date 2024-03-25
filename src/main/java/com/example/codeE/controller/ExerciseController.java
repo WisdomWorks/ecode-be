@@ -60,15 +60,18 @@ public class ExerciseController {
     @RequestMapping(value = "quiz", method = RequestMethod.POST)
     public ResponseEntity<?> createQuizExercise(@Valid @RequestBody CreateQuizExerciseRequest request){
         QuizExercise quizExercise = new QuizExercise(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.quizExerciseService.createQuizExercise(quizExercise));
+        var quizSave = this.quizExerciseService.createQuizExercise(quizExercise);
+        this.exerciseService.saveQuizExercise(quizSave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(quizSave);
     }
 
     @PostMapping
     @RequestMapping(value = "essay", method = RequestMethod.POST)
     public ResponseEntity<?> createEssayExercise(@Valid @RequestBody CreateEssayExerciseRequest request){
         EssayExercise essayExercise = new EssayExercise(request);
-        this.exerciseService.saveEsayExercise(essayExercise);
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.essayExerciseService.createEssayExercise(essayExercise));
+        var essaySave = this.essayExerciseService.createEssayExercise(essayExercise);
+        this.exerciseService.saveEsayExercise(essaySave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(essaySave);
     }
 
     @GetMapping
@@ -89,6 +92,7 @@ public class ExerciseController {
     @GetMapping
     @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseById(@PathVariable String exerciseId){
+        System.out.println(exerciseId);
         Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
         return switch (exercise.getType()) {
             case "quiz" ->

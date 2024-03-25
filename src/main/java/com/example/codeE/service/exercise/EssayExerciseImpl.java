@@ -35,11 +35,11 @@ public class EssayExerciseImpl implements EssayExerciseService{
 
     @Override
     public EssayExercise getEssayExerciseById(String exerciseId) {
-        return this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
+        return this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: "+ exerciseId));
     }
     @Override
     public EssayDetailResponse getEssayExerciseDetail(String exerciseId) {
-        var exercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: "+ exerciseId));
+        var exercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: "+ exerciseId));
         return new EssayDetailResponse(exercise);
     }
     @Override
@@ -50,7 +50,7 @@ public class EssayExerciseImpl implements EssayExerciseService{
     @Override
     public EssayExercise updateEssayExercise(String exerciseId, UpdateEssayExerciseRequest updateRequest) {
         try{
-            EssayExercise essayExercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: " + exerciseId));
+            EssayExercise essayExercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: " + exerciseId));
             var updateExercise = new EssayExercise(updateRequest, essayExercise.isShowAll(), essayExercise.getPublicGroupIds());
             return this.essayExerciseRepository.save(updateExercise);
         }catch (RuntimeException e){
