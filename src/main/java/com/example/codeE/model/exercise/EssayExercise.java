@@ -1,6 +1,7 @@
 package com.example.codeE.model.exercise;
 
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
+import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,6 +32,11 @@ public class EssayExercise extends Exercise{
     public EssayExercise(CreateEssayExerciseRequest request) {
         super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "essay", false,
                 new ArrayList<String>());
+        this.question = request.getQuestion();
+    }
+    public EssayExercise(UpdateEssayExerciseRequest request, boolean isShowAll, List<String> groups){
+        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "essay", isShowAll,
+                groups);
         this.question = request.getQuestion();
     }
 }

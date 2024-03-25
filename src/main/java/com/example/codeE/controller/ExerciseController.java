@@ -4,6 +4,7 @@ import com.example.codeE.model.exercise.*;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
+import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
@@ -59,8 +60,7 @@ public class ExerciseController {
     @RequestMapping(value = "quiz", method = RequestMethod.POST)
     public ResponseEntity<?> createQuizExercise(@Valid @RequestBody CreateQuizExerciseRequest request){
         QuizExercise quizExercise = new QuizExercise(request);
-        this.exerciseService.saveQuizExercise(quizExercise);
-        return ResponseEntity.status(HttpStatus.CREATED).body(quizExerciseService.createQuizExercise(quizExercise));
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.quizExerciseService.createQuizExercise(quizExercise));
     }
 
     @PostMapping
@@ -126,8 +126,8 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.createSubmission(essaySubmission));
     }
 
-    @PatchMapping
-    @RequestMapping(value = "essay/grade", method = RequestMethod.PATCH)
+    @PutMapping
+    @RequestMapping(value = "essay/grade", method = RequestMethod.PUT)
     public ResponseEntity<?> gradeEssaySubmission(@RequestParam String essaySubmissionId, @RequestParam float score){
         return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.gradeSubmission(essaySubmissionId, score));
     }
@@ -149,13 +149,18 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(exercise));
     }
 
-    @PatchMapping
-    @RequestMapping(value = "quiz", method = RequestMethod.PATCH)
+    @PutMapping
+    @RequestMapping(value = "quiz", method = RequestMethod.PUT)
     public ResponseEntity<?> updateQuizExercise(@RequestParam String exerciseId, @RequestBody UpdateQuizExerciseRequest request){
         QuizExercise updatedExercise = this.quizExerciseService.updateQuizExercise(exerciseId, request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
-
+    @PutMapping
+    @RequestMapping(value = "essay", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateEssayExercise(@RequestParam String exerciseId, @RequestBody UpdateEssayExerciseRequest request){
+        EssayExercise updatedExercise = this.essayExerciseService.updateEssayExercise(exerciseId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
+    }
     @PostMapping
     @RequestMapping(value = "view", method = RequestMethod.POST)
     public ResponseEntity<?> addPermissionExercise(@RequestBody CreatePermissionExerciseRequest request){

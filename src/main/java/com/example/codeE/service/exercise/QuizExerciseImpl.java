@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class QuizExerciseImpl implements QuizExerciseService{
@@ -27,16 +28,18 @@ public class QuizExerciseImpl implements QuizExerciseService{
 
     @Override
     public QuizExercise createQuizExercise(QuizExercise quizExercise) {
+        if (quizExercise.getReAttempt() <= 0) {
+            quizExercise.setReAttempt(1);
+        }
         List<QuizQuestion> questions = quizExercise.getQuestions();
         for(int i=0; i<questions.size(); i++){
             QuizQuestion quizQuestion = quizExercise.getQuestions().get(i);
-
             List<QuizChoice> choices = questions.get(i).getChoices();
             for(int j=0; j<choices.size(); j++){
+                choices.get(j).setChoiceId(UUID.randomUUID().toString());
                 QuizChoice savedChoice = quizChoiceRepository.save(choices.get(j));
                 quizQuestion.getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
                 quizExercise.getQuestions().get(i).getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
-
                 List<QuizChoice> answers = questions.get(i).getAnswers();
                 for(int k=0; k<answers.size(); k++){
                     if(answers.get(k).getContent().equals(choices.get(j).getContent())){
@@ -66,30 +69,13 @@ public class QuizExerciseImpl implements QuizExerciseService{
 
     @Override
     public QuizExercise updateQuizExercise(String exerciseId, UpdateQuizExerciseRequest updateExercise) {
-        QuizExercise quizExercise = this.quizExerciseRepository.findById(exerciseId).get();
-
-        if(updateExercise.getExerciseName() != null){
-            quizExercise.setExerciseName(updateExercise.getExerciseName());
+        try {
+            QuizExercise quizExercise = this.quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: " + exerciseId));
+            QuizExercise updateQuiz = new QuizExercise(updateExercise, quizExercise.isShowAll(), quizExercise.getPublicGroupIds());
+        return this.quizExerciseRepository.save(updateQuiz);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Something wrong when update essay exercise");
         }
-        if(updateExercise.getKey() != null){
-            quizExercise.setKey(updateExercise.getKey());
-        }
-        if(updateExercise.getStartTime() != null){
-            quizExercise.setStartTime(updateExercise.getStartTime());
-        }
-        if(updateExercise.getEndTime() != null){
-            quizExercise.setEndTime(updateExercise.getEndTime());
-        }
-        if(updateExercise.getTopicId() != null){
-            quizExercise.setTopicId(updateExercise.getTopicId());
-        }
-        if(updateExercise.getPublicGroupIds() != null){
-            quizExercise.setPublicGroupIds(updateExercise.getPublicGroupIds());
-        }
-        if(updateExercise.getQuestions() != null){
-            quizExercise.setQuestions(updateExercise.getQuestions());
-        }
-        return this.quizExerciseRepository.save(quizExercise);
     }
 
     @Override

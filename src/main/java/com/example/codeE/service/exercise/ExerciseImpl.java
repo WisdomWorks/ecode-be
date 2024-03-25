@@ -26,22 +26,6 @@ public class ExerciseImpl implements ExerciseService{
     @Autowired
     private GroupStudentRepository groupStudentRepository;
 
-    @Override
-    public Exercise saveQuizExercise(QuizExercise exercise) {
-        var questions = exercise.getQuestions();
-        for (var question : questions) {
-            for (var choice : question.getChoices()) {
-                for (var answer : question.getAnswers()) {
-                    if (Objects.equals(choice.getChoiceId(), answer.getChoiceId())){
-                        choice.setChoiceId(UUID.randomUUID().toString());
-                        answer.setChoiceId(choice.getChoiceId());
-                    }
-                }
-                choice.setChoiceId(UUID.randomUUID().toString());
-            }
-        }
-        return this.exerciseRepository.save(exercise);
-    }
 
     @Override
     public Exercise saveEsayExercise(EssayExercise exercise) {

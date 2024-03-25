@@ -2,6 +2,7 @@ package com.example.codeE.model.exercise;
 
 import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
+import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +34,7 @@ public class QuizExercise extends Exercise {
     public QuizExercise(CreateQuizExerciseRequest request){
         super(request.getTopicId(),
                 request.getExerciseName(),
-                request.getExerciseName(),
+                request.getKey(),
                 request.getStartTime(),
                 request.getEndTime(),
                 request.getDurationTime(),
@@ -41,6 +42,19 @@ public class QuizExercise extends Exercise {
                 "quiz",
                 false,
                 new ArrayList<String>());
+        this.questions = request.getQuestions();
+    }
+    public QuizExercise(UpdateQuizExerciseRequest request, boolean isShowAll, List<String> publicGroup){
+        super(request.getTopicId(),
+                request.getExerciseName(),
+                request.getKey(),
+                request.getStartTime(),
+                request.getEndTime(),
+                request.getDurationTime(),
+                request.getReAttempt(),
+                "quiz",
+                isShowAll,
+                publicGroup);
         this.questions = request.getQuestions();
     }
 }

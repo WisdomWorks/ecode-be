@@ -5,6 +5,7 @@ import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.repository.EssayExerciseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.request.exercise.essay.EssayDetailResponse;
+import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +48,13 @@ public class EssayExerciseImpl implements EssayExerciseService{
     }
 
     @Override
-    public EssayExercise updateEssayExercise(EssayExercise essayExercise) {
-        return this.essayExerciseRepository.save(essayExercise);
+    public EssayExercise updateEssayExercise(String exerciseId, UpdateEssayExerciseRequest updateRequest) {
+        try{
+            EssayExercise essayExercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: " + exerciseId));
+            var updateExercise = new EssayExercise(updateRequest, essayExercise.isShowAll(), essayExercise.getPublicGroupIds());
+            return this.essayExerciseRepository.save(updateExercise);
+        }catch (RuntimeException e){
+            throw new RuntimeException("Something wrong when update essay exercise");
+        }
     }
 }
