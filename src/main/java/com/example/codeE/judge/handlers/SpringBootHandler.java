@@ -45,12 +45,11 @@ public class SpringBootHandler extends ChannelInboundHandlerAdapter {
 
         ObjectNode response = JsonNodeFactory.instance.objectNode();
         // Check priority here
-        if (!(0 <= priority && priority <= 4)) {
+        if (!this.judges.checkPriority(priority)) {
             response.put("name", "bad-request");
         }
         else {
-            // Handle judge here
-            // self.judges.judge(id, problem, language, source, judge_id, priority)
+            this.judges.judge(id, problem, language, source, judge_id, priority);
             response.put("name", "submission-received");
             response.put("submission-id", id);
         }

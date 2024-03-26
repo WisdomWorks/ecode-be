@@ -4,6 +4,7 @@ import com.example.codeE.constant.JudgePriority;
 import com.example.codeE.judge.handlers.JudgeHandler;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.common.Judge;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +25,8 @@ public class JudgeList {
     LinkedList<Object> queue = new LinkedList<>();
     List<PriorityMarker> priority = new ArrayList<>();
 
-    JudgeHandler judge; //????
+    @Autowired
+    private JudgeHandler judge;
     HashMap<String, Object> nodeMap = new HashMap<>();
     ReentrantLock lock = new ReentrantLock();
 
