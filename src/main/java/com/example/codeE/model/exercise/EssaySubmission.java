@@ -1,5 +1,7 @@
 package com.example.codeE.model.exercise;
 
+import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
+import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +29,10 @@ public class EssaySubmission extends Submission {
         super(studentId, exerciseId, score, reviewable);
         this.submission = submission;
     }
-
+    public EssaySubmission(CreateEssaySubmissionRequest request, float score){
+        super(request.getStudentId(), request.getExerciseId(), score, true);
+        this.submission = request.getSubmission();
+    }
     @Override
     public String toString() {
         return "EssaySubmission{" +

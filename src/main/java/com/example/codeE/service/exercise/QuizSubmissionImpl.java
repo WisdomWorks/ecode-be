@@ -4,6 +4,7 @@ import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.exercise.common.QuizAnswers;
 import com.example.codeE.model.exercise.common.QuizChoice;
+import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.repository.QuizAnswersRepository;
 import com.example.codeE.repository.QuizQuestionRepository;
 import com.example.codeE.repository.QuizSubmissionRepository;
@@ -35,9 +36,9 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
     }
 
     @Override
-    public float gradeSubmission(QuizSubmission quizSubmission, QuizExercise quizExercise) {
+    public float gradeSubmission(List<QuizAnswers> quizSubmission,List<QuizQuestion> quizExercise) {
         float correctAnsCnt = 0;
-        for (QuizAnswers quizAnswers: quizSubmission.getSubmission()){
+        for (QuizAnswers quizAnswers: quizSubmission){
             List<QuizChoice> correctAnswers = this.quizQuestionRepository.findById(quizAnswers.getQuestionId()).get().getAnswers();
             List<QuizChoice> studentAnswers = quizAnswers.getAnswers();
             Collections.sort(correctAnswers);
@@ -46,7 +47,7 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
                 correctAnsCnt++;
             }
         }
-        float questionQuantity = quizExercise.getQuestions().size();
+        float questionQuantity = quizExercise.size();
         return 10 * (correctAnsCnt / questionQuantity);
     }
 }

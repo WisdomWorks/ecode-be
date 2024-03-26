@@ -1,6 +1,5 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.model.group.Group;
 import com.example.codeE.model.group.UpdateGroupRequest;
 import com.example.codeE.request.group.CreateGroupRequest;
 
