@@ -38,7 +38,6 @@ import java.util.function.Function;
 @Getter
 @Setter
 @ChannelHandler.Sharable
-@Controller
 public class JudgeHandler extends ChannelInboundHandlerAdapter {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
@@ -421,12 +420,14 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         public static ObjectNode onCompileMessage(ObjectNode packet) {
             //log
-            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(packet.get("submission-id").asText());
-            codeSubmission.setError(packet.get("log").asText());
-            if (codeSubmissionService.updateCodeSubmission(codeSubmission) != null){
+            String submissionId = packet.get("submission-id").asText();
+            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+            if ( codeSubmission != null){
+                codeSubmission.setError(packet.get("log").asText());
+                codeSubmissionService.updateCodeSubmission(codeSubmission);
                 //log
             } else {
-                //log
+                LoggerHelper.logError("Unknown submission: " + submissionId);
             }
             return null;
         }
