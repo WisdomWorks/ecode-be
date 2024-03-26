@@ -8,7 +8,6 @@ import com.example.codeE.model.exercise.common.Judge;
 import com.example.codeE.model.exercise.common.LanguageLimit;
 import com.example.codeE.model.exercise.common.RuntimeVersion;
 import com.example.codeE.model.exercise.common.SubmissionTestCase;
-import com.example.codeE.repository.CodeSubmissionRepository;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.common.RuntimeVersionService;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
@@ -21,18 +20,26 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Getter
@@ -54,9 +61,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     @Autowired
     private RuntimeVersionService runtimeVersionService;
     private Map<String, Function<ObjectNode, ObjectNode>> handlers;
-
-    @Autowired
-    private CodeSubmissionRepository codeSubmissionRepository;
 
     @Autowired
     private  CodeSubmissionService codeSubmissionService;
@@ -253,7 +257,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         send(response);
     }
 
-    private  boolean isWorking() {
+    public boolean isWorking() {
         return this.working != null;
     }
 
@@ -354,17 +358,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                 this.problems.add(problem);
             }
         }
-
-//            self.problems = dict(self._problems)
-//            if not self.working:
-//            self.judges.update_problems(self)
-//
-//            self.judge.problems.set(
-//                    Problem.objects.filter(code__in=list(self.problems.keys()))
-//            )
-//            json_log.info(
-//                    self._make_json_log(action="update-problems", count=len(self.problems))
-//            )
         return null;
     }
 
