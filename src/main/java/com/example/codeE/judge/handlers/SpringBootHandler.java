@@ -1,5 +1,6 @@
 package com.example.codeE.judge.handlers;
 import com.example.codeE.helper.ZlibCompression;
+import com.example.codeE.judge.JudgeList;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,69 +21,69 @@ import java.util.function.Function;
 
 @ChannelHandler.Sharable
 public class SpringBootHandler extends ChannelInboundHandlerAdapter {
-    private static class Handlers {
-        private static final HashMap<String, Function<ObjectNode, ObjectNode>> methodMap;
+    JudgeList judges;
+    private HashMap<String, Function<ObjectNode, ObjectNode>> methodMap;
+    public SpringBootHandler() {
+        this.judges = new JudgeList();
 
-        static {
-            methodMap = new HashMap<>();
-            methodMap.put("submission-request", Handlers::onSubmission);
-            methodMap.put("terminate-submission'", Handlers::onTermination);
-            methodMap.put("disable-judge", Handlers::onDisableJudge);
-            methodMap.put("disconnect-judge", Handlers::onDisconnectRequest);
+        methodMap = new HashMap<>();
+        methodMap.put("submission-request", this::onSubmission);
+        methodMap.put("terminate-submission'", this::onTermination);
+        methodMap.put("disable-judge", this::onDisableJudge);
+        methodMap.put("disconnect-judge", this::onDisconnectRequest);
+    }
+
+    public ObjectNode onSubmission(ObjectNode data) {
+        String id = data.get("submission-id").asText();
+        String problem = data.get("problem-id").asText();
+        String language = data.get("language").asText();
+        String source = data.get("source").asText();
+        String judge_id = data.get("judge-id").asText();
+        int priority = data.get("priority").asInt();
+
+        System.out.println("Submission received: " + id + " " + problem + " " + language + " " + source + " " + judge_id + " " + priority);
+
+        ObjectNode response = JsonNodeFactory.instance.objectNode();
+        // Check priority here
+        if (!this.judges.checkPriority(priority)) {
+            response.put("name", "bad-request");
         }
-        public static ObjectNode onSubmission(ObjectNode data) {
-            String id = data.get("submission-id").asText();
-            String problem = data.get("problem-id").asText();
-            String language = data.get("language").asText();
-            String source = data.get("source").asText();
-            String judge_id = data.get("judge-id").asText();
-            int priority = data.get("priority").asInt();
-
-            System.out.println("Submission received: " + id + " " + problem + " " + language + " " + source + " " + judge_id + " " + priority);
-
-            ObjectNode response = JsonNodeFactory.instance.objectNode();
-            // Check priority here
-            if (!(0 <= priority && priority <= 4)) {
-                response.put("name", "bad-request");
-            }
-            else {
-                // Handle judge here
-                // self.judges.judge(id, problem, language, source, judge_id, priority)
-                response.put("name", "submission-received");
-                response.put("submission-id", id);
-            }
-            return response;
-        }
-
-        public static ObjectNode onTermination(ObjectNode data) {
-            // return {'name': 'submission-received', 'judge-aborted': self.judges.abort(data['submission-id'])}
-            ObjectNode response = JsonNodeFactory.instance.objectNode();
+        else {
+            this.judges.judge(id, problem, language, source, judge_id, priority);
             response.put("name", "submission-received");
-
-            // Check if the judge was aborted
-            // self.judges.abort(data['submission-id'])
-            // For now, we'll just return false
-            response.put("judge-aborted", false);
-            return response;
+            response.put("submission-id", id);
         }
+        return response;
+    }
 
-        public static void onMalformed(JsonNode packet) {
-            System.out.println("Malformed packet: " + packet);
-        }
+    public ObjectNode onTermination(ObjectNode data) {
+        // return {'name': 'submission-received', 'judge-aborted': self.judges.abort(data['submission-id'])}
+        ObjectNode response = JsonNodeFactory.instance.objectNode();
+        response.put("name", "submission-received");
 
-        public static ObjectNode onDisableJudge(ObjectNode data) {
-            String judge_id = data.get("judge-id").asText();
-            boolean is_disabled = data.get("is-disabled").asBoolean();
-            // self.judges.update_disable_judge(judge_id, is_disabled)
-            return null;
-        }
+        // Check if the judge was aborted
+        // self.judges.abort(data['submission-id'])
+        // For now, we'll just return false
+        response.put("judge-aborted", false);
+        return response;
+    }
 
-        public static ObjectNode onDisconnectRequest(ObjectNode data) {
-            String judge_id = data.get("judge-id").asText();
-            boolean force = data.get("force").asBoolean();
-            // self.judges.disconnect(judge_id, force=force)
-            return null;
-        }
+    public void onMalformed(JsonNode packet) {
+        System.out.println("Malformed packet: " + packet);
+    }
+
+    public ObjectNode onDisableJudge(ObjectNode data) {
+        String judge_id = data.get("judge-id").asText();
+        boolean is_disabled = data.get("is-disabled").asBoolean();
+        // self.judges.update_disable_judge(judge_id, is_disabled)
+        return null;
+    }
+
+    public ObjectNode onDisconnectRequest(ObjectNode data) {
+        String judge_id = data.get("judge-id").asText();
+        boolean force = data.get("force").asBoolean();
+        // self.judges.disconnect(judge_id, force=force)
+        return null;
     }
     @SneakyThrows
     @Override
@@ -93,7 +94,7 @@ public class SpringBootHandler extends ChannelInboundHandlerAdapter {
         try {
             String packetString = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
             JsonNode packet = mapper.readTree(packetString);
-            Function<ObjectNode, ObjectNode> handler = Handlers.methodMap.get(packet.get("name").asText());
+            Function<ObjectNode, ObjectNode> handler = this.methodMap.get(packet.get("name").asText());
             result = handler.apply((ObjectNode) packet);
 
         } catch (JsonProcessingException e) {

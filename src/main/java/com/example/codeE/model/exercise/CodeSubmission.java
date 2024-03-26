@@ -52,10 +52,14 @@ public class CodeSubmission extends Submission {
 
     @Field
     private LocalDateTime lockedAfter;
+
+    @Field
+    private String source;
+
     @Autowired
     private JudgeImpl judgeImpl;
 
-    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Double memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter) {
+    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Double memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
         super(studentId, exerciseId, score, reviewable);
         this.time = time;
         this.memory = memory;
@@ -69,6 +73,14 @@ public class CodeSubmission extends Submission {
         this.judgedOn = judgedOn;
         this.isPretested = isPretested;
         this.lockedAfter = lockedAfter;
+        this.source = source;
+    }
+
+    public CodeSubmission(String submissionId, String exerciseId, String languageId, String judgedOn, String source) {
+        super(submissionId, exerciseId);
+        this.languageId = languageId;
+        this.judgedOn = judgedOn;
+        this.source = source;
     }
 
     public static String getResultFromCode(String result, Float casePoints, Float caseTotal) {

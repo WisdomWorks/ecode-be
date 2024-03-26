@@ -1,6 +1,8 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.helper.ZlibCompression;
+import com.example.codeE.model.exercise.CodeSubmission;
+import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.judge.ClientService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -20,43 +22,22 @@ import java.io.IOException;
 @RequestMapping("/judge")
 public class JudgeController {
 
-    private static final String HOST = "127.0.0.1";
-
-    private static final int PORT = 9998;
-
     @Autowired
-    private ClientService clientService;
+    private CodeSubmissionService codeSubmissionService;
 
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> exampleRq() throws IOException {
-        clientService.connect(HOST, PORT);
+        CodeSubmission submission = new CodeSubmission();
+        submission.setSubmissionId("1");
+        submission.setExerciseId("1");
+        submission.setLanguageId("C");
+        submission.setSource("#include <stdio.h>\nint main() { printf(\"Hello, World!\"); return 0; }");
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode packet = JsonNodeFactory.instance.objectNode();
+        CodeSubmission savedSubmission = codeSubmissionService.updateCodeSubmission(submission);
 
-        packet.put("name", "submission-request");
-        packet.put("submission-id", "1");
-        packet.put("problem-id", "1");
-        packet.put("language", "java");
-        packet.put("source", "source");
-        packet.put("judge-id", "1");
-        packet.put("priority", 0);
+        savedSubmission.judge(false, false);
 
-        // Convert JSON object to string
-        String packetString = mapper.writeValueAsString(packet);
-
-        byte[] compressedData = ZlibCompression.zlibify(packetString);
-
-        ByteBuf buffer = Unpooled.buffer(4 + compressedData.length);
-        buffer.writeInt(compressedData.length);
-        buffer.writeBytes(compressedData);
-
-        clientService.sendRequest(buffer);
-        String result = clientService.receiveResponse();
-        System.out.println("result: " + result);
-
-        clientService.disconnect();
-        return ResponseEntity.status(200).body(result);
+        return ResponseEntity.status(200).build();
     }
 }

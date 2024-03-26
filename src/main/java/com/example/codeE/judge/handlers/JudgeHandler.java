@@ -8,7 +8,6 @@ import com.example.codeE.model.exercise.common.Judge;
 import com.example.codeE.model.exercise.common.LanguageLimit;
 import com.example.codeE.model.exercise.common.RuntimeVersion;
 import com.example.codeE.model.exercise.common.SubmissionTestCase;
-import com.example.codeE.repository.CodeSubmissionRepository;
 import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.common.RuntimeVersionService;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
@@ -21,18 +20,26 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Getter
@@ -43,7 +50,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
 
-    private List<CodeExercise> problems;
+    private Map<String, Double> problems;
     HashMap<String, List<List<Object>>> executors;
     private String working;
     private String name;
@@ -54,9 +61,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     @Autowired
     private RuntimeVersionService runtimeVersionService;
     private Map<String, Function<ObjectNode, ObjectNode>> handlers;
-
-    @Autowired
-    private CodeSubmissionRepository codeSubmissionRepository;
 
     @Autowired
     private  CodeSubmissionService codeSubmissionService;
@@ -72,7 +76,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     public JudgeHandler(){
         this.judge = new Judge();
-        this.problems = new ArrayList<>();
+        this.problems = new HashMap<>();
         this.executors = new HashMap<>();
         this.working = null;
         this.name = null;
@@ -116,9 +120,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     private void connected() {
         this.judge.setStartTime(LocalDateTime.now());
         this.judge.setOnline(true);
-        this.judge.setProblemIds(
-                this.problems.stream().map(CodeExercise::getCode).toList()
-        );
+        this.judge.setProblemIds(new ArrayList<>(problems.keySet()));
         this.judge.setRuntimeIds(
                 this.executors.keySet().stream().toList()
         );
@@ -177,22 +179,13 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         JsonNode problemsNode = packet.get("problems");
         if (problemsNode.isArray()) {
-            for (JsonNode problemNode : problemsNode) {
-                CodeExercise problem = new CodeExercise();
-                problem.setExerciseId(problemNode.get("code").asText());
-                problem.setExerciseName(problemNode.get("name").asText());
-                problem.setDescription(problemNode.get("description").asText());
-                problem.setTimeLimit(problemNode.get("time_limit").asDouble());
-                problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
-                problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
-                JsonNode allowedLanguages = problemNode.get("allowed_languages");
-                problem.setAllowedLanguageIds(new ArrayList<>());
-                if (allowedLanguages.isArray()) {
-                    for (JsonNode language : allowedLanguages) {
-                        problem.getAllowedLanguageIds().add(language.get("key").asText());
-                    }
-                }
-                this.problems.add(problem);
+            for (JsonNode problem : problemsNode) {
+                // Extract the problem name and mtime from the array element
+                String problemName = problem.get(0).asText();
+                double mtime = problem.get(1).asDouble();
+
+                // Add the problem to the Map
+                problems.put(problemName, mtime);
             }
         }
 
@@ -253,7 +246,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         send(response);
     }
 
-    private  boolean isWorking() {
+    public boolean isWorking() {
         return this.working != null;
     }
 
@@ -332,39 +325,28 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     }
 
     public  ObjectNode onSupportedProblems(ObjectNode packet) {
-        LoggerHelper.logInfo(this.name + ": Updated problem list" );
-        JsonNode problemsNode = packet.get("problems");
-
-        if (problemsNode.isArray()) {
-            for (JsonNode problemNode : problemsNode) {
-                CodeExercise problem = new CodeExercise();
-                problem.setExerciseId(problemNode.get("code").asText());
-                problem.setExerciseName(problemNode.get("name").asText());
-                problem.setDescription(problemNode.get("description").asText());
-                problem.setTimeLimit(problemNode.get("time_limit").asDouble());
-                problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
-                problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
-                JsonNode allowedLanguages = problemNode.get("allowed_languages");
-                problem.setAllowedLanguageIds(new ArrayList<>());
-                if (allowedLanguages.isArray()) {
-                    for (JsonNode language : allowedLanguages) {
-                        problem.getAllowedLanguageIds().add(language.get("key").asText());
-                    }
-                }
-                this.problems.add(problem);
-            }
-        }
-
-//            self.problems = dict(self._problems)
-//            if not self.working:
-//            self.judges.update_problems(self)
+//        LoggerHelper.logInfo(this.name + ": Updated problem list" );
+//        JsonNode problemsNode = packet.get("problems");
 //
-//            self.judge.problems.set(
-//                    Problem.objects.filter(code__in=list(self.problems.keys()))
-//            )
-//            json_log.info(
-//                    self._make_json_log(action="update-problems", count=len(self.problems))
-//            )
+//        if (problemsNode.isArray()) {
+//            for (JsonNode problemNode : problemsNode) {
+//                CodeExercise problem = new CodeExercise();
+//                problem.setExerciseId(problemNode.get("code").asText());
+//                problem.setExerciseName(problemNode.get("name").asText());
+//                problem.setDescription(problemNode.get("description").asText());
+//                problem.setTimeLimit(problemNode.get("time_limit").asDouble());
+//                problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
+//                problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
+//                JsonNode allowedLanguages = problemNode.get("allowed_languages");
+//                problem.setAllowedLanguageIds(new ArrayList<>());
+//                if (allowedLanguages.isArray()) {
+//                    for (JsonNode language : allowedLanguages) {
+//                        problem.getAllowedLanguageIds().add(language.get("key").asText());
+//                    }
+//                }
+//                this.problems.add(problem);
+//            }
+//        }
         return null;
     }
 

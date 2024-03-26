@@ -17,7 +17,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
     public List<String> getProblemIds(List<CodeExercise> problems) {
         List<String> result = new ArrayList<>();
         for(CodeExercise problem : problems) {
-            result.add(codeExerciseRepository.findById(problem.getCode()).get().getCode());
+            result.add(codeExerciseRepository.findById(problem.getExerciseId()).get().getExerciseId());
         }
         return result;
     }

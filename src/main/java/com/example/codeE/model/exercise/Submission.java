@@ -55,6 +55,11 @@ public class Submission {
         this.reviewable = reviewable;
     }
 
+    public Submission(String submissionId, String exerciseId) {
+        this.submissionId = submissionId;
+        this.exerciseId = exerciseId;
+    }
+
     @Override
     public String toString() {
         return "Submission{" +
