@@ -20,12 +20,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.*;
 import io.netty.util.CharsetUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,11 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Getter
@@ -250,7 +241,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         return this.working != null;
     }
 
-    private  SubmissionData getRelatedSubmissionData(String id) {
+    private SubmissionData getRelatedSubmissionData(String id) {
         try {
             CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
             if (submission == null) {
@@ -260,7 +251,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
             CodeExercise problem = codeExerciseService.getProblemById(submission.getExerciseId());
             String problemId = submission.getExerciseId();
-            Double timeLimit = problem.getTimeLimit();
+            Float timeLimit = problem.getTimeLimit();
             Integer memoryLimit = problem.getMemoryLimit();
             Boolean shortCircuit = problem.getShortCircuit();
             String languageId = submission.getLanguageId();
@@ -287,7 +278,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public  ObjectNode onSubmissionProcessing(ObjectNode packet) {
+    public ObjectNode onSubmissionProcessing(ObjectNode packet) {
         String id = packet.get("submission-id").asText();
 
         CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
@@ -305,7 +296,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         return packet;
     }
 
-    public  ObjectNode onSubmissionAcknowledged(ObjectNode packet) {
+    public ObjectNode onSubmissionAcknowledged(ObjectNode packet) {
         String submissionId = packet.has("submission-id") ? packet.get("submission-id").asText() : null;
         String working = this.working; // judgeId
         if (submissionId == null || !submissionId.equals(working)) {
@@ -319,9 +310,26 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         return packet;
     }
 
-    public  void onSubmissionWrongAcknowledge(ObjectNode packet, String expected, String got) {
-        codeSubmissionService.updateStatusAndResult(expected, "IE", "IE");
-        codeSubmissionService.updateStatusAndResultBySubmissionIdAndStatus(got, "QU", "IE", "IE");
+    public void onSubmissionWrongAcknowledge(ObjectNode packet, String expected, String got) {
+        CodeSubmission expectedSubmission = codeSubmissionService.getCodeSubmissionById(expected);
+        if (expectedSubmission != null) {
+            expectedSubmission.setStatus("IE");
+            expectedSubmission.setResult("IE");
+            expectedSubmission.setError(null);
+            codeSubmissionService.updateCodeSubmission(expectedSubmission);
+        } else {
+            LoggerHelper.logInfo("Unknown submission: " + expected);
+        }
+
+        CodeSubmission gotSubmission = codeSubmissionService.findByBySubmissionIdAndStatus(got, "QU");
+        if (gotSubmission != null) {
+            gotSubmission.setStatus("IE");
+            gotSubmission.setResult("IE");
+            gotSubmission.setError(null);
+            codeSubmissionService.updateCodeSubmission(gotSubmission);
+        } else {
+            LoggerHelper.logInfo("Unknown submission: " + got);
+        }
     }
 
     public  ObjectNode onSupportedProblems(ObjectNode packet) {
@@ -368,18 +376,66 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     }
 
     public  ObjectNode onGradingEnd(ObjectNode packet) {
-        return null;
+        String submissionId = packet.get("submission-id").asText();
+        LoggerHelper.logInfo(getName() + ": Grading has ended on: " + submissionId);
 
-        // Handle grading end packet
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if(codeSubmission == null) {
+            LoggerHelper.logError("Unknown submission: " + submissionId);
+        }
+
+        float time = 0;
+        int memory = 0;
+        float points = 0;
+        float total = 0;
+        int status = 0;
+        String[] statusCodes = {"SC", "AC", "WA", "MLE", "TLE", "IR", "RTE", "OLE"};
+
+        List<SubmissionTestCase> testCases = submissionTestCaseService.findBySubmissionId(submissionId);
+        for (SubmissionTestCase testCase : testCases) {
+            time += testCase.getTime();
+            points += testCase.getPoints();
+            total += testCase.getTotal();
+            memory = Math.max(memory, testCase.getMemory());
+            int i = Arrays.asList(statusCodes).indexOf(testCase.getStatus());
+            if (i > status) {
+                status = i;
+            }
+        }
+
+        points = (float) (Math.round(points * 10) / 10.0);
+        total = (float) (Math.round(total * 10) / 10.0);
+
+        codeSubmission.setCasePoints(points);
+        codeSubmission.setCaseTotal(total);
+
+        String exerciseId = codeSubmission.getExerciseId();
+        CodeExercise problem = codeExerciseService.getProblemById(exerciseId);
+//        double subPoints = (total > 0) ? Math.round(points / total * problem.getPoints() * 1000) / 1000.0 : 0;
+//        if (!problem.isPartial() && subPoints != problem.getPoints()) {
+//            subPoints = 0;
+//        }
+
+        codeSubmission.setStatus("D");
+        codeSubmission.setTime(time);
+        codeSubmission.setMemory(memory);
+//        codeSubmission.setPoints(subPoints);
+        codeSubmission.setResult(statusCodes[status]);
+        codeSubmissionService.updateCodeSubmission(codeSubmission);
+        return null;
     }
 
     public  ObjectNode onCompileError(ObjectNode packet) {
         String submissionId = packet.get("submission-id").asText();
-//            String log = packet.get("log").asText();
+            String log = packet.get("log").asText();
 
         LoggerHelper.logInfo(this.getName() + ": Submission failed to compile: " + submissionId);
-        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-            codeSubmissionService.updateStatusAndResult(submissionId, "CE", "CE");
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if (codeSubmission != null) {
+            codeSubmission.setStatus("CE");
+            codeSubmission.setResult("CE");
+            codeSubmission.setError(log);
+            codeSubmissionService.updateCodeSubmission(codeSubmission);
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
@@ -409,8 +465,12 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             LoggerHelper.logError("Judge " + this.getName() + " failed while handling submission " + submissionId, e);
         }
-        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-            codeSubmissionService.updateStatusAndResult(submissionId, "IE", "IE");
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if (codeSubmission != null) {
+            codeSubmission.setStatus("IE");
+            codeSubmission.setResult("IE");
+            codeSubmission.setError(message);
+            codeSubmissionService.updateCodeSubmission(codeSubmission);
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
@@ -467,7 +527,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                         break;
                 }
                 submissionTestCase.setTime(testCase.get("time").asDouble());
-                submissionTestCase.setMemory(testCase.get("memory").asDouble());
+                submissionTestCase.setMemory(testCase.get("memory").asInt());
                 submissionTestCase.setPoints(testCase.get("points").asDouble());
                 submissionTestCase.setTotal(testCase.get("total-points").asDouble());
                 submissionTestCase.setFeedback(testCase.get("feedback").asText());
@@ -490,9 +550,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     }
 
     public  ObjectNode onMalformedPacket(ObjectNode packet) {
+        LoggerHelper.logError(getName() + ": Malformed packet: " + packet);
         return null;
-
-        // Handle malformed packet
     }
 
     public  ObjectNode onPingResponse(ObjectNode packet) {
@@ -508,7 +567,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     public static class SubmissionData {
         private String submissionDataId;
 
-        private Double time;
+        private Float time;
 
         private Integer memory;
 
@@ -516,7 +575,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         private boolean pretests_only;
 
-        public SubmissionData(Double time, Integer memory, Boolean shortCircuit, boolean isPretested) {
+        public SubmissionData(Float time, Integer memory, Boolean shortCircuit, boolean isPretested) {
             this.time = time;
             this.memory = memory;
             this.shortCircuit = shortCircuit;

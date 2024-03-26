@@ -85,7 +85,7 @@ public class JudgeImpl implements JudgeService {
         updates.setScore(null);
         updates.setResult(null);
         updates.setCasePoints((float) 0);
-        updates.setCaseTotal((float) 0);
+        updates.setCaseTotal((float)0);
         updates.setError(null);
         updates.setDateGrade(rejudge ? DateTimeUtil.format(LocalDateTime.now()) : null);
         updates.setStatus("QU");

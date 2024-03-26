@@ -5,7 +5,8 @@ import com.example.codeE.model.exercise.common.SubmissionTestCase;
 import java.util.List;
 
 public interface SubmissionTestCaseService {
-    public void deleteAllTcBySubmissionId(String submissionId);
-    public int getMaxPosition(List<SubmissionTestCase> testCases);
-    public void saveAll(List<SubmissionTestCase> testCases);
+    void deleteAllTcBySubmissionId(String submissionId);
+    int getMaxPosition(List<SubmissionTestCase> testCases);
+    void saveAll(List<SubmissionTestCase> testCases);
+    List<SubmissionTestCase> findBySubmissionId(String submissionId);
 }

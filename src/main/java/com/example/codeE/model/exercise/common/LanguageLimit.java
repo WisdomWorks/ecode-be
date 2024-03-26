@@ -30,7 +30,7 @@ public class LanguageLimit {
     @Field("time_limit")
     @Min(value = PROBLEM_MIN_TIME_LIMIT)
     @Max(value = PROBLEM_MAX_TIME_LIMIT)
-    private Double timeLimit;
+    private Float timeLimit;
 
     @Field("memory_limit")
     @Min(value = PROBLEM_MIN_MEMORY_LIMIT)

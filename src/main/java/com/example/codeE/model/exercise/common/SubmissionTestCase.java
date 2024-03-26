@@ -31,7 +31,7 @@ public class SubmissionTestCase {
     private Double time;
 
     @Field("memory")
-    private Double memory;
+    private Integer memory;
 
     @Field("points")
     private Double points;

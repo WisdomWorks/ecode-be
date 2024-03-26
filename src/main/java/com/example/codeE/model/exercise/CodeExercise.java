@@ -33,7 +33,7 @@ public class CodeExercise extends Exercise {
 
 //    @NotNull(message = "Time limit is required")
     @Field("time_limit")
-    private Double timeLimit;
+    private Float timeLimit;
 
     @Field("memory_limit")
 //    @NotNull(message = "Memory limit is required")

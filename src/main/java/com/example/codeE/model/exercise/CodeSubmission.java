@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
 @Document(collection = "code_submission")
 public class CodeSubmission extends Submission {
     @Field
-    private Double time;
+    private Float time;
 
     @Field
-    private Double memory;
+    private Integer memory;
 
     @Field
     private String languageId;
@@ -59,7 +59,7 @@ public class CodeSubmission extends Submission {
     @Autowired
     private JudgeImpl judgeImpl;
 
-    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Double memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
+    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Float time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
         super(studentId, exerciseId, score, reviewable);
         this.time = time;
         this.memory = memory;
@@ -101,7 +101,7 @@ public class CodeSubmission extends Submission {
         return getResultFromCode(this.result, this.casePoints, this.caseTotal);
     }
 
-    public Double memoryBytes() {
+    public Integer memoryBytes() {
         return this.memory * 1024;
     }
 
