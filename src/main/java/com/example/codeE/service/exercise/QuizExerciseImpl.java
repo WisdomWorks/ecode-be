@@ -72,7 +72,7 @@ public class QuizExerciseImpl implements QuizExerciseService{
     public QuizExercise updateQuizExercise(String exerciseId, UpdateQuizExerciseRequest updateExercise) {
         try {
             QuizExercise quizExercise = this.quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found by Id: " + exerciseId));
-            QuizExercise updateQuiz = new QuizExercise(updateExercise, quizExercise.isShowAll(), quizExercise.getPublicGroupIds());
+            QuizExercise updateQuiz = new QuizExercise(exerciseId ,updateExercise, quizExercise.isShowAll(), quizExercise.getPublicGroupIds());
             this.exerciseRepository.save(updateQuiz);
         return this.quizExerciseRepository.save(updateQuiz);
         } catch (RuntimeException e) {

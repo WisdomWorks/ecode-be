@@ -111,7 +111,7 @@ public class ExerciseController {
                 ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(exerciseId));
             case "essay" ->
                 ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(exerciseId));
-            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
+            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         };
     }
     @PostMapping
@@ -139,12 +139,14 @@ public class ExerciseController {
     @DeleteMapping
     @RequestMapping(value = "{exerciseId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteExerciseById(@Valid @PathVariable String exerciseId, @Valid @RequestParam String type) {
+        this.exerciseService.deleteExerciseById(exerciseId);
         switch (type) {
             case "code" -> this.codeExerciseService.deleteCodeExerciseById(exerciseId);
             case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(exerciseId);
-            default -> this.exerciseService.deleteExerciseById(exerciseId);
+            case "essay" -> this.essayExerciseService.deleteEssayExerciseById(exerciseId);
+            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true));
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Delete success"));
     }
 
     @PutMapping

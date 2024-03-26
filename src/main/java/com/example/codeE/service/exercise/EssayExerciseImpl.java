@@ -54,7 +54,7 @@ public class EssayExerciseImpl implements EssayExerciseService{
     public EssayExercise updateEssayExercise(String exerciseId, UpdateEssayExerciseRequest updateRequest) {
         try{
             EssayExercise essayExercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: " + exerciseId));
-            var updateExercise = new EssayExercise(updateRequest, essayExercise.isShowAll(), essayExercise.getPublicGroupIds());
+            var updateExercise = new EssayExercise(exerciseId ,updateRequest, essayExercise.isShowAll(), essayExercise.getPublicGroupIds());
             this.exerciseRepository.save(updateExercise);
             return this.essayExerciseRepository.save(updateExercise);
         }catch (RuntimeException e){

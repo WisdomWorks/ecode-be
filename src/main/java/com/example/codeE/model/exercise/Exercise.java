@@ -30,7 +30,6 @@ import java.util.List;
 public class Exercise {
     @Id
     private String exerciseId;
-
     @Field
     @NotNull(message = "Topic ID is required")
     private String topicId;
@@ -110,5 +109,17 @@ public class Exercise {
         this.isShowAll = isShowAll;
         this.publicGroupIds = publicGroupIds;
     }
-
+    public Exercise(String exerciseId,String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, boolean isShowAll, List<String> publicGroupIds) {
+        this.exerciseId = exerciseId;
+        this.topicId = topicId;
+        this.exerciseName = exerciseName;
+        this.key = key;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.durationTime = durationTime;
+        this.reAttempt = reAttempt;
+        this.type = type;
+        this.isShowAll = isShowAll;
+        this.publicGroupIds = publicGroupIds;
+    }
 }
