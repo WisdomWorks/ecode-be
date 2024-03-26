@@ -52,6 +52,22 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     @Autowired
     private RuntimeVersionService runtimeVersionService;
+    private Map<String, Function<ObjectNode, ObjectNode>> handlers;
+
+    @Autowired
+    private CodeSubmissionRepository codeSubmissionRepository;
+
+    @Autowired
+    private  CodeSubmissionService codeSubmissionService;
+
+    @Autowired
+    private  CodeExerciseService codeExerciseService;
+
+    @Autowired
+    private  LanguageLimitService languageLimitService;
+
+    @Autowired
+    private  SubmissionTestCaseService submissionTestCaseService;
 
     public JudgeHandler(){
         this.judge = new Judge();
@@ -61,313 +77,286 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         this.name = null;
         this.isDisabled = false;
         this.judgeAddress = null;
+
+
+        handlers = new HashMap<>();
+        handlers.put("handshake", this::onHandshake);
+        handlers.put("submission-processing", this::onSubmissionProcessing);
+        handlers.put("submission-acknowledged", this::onSubmissionAcknowledged);
+        handlers.put("supported-problems", this::onSupportedProblems);
+        handlers.put("grading-begin", this::onGradingBegin);
+        handlers.put("grading-end", this::onGradingEnd);
+        handlers.put("compile-error", this::onCompileError);
+        handlers.put("compile-message", this::onCompileMessage);
+        handlers.put("internal-error", this::onInternalError);
+        handlers.put("submission-terminated", this::onSubmissionTerminated);
+        handlers.put("test-case-status", this::onTestCaseStatus);
+        handlers.put("malformed-packet", this::onMalformedPacket);
+        handlers.put("ping-response", this::onPingResponse);
     }
+
 
     public void onConnect() {
         this.timeout = 15;
         //Output log
     }
 
-    public static class Handlers {
-        private static final Map<String, Function<ObjectNode, ObjectNode>> handlers;
-
-        @Autowired
-        private static CodeSubmissionRepository codeSubmissionRepository;
-
-        @Autowired
-        private static CodeSubmissionService codeSubmissionService;
-
-        @Autowired
-        private static CodeExerciseService codeExerciseService;
-
-        @Autowired
-        private static LanguageLimitService languageLimitService;
-
-        @Autowired
-        private static SubmissionTestCaseService submissionTestCaseService;
-
-        private static final JudgeHandler judgeHandler = new JudgeHandler();
-
-        static {
-            handlers = new HashMap<>();
-            handlers.put("handshake", Handlers::onHandshake);
-            handlers.put("submission-processing", Handlers::onSubmissionProcessing);
-            handlers.put("submission-acknowledged", Handlers::onSubmissionAcknowledged);
-            handlers.put("supported-problems", Handlers::onSupportedProblems);
-            handlers.put("grading-begin", Handlers::onGradingBegin);
-            handlers.put("grading-end", Handlers::onGradingEnd);
-            handlers.put("compile-error", Handlers::onCompileError);
-            handlers.put("compile-message", Handlers::onCompileMessage);
-            handlers.put("internal-error", Handlers::onInternalError);
-            handlers.put("submission-terminated", Handlers::onSubmissionTerminated);
-            handlers.put("test-case-status", Handlers::onTestCaseStatus);
-            handlers.put("malformed-packet", Handlers::onMalformedPacket);
-            handlers.put("ping-response", Handlers::onPingResponse);
-            // Add more handlers as needed
-        }
-
-
-        public static void onConnect() {
-            judgeHandler.timeout = 15;
-            //Output log
-        }
-
-        private static boolean authenticate(String id, String key) {
-            if(!judgeHandler.judge.getAuthKey().equals(key)) {
-                //log
-                return false;
-            }
-
+    private boolean authenticate(String id, String key) {
+        if(!this.judge.getAuthKey().equals(key)) {
             //log
-            return !judgeHandler.judge.getIsBlocked();
+            return false;
         }
 
-        private static void connected() {
-            judgeHandler.judge.setStartTime(LocalDateTime.now());
-            judgeHandler.judge.setOnline(true);
-            judgeHandler.judge.setProblemIds(
-                    judgeHandler.problems.stream().map(CodeExercise::getCode).toList()
-            );
-            judgeHandler.judge.setRuntimeIds(
-                    judgeHandler.executors.keySet().stream().toList()
-            );
+        //log
+        return !this.judge.getIsBlocked();
+    }
 
-            for (Map.Entry<String, List<List<Object>>> entry : judgeHandler.executors.entrySet()) {
-                String languageId = entry.getKey(); // Lấy languageId từ key
-                List<List<Object>> values = entry.getValue(); // Lấy danh sách các giá trị từ value
+    private void connected() {
+        this.judge.setStartTime(LocalDateTime.now());
+        this.judge.setOnline(true);
+        this.judge.setProblemIds(
+                this.problems.stream().map(CodeExercise::getCode).toList()
+        );
+        this.judge.setRuntimeIds(
+                this.executors.keySet().stream().toList()
+        );
 
-                // Lặp qua danh sách các giá trị
-                for (List<Object> value : values) {
-                    String name = (String) value.get(0); // Lấy name từ phần tử đầu tiên
-                    List<Integer> versionList = (List<Integer>) value.get(1); // Lấy danh sách version
+        for (Map.Entry<String, List<List<Object>>> entry : this.executors.entrySet()) {
+            String languageId = entry.getKey(); // Lấy languageId từ key
+            List<List<Object>> values = entry.getValue(); // Lấy danh sách các giá trị từ value
 
-                    // Ghép version thành một chuỗi "x.y.z"
-                    StringBuilder versionBuilder = new StringBuilder();
-                    for (int i = 0; i < versionList.size(); i++) {
-                        versionBuilder.append(versionList.get(i));
-                        if (i < versionList.size() - 1) {
-                            versionBuilder.append(".");
-                        }
+            // Lặp qua danh sách các giá trị
+            for (List<Object> value : values) {
+                String name = (String) value.get(0); // Lấy name từ phần tử đầu tiên
+                List<Integer> versionList = (List<Integer>) value.get(1); // Lấy danh sách version
+
+                // Ghép version thành một chuỗi "x.y.z"
+                StringBuilder versionBuilder = new StringBuilder();
+                for (int i = 0; i < versionList.size(); i++) {
+                    versionBuilder.append(versionList.get(i));
+                    if (i < versionList.size() - 1) {
+                        versionBuilder.append(".");
                     }
-                    String version = versionBuilder.toString();
-
-                    // Tạo đối tượng RuntimeVersion và thêm vào ArrayList
-                    judgeHandler.runtimeVersionService.saveRuntimeVersion(new RuntimeVersion(
-                            languageId,
-                            judgeHandler.judge.getJudgeId(),
-                            name,
-                            version,
-                            0
-                    ));
                 }
-            }
+                String version = versionBuilder.toString();
 
-            judgeHandler.judgeAddress = "localhost:9999";
-            //log judge successfully authenticated
+                // Tạo đối tượng RuntimeVersion và thêm vào ArrayList
+                this.runtimeVersionService.saveRuntimeVersion(new RuntimeVersion(
+                        languageId,
+                        this.judge.getJudgeId(),
+                        name,
+                        version,
+                        0
+                ));
+            }
         }
 
-        private static void disconnected() {
-            judgeHandler.judge.setOnline(false);
+        this.judgeAddress = "localhost:9999";
+        //log judge successfully authenticated
+    }
+
+    private void disconnected() {
+        this.judge.setOnline(false);
+    }
+
+    // Handler methods
+    public ObjectNode onHandshake(ObjectNode packet) {
+        if (!packet.has("id") || !packet.has("key")) {
+            //log
+            return null;
         }
 
-        // Handler methods
-        public static ObjectNode onHandshake(ObjectNode packet) {
-            if (!packet.has("id") || !packet.has("key")) {
-                //log
-                return null;
-            }
+        if(!authenticate(packet.get("id").asText(), packet.get("key").asText())) {
+            //log
+            return null;
+        }
 
-            if(!authenticate(packet.get("id").asText(), packet.get("key").asText())) {
-                //log
-                return null;
-            }
+        this.timeout = 60;
 
-            judgeHandler.timeout = 60;
-
-            JsonNode problemsNode = packet.get("problems");
-            if (problemsNode.isArray()) {
-                for (JsonNode problemNode : problemsNode) {
-                    CodeExercise problem = new CodeExercise();
-                    problem.setExerciseId(problemNode.get("code").asText());
-                    problem.setExerciseName(problemNode.get("name").asText());
-                    problem.setDescription(problemNode.get("description").asText());
-                    problem.setTimeLimit(problemNode.get("time_limit").asDouble());
-                    problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
-                    problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
-                    JsonNode allowedLanguages = problemNode.get("allowed_languages");
-                    problem.setAllowedLanguageIds(new ArrayList<>());
-                    if (allowedLanguages.isArray()) {
-                        for (JsonNode language : allowedLanguages) {
-                            problem.getAllowedLanguageIds().add(language.get("key").asText());
-                        }
+        JsonNode problemsNode = packet.get("problems");
+        if (problemsNode.isArray()) {
+            for (JsonNode problemNode : problemsNode) {
+                CodeExercise problem = new CodeExercise();
+                problem.setExerciseId(problemNode.get("code").asText());
+                problem.setExerciseName(problemNode.get("name").asText());
+                problem.setDescription(problemNode.get("description").asText());
+                problem.setTimeLimit(problemNode.get("time_limit").asDouble());
+                problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
+                problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
+                JsonNode allowedLanguages = problemNode.get("allowed_languages");
+                problem.setAllowedLanguageIds(new ArrayList<>());
+                if (allowedLanguages.isArray()) {
+                    for (JsonNode language : allowedLanguages) {
+                        problem.getAllowedLanguageIds().add(language.get("key").asText());
                     }
-                    judgeHandler.problems.add(problem);
                 }
+                this.problems.add(problem);
             }
+        }
 
-            JsonNode executorsNode = packet.get("executors");
-            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = executorsNode.fields();
-            while (fieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = fieldsIterator.next();
-                String key = field.getKey();
-                List<List<Object>> value = new ArrayList<>();
-                JsonNode innerArrayNode = field.getValue();
-                if (innerArrayNode.isArray()) {
-                    for (JsonNode arrayNode : innerArrayNode) {
-                        List<Object> innerList = new ArrayList<>();
-                        for (JsonNode innerNode : arrayNode) {
-                            if (innerNode.isTextual()) {
-                                innerList.add(innerNode.textValue());
-                            } else if (innerNode.isArray()) {
-                                List<Object> innerArray = new ArrayList<>();
-                                for (JsonNode arrayElement : innerNode) {
-                                    if (arrayElement.isNumber()) {
-                                        innerArray.add(arrayElement.numberValue());
-                                    }
+        JsonNode executorsNode = packet.get("executors");
+        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = executorsNode.fields();
+        while (fieldsIterator.hasNext()) {
+            Map.Entry<String, JsonNode> field = fieldsIterator.next();
+            String key = field.getKey();
+            List<List<Object>> value = new ArrayList<>();
+            JsonNode innerArrayNode = field.getValue();
+            if (innerArrayNode.isArray()) {
+                for (JsonNode arrayNode : innerArrayNode) {
+                    List<Object> innerList = new ArrayList<>();
+                    for (JsonNode innerNode : arrayNode) {
+                        if (innerNode.isTextual()) {
+                            innerList.add(innerNode.textValue());
+                        } else if (innerNode.isArray()) {
+                            List<Object> innerArray = new ArrayList<>();
+                            for (JsonNode arrayElement : innerNode) {
+                                if (arrayElement.isNumber()) {
+                                    innerArray.add(arrayElement.numberValue());
                                 }
-                                innerList.add(innerArray);
                             }
+                            innerList.add(innerArray);
                         }
-                        value.add(innerList);
                     }
+                    value.add(innerList);
                 }
-                judgeHandler.executors.put(key, value);
             }
-
-            judgeHandler.name = packet.get("id").asText();
-
-            ObjectNode response = JsonNodeFactory.instance.objectNode();
-            response.put("name", "handshake-success");
-            connected();
-            return response;
+            this.executors.put(key, value);
         }
 
-        public static ObjectNode submit(ObjectNode packet) {
-            String submissionId = packet.get("submission-id").asText();
-            String problemId = packet.get("problem-id").asText();
-            String language = packet.get("language").asText();
-            String source = packet.get("source").asText();
+        this.name = packet.get("id").asText();
 
-            SubmissionData data = getRelatedSubmissionData(submissionId);
-            ObjectNode response = JsonNodeFactory.instance.objectNode();
+        ObjectNode response = JsonNodeFactory.instance.objectNode();
+        response.put("name", "handshake-success");
+        connected();
+        return response;
+    }
 
-            if (data != null) {
-                response.put("name", "submission-request");
-                response.put("submission-id", submissionId);
-                response.put("problem-id", problemId);
-                response.put("language", language);
-                response.put("source", source);
-                response.put("time-limit", data.getTime());
-                response.put("memory-limit", data.getMemory());
-                response.put("short-circuit", data.getShortCircuit());
+    public  ObjectNode submit(ObjectNode packet) {
+        String submissionId = packet.get("submission-id").asText();
+        String problemId = packet.get("problem-id").asText();
+        String language = packet.get("language").asText();
+        String source = packet.get("source").asText();
+
+        SubmissionData data = getRelatedSubmissionData(submissionId);
+        ObjectNode response = JsonNodeFactory.instance.objectNode();
+
+        if (data != null) {
+            response.put("name", "submission-request");
+            response.put("submission-id", submissionId);
+            response.put("problem-id", problemId);
+            response.put("language", language);
+            response.put("source", source);
+            response.put("time-limit", data.getTime());
+            response.put("memory-limit", data.getMemory());
+            response.put("short-circuit", data.getShortCircuit());
 //                response.put("pretests-only", data.isPretests_only());
-            }
-
-            judgeHandler.working = submissionId;
-            return response;
         }
 
-        private static boolean isWorking() {
-            return judgeHandler.working != null;
-        }
+        this.working = submissionId;
+        return response;
+    }
 
-        private static SubmissionData getRelatedSubmissionData(String id) {
-            try {
-                CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
-                if (submission == null) {
-                    LoggerHelper.logError("Submission vanished: " + id);
-                    return null;
-                }
+    private  boolean isWorking() {
+        return this.working != null;
+    }
 
-                CodeExercise problem = codeExerciseService.getProblemById(submission.getExerciseId());
-                String problemId = submission.getExerciseId();
-                Double timeLimit = problem.getTimeLimit();
-                Integer memoryLimit = problem.getMemoryLimit();
-                Boolean shortCircuit = problem.getShortCircuit();
-                String languageId = submission.getLanguageId();
-                Boolean isPretested = submission.isPretested();
-
-                try {
-                    LanguageLimit languageLimit = languageLimitService.findByProblemIdAndLanguageId(problemId, languageId);
-
-                    timeLimit = languageLimit.getTimeLimit();
-                    memoryLimit = languageLimit.getMemoryLimit();
-                } catch (Exception ignored) {
-
-                }
-
-                return new SubmissionData(
-                        timeLimit,
-                        memoryLimit,
-                        shortCircuit,
-                        isPretested
-                );
-            } catch (Exception e) {
-                LoggerHelper.logError("Something wrong with submission " + id);
+    private  SubmissionData getRelatedSubmissionData(String id) {
+        try {
+            CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
+            if (submission == null) {
+                LoggerHelper.logError("Submission vanished: " + id);
                 return null;
             }
-        }
 
-        public static ObjectNode onSubmissionProcessing(ObjectNode packet) {
-            String id = packet.get("submission-id").asText();
+            CodeExercise problem = codeExerciseService.getProblemById(submission.getExerciseId());
+            String problemId = submission.getExerciseId();
+            Double timeLimit = problem.getTimeLimit();
+            Integer memoryLimit = problem.getMemoryLimit();
+            Boolean shortCircuit = problem.getShortCircuit();
+            String languageId = submission.getLanguageId();
+            Boolean isPretested = submission.isPretested();
 
-            CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
+            try {
+                LanguageLimit languageLimit = languageLimitService.findByProblemIdAndLanguageId(problemId, languageId);
 
-            if (submission != null) {
-                submission.setStatus("P");
-                submission.setJudgedOn(judgeHandler.judge.getJudgeId());
-                codeSubmissionService.updateCodeSubmission(submission);
+                timeLimit = languageLimit.getTimeLimit();
+                memoryLimit = languageLimit.getMemoryLimit();
+            } catch (Exception ignored) {
 
-                LoggerHelper.logInfo("Submission processing: " + submission);
-            } else {
-                LoggerHelper.logWarning("Unknown submission: " + id);
             }
 
-            return packet;
+            return new SubmissionData(
+                    timeLimit,
+                    memoryLimit,
+                    shortCircuit,
+                    isPretested
+            );
+        } catch (Exception e) {
+            LoggerHelper.logError("Something wrong with submission " + id);
+            return null;
+        }
+    }
+
+    public  ObjectNode onSubmissionProcessing(ObjectNode packet) {
+        String id = packet.get("submission-id").asText();
+
+        CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
+
+        if (submission != null) {
+            submission.setStatus("P");
+            submission.setJudgedOn(this.judge.getJudgeId());
+            codeSubmissionService.updateCodeSubmission(submission);
+
+            LoggerHelper.logInfo("Submission processing: " + submission);
+        } else {
+            LoggerHelper.logWarning("Unknown submission: " + id);
         }
 
-        public static ObjectNode onSubmissionAcknowledged(ObjectNode packet) {
-            String submissionId = packet.has("submission-id") ? packet.get("submission-id").asText() : null;
-            String working = judgeHandler.working; // judgeId
-            if (submissionId == null || !submissionId.equals(working)) {
-                LoggerHelper.logError("Wrong acknowledgement: "+ judgeHandler.getName() + ": "+ submissionId+ ", expected: " + working);
-                onSubmissionWrongAcknowledge(packet, working, submissionId);
-            } else {
-                LoggerHelper.logInfo("Submission acknowledged: " + working);
-                onSubmissionProcessing(packet);
-            }
+        return packet;
+    }
 
-            return packet;
+    public  ObjectNode onSubmissionAcknowledged(ObjectNode packet) {
+        String submissionId = packet.has("submission-id") ? packet.get("submission-id").asText() : null;
+        String working = this.working; // judgeId
+        if (submissionId == null || !submissionId.equals(working)) {
+            LoggerHelper.logError("Wrong acknowledgement: "+ this.getName() + ": "+ submissionId+ ", expected: " + working);
+            onSubmissionWrongAcknowledge(packet, working, submissionId);
+        } else {
+            LoggerHelper.logInfo("Submission acknowledged: " + working);
+            onSubmissionProcessing(packet);
         }
 
-        public static void onSubmissionWrongAcknowledge(ObjectNode packet, String expected, String got) {
-            codeSubmissionService.updateStatusAndResult(expected, "IE", "IE");
-            codeSubmissionService.updateStatusAndResultBySubmissionIdAndStatus(got, "QU", "IE", "IE");
-        }
+        return packet;
+    }
 
-        public static ObjectNode onSupportedProblems(ObjectNode packet) {
-            LoggerHelper.logInfo(judgeHandler.name + ": Updated problem list" );
-            JsonNode problemsNode = packet.get("problems");
+    public  void onSubmissionWrongAcknowledge(ObjectNode packet, String expected, String got) {
+        codeSubmissionService.updateStatusAndResult(expected, "IE", "IE");
+        codeSubmissionService.updateStatusAndResultBySubmissionIdAndStatus(got, "QU", "IE", "IE");
+    }
 
-            if (problemsNode.isArray()) {
-                for (JsonNode problemNode : problemsNode) {
-                    CodeExercise problem = new CodeExercise();
-                    problem.setExerciseId(problemNode.get("code").asText());
-                    problem.setExerciseName(problemNode.get("name").asText());
-                    problem.setDescription(problemNode.get("description").asText());
-                    problem.setTimeLimit(problemNode.get("time_limit").asDouble());
-                    problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
-                    problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
-                    JsonNode allowedLanguages = problemNode.get("allowed_languages");
-                    problem.setAllowedLanguageIds(new ArrayList<>());
-                    if (allowedLanguages.isArray()) {
-                        for (JsonNode language : allowedLanguages) {
-                            problem.getAllowedLanguageIds().add(language.get("key").asText());
-                        }
+    public  ObjectNode onSupportedProblems(ObjectNode packet) {
+        LoggerHelper.logInfo(this.name + ": Updated problem list" );
+        JsonNode problemsNode = packet.get("problems");
+
+        if (problemsNode.isArray()) {
+            for (JsonNode problemNode : problemsNode) {
+                CodeExercise problem = new CodeExercise();
+                problem.setExerciseId(problemNode.get("code").asText());
+                problem.setExerciseName(problemNode.get("name").asText());
+                problem.setDescription(problemNode.get("description").asText());
+                problem.setTimeLimit(problemNode.get("time_limit").asDouble());
+                problem.setMemoryLimit(problemNode.get("memory_limit").asInt());
+                problem.setShortCircuit(problemNode.get("short_circuit").asBoolean());
+                JsonNode allowedLanguages = problemNode.get("allowed_languages");
+                problem.setAllowedLanguageIds(new ArrayList<>());
+                if (allowedLanguages.isArray()) {
+                    for (JsonNode language : allowedLanguages) {
+                        problem.getAllowedLanguageIds().add(language.get("key").asText());
                     }
-                    judgeHandler.problems.add(problem);
                 }
+                this.problems.add(problem);
             }
+        }
 
 //            self.problems = dict(self._problems)
 //            if not self.working:
@@ -379,180 +368,179 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 //            json_log.info(
 //                    self._make_json_log(action="update-problems", count=len(self.problems))
 //            )
-            return null;
+        return null;
+    }
+
+    public  ObjectNode onGradingBegin(ObjectNode packet) {
+        // log Grading has begun
+        String submissionId = packet.get("submission-id").asText();
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        codeSubmission.setStatus("G");
+        codeSubmission.setPretested(packet.get("pretested").asBoolean());
+        codeSubmission.setCurrentTestcase(1);
+
+        if (codeSubmissionService.updateCodeSubmission(codeSubmission) != null){
+            submissionTestCaseService.deleteAllTcBySubmissionId(submissionId);
+            //log
+        } else {
+            //log
         }
+        return null;
+    }
 
-        public static ObjectNode onGradingBegin(ObjectNode packet) {
-            // log Grading has begun
-            String submissionId = packet.get("submission-id").asText();
-            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
-            codeSubmission.setStatus("G");
-            codeSubmission.setPretested(packet.get("pretested").asBoolean());
-            codeSubmission.setCurrentTestcase(1);
+    public  ObjectNode onGradingEnd(ObjectNode packet) {
+        return null;
 
-            if (codeSubmissionService.updateCodeSubmission(codeSubmission) != null){
-                submissionTestCaseService.deleteAllTcBySubmissionId(submissionId);
-                //log
-            } else {
-                //log
-            }
-            return null;
-        }
+        // Handle grading end packet
+    }
 
-        public static ObjectNode onGradingEnd(ObjectNode packet) {
-            return null;
-
-            // Handle grading end packet
-        }
-
-        public static ObjectNode onCompileError(ObjectNode packet) {
-            String submissionId = packet.get("submission-id").asText();
+    public  ObjectNode onCompileError(ObjectNode packet) {
+        String submissionId = packet.get("submission-id").asText();
 //            String log = packet.get("log").asText();
 
-            LoggerHelper.logInfo(judgeHandler.getName() + ": Submission failed to compile: " + submissionId);
-            if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-                codeSubmissionService.updateStatusAndResult(submissionId, "CE", "CE");
-            } else {
-                LoggerHelper.logError("Unknown submission: " + submissionId);
-            }
-            return packet;
+        LoggerHelper.logInfo(this.getName() + ": Submission failed to compile: " + submissionId);
+        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
+            codeSubmissionService.updateStatusAndResult(submissionId, "CE", "CE");
+        } else {
+            LoggerHelper.logError("Unknown submission: " + submissionId);
         }
+        return packet;
+    }
 
-        public static ObjectNode onCompileMessage(ObjectNode packet) {
+    public  ObjectNode onCompileMessage(ObjectNode packet) {
+        //log
+        String submissionId = packet.get("submission-id").asText();
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if ( codeSubmission != null){
+            codeSubmission.setError(packet.get("log").asText());
+            codeSubmissionService.updateCodeSubmission(codeSubmission);
             //log
-            String submissionId = packet.get("submission-id").asText();
-            CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
-            if ( codeSubmission != null){
-                codeSubmission.setError(packet.get("log").asText());
-                codeSubmissionService.updateCodeSubmission(codeSubmission);
-                //log
-            } else {
-                LoggerHelper.logError("Unknown submission: " + submissionId);
-            }
-            return null;
+        } else {
+            LoggerHelper.logError("Unknown submission: " + submissionId);
         }
+        return null;
+    }
 
-        public static ObjectNode onInternalError(ObjectNode packet) {
-            String submissionId = packet.get("submission-id").asText();
-            String message = packet.get("message").asText();
+    public  ObjectNode onInternalError(ObjectNode packet) {
+        String submissionId = packet.get("submission-id").asText();
+        String message = packet.get("message").asText();
 
-            try {
-                throw new Exception("\n\n" + message);
-            } catch (Exception e) {
-                LoggerHelper.logError("Judge " + judgeHandler.getName() + " failed while handling submission " + submissionId, e);
-            }
-            if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-                codeSubmissionService.updateStatusAndResult(submissionId, "IE", "IE");
-            } else {
-                LoggerHelper.logError("Unknown submission: " + submissionId);
-            }
-            return packet;
+        try {
+            throw new Exception("\n\n" + message);
+        } catch (Exception e) {
+            LoggerHelper.logError("Judge " + this.getName() + " failed while handling submission " + submissionId, e);
         }
-
-        public static ObjectNode onSubmissionTerminated(ObjectNode packet) {
-            String submissionId = packet.get("submission-id").asText();
-            LoggerHelper.logInfo(judgeHandler.getName() + ": Submission aborted: " + submissionId);
-            if(codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-                codeSubmissionService.updateStatusAndResult(submissionId, "AB", "AB");
-            } else {
-                LoggerHelper.logError("Unknown submission: " + submissionId);
-            }
-            return null;
+        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
+            codeSubmissionService.updateStatusAndResult(submissionId, "IE", "IE");
+        } else {
+            LoggerHelper.logError("Unknown submission: " + submissionId);
         }
+        return packet;
+    }
 
-        public static ObjectNode onTestCaseStatus(ObjectNode packet) {
-            //log
-            String submissionId = packet.get("submission-id").asText();
-            List<SubmissionTestCase> updates = new ArrayList<>();
-            JsonNode cases = packet.get("cases");
-            if (cases.isArray()) {
-                for (JsonNode testCase : cases) {
-                    SubmissionTestCase submissionTestCase = new SubmissionTestCase();
+    public  ObjectNode onSubmissionTerminated(ObjectNode packet) {
+        String submissionId = packet.get("submission-id").asText();
+        LoggerHelper.logInfo(this.getName() + ": Submission aborted: " + submissionId);
+        if(codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
+            codeSubmissionService.updateStatusAndResult(submissionId, "AB", "AB");
+        } else {
+            LoggerHelper.logError("Unknown submission: " + submissionId);
+        }
+        return null;
+    }
 
-                    submissionTestCase.setSubmissionId(submissionId);
-                    int status = testCase.get("status").asInt();
-                    switch (status) {
-                        case 4:
-                            submissionTestCase.setStatus("TLE");
-                            break;
-                        case 8:
-                            submissionTestCase.setStatus("MLE");
-                            break;
-                        case 64:
-                            submissionTestCase.setStatus("OLE");
-                            break;
-                        case 2:
-                            submissionTestCase.setStatus("RTE");
-                            break;
-                        case 16:
-                            submissionTestCase.setStatus("IR");
-                            break;
-                        case 1:
-                            submissionTestCase.setStatus("WA");
-                            break;
-                        case 32:
-                            submissionTestCase.setStatus("SC");
-                            break;
-                        default:
-                            submissionTestCase.setStatus("AC");
-                            break;
-                    }
-                    submissionTestCase.setTime(testCase.get("time").asDouble());
-                    submissionTestCase.setMemory(testCase.get("memory").asDouble());
-                    submissionTestCase.setPoints(testCase.get("points").asDouble());
-                    submissionTestCase.setTotal(testCase.get("total-points").asDouble());
-                    submissionTestCase.setFeedback(testCase.get("feedback").asText());
-                    submissionTestCase.setExtendedFeedback(testCase.get("extended-feedback").asText());
-                    submissionTestCase.setOutput(testCase.get("output").asText());
+    public  ObjectNode onTestCaseStatus(ObjectNode packet) {
+        //log
+        String submissionId = packet.get("submission-id").asText();
+        List<SubmissionTestCase> updates = new ArrayList<>();
+        JsonNode cases = packet.get("cases");
+        if (cases.isArray()) {
+            for (JsonNode testCase : cases) {
+                SubmissionTestCase submissionTestCase = new SubmissionTestCase();
 
-                    updates.add(submissionTestCase);
+                submissionTestCase.setSubmissionId(submissionId);
+                int status = testCase.get("status").asInt();
+                switch (status) {
+                    case 4:
+                        submissionTestCase.setStatus("TLE");
+                        break;
+                    case 8:
+                        submissionTestCase.setStatus("MLE");
+                        break;
+                    case 64:
+                        submissionTestCase.setStatus("OLE");
+                        break;
+                    case 2:
+                        submissionTestCase.setStatus("RTE");
+                        break;
+                    case 16:
+                        submissionTestCase.setStatus("IR");
+                        break;
+                    case 1:
+                        submissionTestCase.setStatus("WA");
+                        break;
+                    case 32:
+                        submissionTestCase.setStatus("SC");
+                        break;
+                    default:
+                        submissionTestCase.setStatus("AC");
+                        break;
                 }
-            }
-            int maxPosition = submissionTestCaseService.getMaxPosition(updates);
-            CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(submissionId);
-            submission.setCurrentTestcase(maxPosition);
-            if (codeSubmissionService.updateCodeSubmission(submission) == null){
-                //log
-            }
+                submissionTestCase.setTime(testCase.get("time").asDouble());
+                submissionTestCase.setMemory(testCase.get("memory").asDouble());
+                submissionTestCase.setPoints(testCase.get("points").asDouble());
+                submissionTestCase.setTotal(testCase.get("total-points").asDouble());
+                submissionTestCase.setFeedback(testCase.get("feedback").asText());
+                submissionTestCase.setExtendedFeedback(testCase.get("extended-feedback").asText());
+                submissionTestCase.setOutput(testCase.get("output").asText());
 
-            submissionTestCaseService.saveAll(updates);
-
-            return null;
+                updates.add(submissionTestCase);
+            }
+        }
+        int maxPosition = submissionTestCaseService.getMaxPosition(updates);
+        CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        submission.setCurrentTestcase(maxPosition);
+        if (codeSubmissionService.updateCodeSubmission(submission) == null){
+            //log
         }
 
-        public static ObjectNode onMalformedPacket(ObjectNode packet) {
-            return null;
+        submissionTestCaseService.saveAll(updates);
 
-            // Handle malformed packet
-        }
+        return null;
+    }
 
-        public static ObjectNode onPingResponse(ObjectNode packet) {
-            return null;
+    public  ObjectNode onMalformedPacket(ObjectNode packet) {
+        return null;
 
-            // Handle ping response packet
-        }
+        // Handle malformed packet
+    }
 
-        @Getter
-        @Setter
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class SubmissionData {
-            private String submissionDataId;
+    public  ObjectNode onPingResponse(ObjectNode packet) {
+        return null;
 
-            private Double time;
+        // Handle ping response packet
+    }
 
-            private Integer memory;
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SubmissionData {
+        private String submissionDataId;
 
-            private Boolean shortCircuit;
+        private Double time;
 
-            private boolean pretests_only;
+        private Integer memory;
 
-            public SubmissionData(Double time, Integer memory, Boolean shortCircuit, boolean isPretested) {
-                this.time = time;
-                this.memory = memory;
-                this.shortCircuit = shortCircuit;
-                this.pretests_only = isPretested;
-            }
+        private Boolean shortCircuit;
+
+        private boolean pretests_only;
+
+        public SubmissionData(Double time, Integer memory, Boolean shortCircuit, boolean isPretested) {
+            this.time = time;
+            this.memory = memory;
+            this.shortCircuit = shortCircuit;
+            this.pretests_only = isPretested;
         }
     }
     @Override
@@ -563,7 +551,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         try {
             String packetString = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
             JsonNode packet = mapper.readTree(packetString);
-            Function<ObjectNode, ObjectNode> handler = JudgeHandler.Handlers.handlers.get(packet.get("name").asText());
+            Function<ObjectNode, ObjectNode> handler = this.handlers.get(packet.get("name").asText());
             result = handler.apply((ObjectNode) packet);
 
         } catch (JsonProcessingException e) {
