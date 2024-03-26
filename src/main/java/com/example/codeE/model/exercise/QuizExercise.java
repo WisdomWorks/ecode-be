@@ -44,8 +44,9 @@ public class QuizExercise extends Exercise {
                 new ArrayList<String>());
         this.questions = request.getQuestions();
     }
-    public QuizExercise(UpdateQuizExerciseRequest request, boolean isShowAll, List<String> publicGroup){
-        super(request.getTopicId(),
+    public QuizExercise(String exerciseId,UpdateQuizExerciseRequest request, boolean isShowAll, List<String> publicGroup){
+        super(exerciseId,
+                request.getTopicId(),
                 request.getExerciseName(),
                 request.getKey(),
                 request.getStartTime(),

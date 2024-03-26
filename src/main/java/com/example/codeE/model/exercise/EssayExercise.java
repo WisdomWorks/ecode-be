@@ -34,8 +34,9 @@ public class EssayExercise extends Exercise{
                 new ArrayList<String>());
         this.question = request.getQuestion();
     }
-    public EssayExercise(UpdateEssayExerciseRequest request, boolean isShowAll, List<String> groups){
-        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "essay", isShowAll,
+    public EssayExercise(String exerciseId,UpdateEssayExerciseRequest request, boolean isShowAll, List<String> groups){
+        super(exerciseId,
+                request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "essay", isShowAll,
                 groups);
         this.question = request.getQuestion();
     }

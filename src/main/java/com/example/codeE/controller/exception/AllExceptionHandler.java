@@ -1,6 +1,7 @@
 package com.example.codeE.controller.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import javassist.NotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class AllExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Map<String, String>> handleNoSuchElementException(NoSuchElementException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("errorMessage", ex.getMessage());
+        response.put("message", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
