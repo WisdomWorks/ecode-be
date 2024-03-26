@@ -28,6 +28,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -37,22 +38,26 @@ import java.util.function.Function;
 @Getter
 @Setter
 @ChannelHandler.Sharable
+@Controller
 public class JudgeHandler extends ChannelInboundHandlerAdapter {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
 
     private List<CodeExercise> problems;
-    private List<RuntimeVersion> executors;
+    HashMap<String, List<List<Object>>> executors;
     private String working;
     private String name;
     private boolean isDisabled;
     private String judgeAddress;
     private int timeout;
 
-    public JudgeHandler() {
+    @Autowired
+    private RuntimeVersionService runtimeVersionService;
+
+    public JudgeHandler(){
         this.judge = new Judge();
         this.problems = new ArrayList<>();
-        this.executors = new ArrayList<>();
+        this.executors = new HashMap<>();
         this.working = null;
         this.name = null;
         this.isDisabled = false;
@@ -66,9 +71,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     public static class Handlers {
         private static final Map<String, Function<ObjectNode, ObjectNode>> handlers;
-
-        @Autowired
-        private static RuntimeVersionService runtimeVersionService;
 
         @Autowired
         private static CodeSubmissionRepository codeSubmissionRepository;
@@ -128,17 +130,36 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                     judgeHandler.problems.stream().map(CodeExercise::getCode).toList()
             );
             judgeHandler.judge.setRuntimeIds(
-                    judgeHandler.executors.stream().map(RuntimeVersion::getLanguageId).toList()
-            ); //????
+                    judgeHandler.executors.keySet().stream().toList()
+            );
 
-            for(String langId: judgeHandler.judge.getRuntimeIds()) {
-                for(int i=0; i<judgeHandler.executors.size(); i++) {
-                    runtimeVersionService.saveRuntimeVersion(new RuntimeVersion(
-                            langId,
+            for (Map.Entry<String, List<List<Object>>> entry : judgeHandler.executors.entrySet()) {
+                String languageId = entry.getKey(); // Lấy languageId từ key
+                List<List<Object>> values = entry.getValue(); // Lấy danh sách các giá trị từ value
+
+                // Lặp qua danh sách các giá trị
+                for (List<Object> value : values) {
+                    String name = (String) value.get(0); // Lấy name từ phần tử đầu tiên
+                    List<Integer> versionList = (List<Integer>) value.get(1); // Lấy danh sách version
+
+                    // Ghép version thành một chuỗi "x.y.z"
+                    StringBuilder versionBuilder = new StringBuilder();
+                    for (int i = 0; i < versionList.size(); i++) {
+                        versionBuilder.append(versionList.get(i));
+                        if (i < versionList.size() - 1) {
+                            versionBuilder.append(".");
+                        }
+                    }
+                    String version = versionBuilder.toString();
+
+                    // Tạo đối tượng RuntimeVersion và thêm vào ArrayList
+                    judgeHandler.runtimeVersionService.saveRuntimeVersion(new RuntimeVersion(
+                            languageId,
                             judgeHandler.judge.getJudgeId(),
-                            judgeHandler.executors.get(i).getName(),
-                            judgeHandler.executors.get(i).getVersion(),
-                            i));
+                            name,
+                            version,
+                            0
+                    ));
                 }
             }
 
@@ -184,6 +205,36 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                     judgeHandler.problems.add(problem);
                 }
             }
+
+            JsonNode executorsNode = packet.get("executors");
+            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = executorsNode.fields();
+            while (fieldsIterator.hasNext()) {
+                Map.Entry<String, JsonNode> field = fieldsIterator.next();
+                String key = field.getKey();
+                List<List<Object>> value = new ArrayList<>();
+                JsonNode innerArrayNode = field.getValue();
+                if (innerArrayNode.isArray()) {
+                    for (JsonNode arrayNode : innerArrayNode) {
+                        List<Object> innerList = new ArrayList<>();
+                        for (JsonNode innerNode : arrayNode) {
+                            if (innerNode.isTextual()) {
+                                innerList.add(innerNode.textValue());
+                            } else if (innerNode.isArray()) {
+                                List<Object> innerArray = new ArrayList<>();
+                                for (JsonNode arrayElement : innerNode) {
+                                    if (arrayElement.isNumber()) {
+                                        innerArray.add(arrayElement.numberValue());
+                                    }
+                                }
+                                innerList.add(innerArray);
+                            }
+                        }
+                        value.add(innerList);
+                    }
+                }
+                judgeHandler.executors.put(key, value);
+            }
+
             judgeHandler.name = packet.get("id").asText();
 
             ObjectNode response = JsonNodeFactory.instance.objectNode();

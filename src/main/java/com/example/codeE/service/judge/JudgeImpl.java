@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,6 +22,7 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import java.util.zip.DataFormatException;
 
+@Service
 public class JudgeImpl implements JudgeService {
     public static final Gson gson = new Gson();
     ObjectMapper mapper = new ObjectMapper();
