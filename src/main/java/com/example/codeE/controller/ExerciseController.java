@@ -4,8 +4,10 @@ import com.example.codeE.model.exercise.*;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
+import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
+import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
@@ -16,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -116,17 +117,17 @@ public class ExerciseController {
     }
     @PostMapping
     @RequestMapping(value = "quiz/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody QuizSubmission quizSubmission){
+    public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody CreateQuizSubmissionRequest quizSubmission){
         QuizExercise quizExercise = this.quizExerciseService.getQuizExerciseById(quizSubmission.getExerciseId());
-        float score = this.quizSubmissionService.gradeSubmission(quizSubmission, quizExercise);
-        quizSubmission.setScore(score);
-        QuizSubmission submission = this.quizSubmissionService.createSubmission(quizSubmission);
-        return ResponseEntity.status(HttpStatus.OK).body(submission);
+        float score = this.quizSubmissionService.gradeSubmission(quizSubmission.getSubmission(), quizExercise.getQuestions());
+        var submission = new QuizSubmission(quizSubmission, score);
+        QuizSubmission response = this.quizSubmissionService.createSubmission(submission);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping
     @RequestMapping(value = "essay/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody EssaySubmission essaySubmission){
+    public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody CreateEssaySubmissionRequest essaySubmission){
         return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.createSubmission(essaySubmission));
     }
 

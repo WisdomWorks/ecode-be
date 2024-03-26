@@ -2,6 +2,7 @@ package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.EssaySubmission;
 import com.example.codeE.repository.EssaySubmissionRepository;
+import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +14,9 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     private EssaySubmissionRepository essaySubmissionRepository;
 
     @Override
-    public EssaySubmission createSubmission(EssaySubmission essaySubmission) {
-        return this.essaySubmissionRepository.save(essaySubmission);
+    public EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission) {
+        var submission = new EssaySubmission(essaySubmission, 0);
+        return this.essaySubmissionRepository.save(submission);
     }
 
     @Override
