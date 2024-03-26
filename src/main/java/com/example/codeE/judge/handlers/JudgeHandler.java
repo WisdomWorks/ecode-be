@@ -39,6 +39,7 @@ import java.util.function.Function;
 @Setter
 @ChannelHandler.Sharable
 public class JudgeHandler extends ChannelInboundHandlerAdapter {
+    private ChannelHandlerContext ctx;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
 
@@ -93,6 +94,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         handlers.put("test-case-status", this::onTestCaseStatus);
         handlers.put("malformed-packet", this::onMalformedPacket);
         handlers.put("ping-response", this::onPingResponse);
+
     }
 
 
@@ -231,12 +233,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         return response;
     }
 
-    public  ObjectNode submit(ObjectNode packet) {
-        String submissionId = packet.get("submission-id").asText();
-        String problemId = packet.get("problem-id").asText();
-        String language = packet.get("language").asText();
-        String source = packet.get("source").asText();
-
+    public void submit(String submissionId, String problemId, String language, String source) {
         SubmissionData data = getRelatedSubmissionData(submissionId);
         ObjectNode response = JsonNodeFactory.instance.objectNode();
 
@@ -249,11 +246,11 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.put("time-limit", data.getTime());
             response.put("memory-limit", data.getMemory());
             response.put("short-circuit", data.getShortCircuit());
-//                response.put("pretests-only", data.isPretests_only());
+//            response.put("pretests-only", data.isPretests_only());
         }
 
         this.working = submissionId;
-        return response;
+        send(response);
     }
 
     private  boolean isWorking() {
@@ -460,6 +457,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
                 submissionTestCase.setSubmissionId(submissionId);
                 int status = testCase.get("status").asInt();
+                // TODO: Fix this
                 switch (status) {
                     case 4:
                         submissionTestCase.setStatus("TLE");
@@ -543,6 +541,37 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             this.pretests_only = isPretested;
         }
     }
+
+    private void send(ObjectNode request) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String requestJson = mapper.writeValueAsString(request);
+            byte[] compressedRequest = ZlibCompression.zlibify(requestJson);
+            ByteBuf buffer = Unpooled.wrappedBuffer(compressedRequest);
+
+            // Get the channel from the stored ChannelHandlerContext
+            Channel channel = this.ctx.channel();
+
+            // Write the buffer to the channel
+            ChannelFuture future = channel.writeAndFlush(buffer);
+
+            // Add a listener to handle the write result
+            future.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.isSuccess()) {
+                        System.out.println("Request sent successfully");
+                    } else {
+                        System.out.println("Failed to send request");
+                        // Handle the failure case
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle the JSON processing exception
+        }
+    }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -551,6 +580,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         try {
             String packetString = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
             JsonNode packet = mapper.readTree(packetString);
+
             Function<ObjectNode, ObjectNode> handler = this.handlers.get(packet.get("name").asText());
             result = handler.apply((ObjectNode) packet);
 
@@ -579,6 +609,12 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                 }
             });
         }
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        this.ctx = ctx;
+        super.channelActive(ctx);
     }
 
     public interface WriteListener {
