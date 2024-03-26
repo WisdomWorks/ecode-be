@@ -24,10 +24,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         if (score < 0 || score > 10) {
             throw new IllegalArgumentException("Score must be between 0 and 10");
         }
-        EssaySubmission essaySubmission = this.essaySubmissionRepository.findById(essaySubmissionId).get();
-        if(essaySubmission == null){
-            throw new NoSuchElementException("Essay Submission not found");
-        }
+        EssaySubmission essaySubmission = this.essaySubmissionRepository.findById(essaySubmissionId).orElseThrow(() -> new NoSuchElementException("No Exercise found by Id: " + essaySubmissionId));
         essaySubmission.setScore(score);
         this.essaySubmissionRepository.save(essaySubmission);
         return essaySubmission;

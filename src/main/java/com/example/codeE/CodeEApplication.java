@@ -8,11 +8,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.net.InetSocketAddress;
+import java.util.TimeZone;
 
 @SpringBootApplication
 public class CodeEApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CodeEApplication.class, args);
+		TimeZone.setDefault( TimeZone.getTimeZone("UTC"));
 		InetSocketAddress address1 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT);
 		InetSocketAddress address2 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_JUDGE_PORT);
 
