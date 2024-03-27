@@ -26,7 +26,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.CharsetUtil;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,6 +50,7 @@ import java.util.function.Function;
 @ChannelHandler.Sharable
 public class JudgeHandler extends ChannelInboundHandlerAdapter {
     private ChannelHandlerContext ctx;
+    private static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
 
@@ -73,6 +77,16 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     @Autowired
     private  SubmissionTestCaseService submissionTestCaseService;
+
+//    @Override
+//    public void handlerAdded(ChannelHandlerContext ctx) {
+//        channelGroup.add(ctx.channel());
+//    }
+//
+//    @Override
+//    public void handlerRemoved(ChannelHandlerContext ctx) {
+//        channelGroup.remove(ctx.channel());
+//    }
 
     public JudgeHandler(){
         this.judge = new Judge();
@@ -229,20 +243,38 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void submit(String submissionId, String problemId, String language, String source) {
+
         SubmissionData data = getRelatedSubmissionData(submissionId);
         ObjectNode response = JsonNodeFactory.instance.objectNode();
 
-        if (data != null) {
-            response.put("name", "submission-request");
-            response.put("submission-id", submissionId);
-            response.put("problem-id", problemId);
-            response.put("language", language);
-            response.put("source", source);
-            response.put("time-limit", data.getTime());
-            response.put("memory-limit", data.getMemory());
-            response.put("short-circuit", data.getShortCircuit());
-//            response.put("pretests-only", data.isPretests_only());
-        }
+//        if (data != null) {
+//            response.put("name", "submission-request");
+//            response.put("submission-id", submissionId);
+//            response.put("problem-id", problemId);
+//            response.put("language", language);
+//            response.put("source", source);
+//            response.put("time-limit", data.getTime());
+//            response.put("memory-limit", data.getMemory());
+//            response.put("short-circuit", data.getShortCircuit());
+////            response.put("pretests-only", data.isPretests_only());
+//        }
+
+        response.put("name", "submission-request");
+        response.put("submission-id", 5);
+        response.put("problem-id", "6603897fdd74386f36d28783");
+        response.put("language", "C");
+        response.put("source", "#include <stdio.h>\nint main() { printf(\"Hello, World!\"); return 0; }");
+        response.put("time-limit", 2.0);
+        response.put("memory-limit", 1);
+        response.put("short-circuit", true);
+
+        ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
+        metaNode.put("pretests-only", false);
+        metaNode.put("in-contest", false);
+        metaNode.put("attempt-no", 3);
+        metaNode.put("user","ssssss");
+
+        response.set("meta", metaNode);
 
         this.working = submissionId;
         send(response);
@@ -525,32 +557,55 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             ByteBuf buffer = Unpooled.wrappedBuffer(compressedRequest);
 
             // Get the channel from the stored ChannelHandlerContext
-            Channel channel = this.ctx.channel();
+//            Channel channel = this.ctx.channel();
+            ChannelFuture future;
+            for (Channel channel : channelGroup) {
+                future = channel.writeAndFlush(buffer);
+                future.addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        if (future.isSuccess()) {
+                            System.out.println("Request sent successfully");
+                        } else {
+                            System.out.println("Failed to send request");
+                            // Handle the failure case
+                        }
+                    }
+                });
+            }
 
             // Write the buffer to the channel
-            ChannelFuture future = channel.writeAndFlush(buffer);
+//            ChannelFuture future = channel.writeAndFlush(buffer);
 
             // Add a listener to handle the write result
-            future.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.isSuccess()) {
-                        System.out.println("Request sent successfully");
-                    } else {
-                        System.out.println("Failed to send request");
-                        // Handle the failure case
-                    }
-                }
-            });
+//            future.addListener(new ChannelFutureListener() {
+//                @Override
+//                public void operationComplete(ChannelFuture future) throws Exception {
+//                    if (future.isSuccess()) {
+//                        System.out.println("Request sent successfully");
+//                    } else {
+//                        System.out.println("Failed to send request");
+//                        // Handle the failure case
+//                    }
+//                }
+//            });
         } catch (IOException e) {
             e.printStackTrace();
             // Handle the JSON processing exception
         }
     }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        super.channelRegistered(ctx);
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
+        channelGroup.add(ctx.channel());
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode result = JsonNodeFactory.instance.objectNode();
+        String printResult = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
         System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
         try {
             String packetString = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
