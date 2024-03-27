@@ -1,51 +1,52 @@
 package com.example.codeE.model.exercise;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "CodeExercise")
-public class CodeExercise extends Exercise{
-    @Field
-    @NotNull(message = "Programming language is required")
-    @Pattern(regexp = "^(c|c++|java|python)$", message = "Exercise type should be c, c++, java or python")
-    private String language;
+@Document(collection = "code_exercise")
+public class CodeExercise extends Exercise {
+    @NotBlank(message = "Problem code is required")
+    @Size(max = 20, message = "Problem code must not exceed 20 characters")
+    @Indexed(unique = true)
+    @Field("code")
+    private String code;
+
+    @NotBlank(message = "Problem name is required")
+    @Size(max = 100, message = "Problem name must not exceed 100 characters")
+    @Field("name")
+    private String name;
 
     @Field
-    @NotNull(message = "Function name is required")
-    private String functionName;
-
-    @Field
-    @NotNull(message = "Template exercise is required")
-    private String template;
-
-    @Field
-    @NotNull(message = "Exercise description is required")
     private String description;
 
-    @Field
-    @NotNull(message = "Testcase is required")
-    private List<String> testcases;
+    @NotNull(message = "Time limit is required")
+    @Field("time_limit")
+    private Double timeLimit;
 
-    public CodeExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, String type, List<String> publicGroupIds,
-                        String language, String functionName, String template, String description, List<String> testcases) {
-        super(topicId, exerciseName, key, startTime, endTime, type, publicGroupIds);
-        this.language = language;
-        this.functionName = functionName;
-        this.template = template;
-        this.description = description;
-        this.testcases = testcases;
-    }
+    @Field
+    @NotNull(message = "Memory limit is required")
+    private Integer memoryLimit;
+
+    @Field("short_circuit")
+    private Boolean shortCircuit;
+
+    @Field
+    private boolean partial = true;
+
+    @Field
+    private List<String> allowedLanguageIds;
 }

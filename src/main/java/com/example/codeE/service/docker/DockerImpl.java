@@ -3,7 +3,7 @@ package com.example.codeE.service.docker;
 import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.FileHelper;
 import com.example.codeE.helper.DockerHelper;
-import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.model.exercise.CodeExerciseWBD;
 import com.example.codeE.model.exercise.common.IOTestCase;
 import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.service.exercise.common.TestcaseService;
@@ -26,7 +26,7 @@ public class DockerImpl implements DockerService {
     private TestcaseService testcaseService;
 
     @Override
-    public String createContainer(String dockerfilePath, CodeExercise codeExercise) {
+    public String createContainer(String dockerfilePath, CodeExerciseWBD codeExerciseWBD) {
         // Create image
         String imageId = dockerHelper.buildDockerImage(new File(currentDirectory, dockerfilePath));
 
@@ -36,11 +36,11 @@ public class DockerImpl implements DockerService {
         // Push template exercise of teacher to docker
         String fileName = "JavaClass.java";
         String pathFile = Constant.DOCKER_CONTAINER_FILE_PATH + fileName;
-        dockerHelper.replaceFile(containerId, codeExercise.getTemplate(), pathFile);
+        dockerHelper.replaceFile(containerId, codeExerciseWBD.getTemplate(), pathFile);
 
         // Config Main file in docker
         List<TestCase> testCases = new ArrayList<>();
-        for(String id: codeExercise.getTestcases()){
+        for(String id: codeExerciseWBD.getTestcases()){
             testCases.add(this.testcaseService.getTestcaseById(id));
         }
         Map<String, String> enteredInputs = new HashMap<>();
@@ -51,7 +51,7 @@ public class DockerImpl implements DockerService {
                 containerId,
                 FileHelper.replaceTemplateFile(
                         "./template/java/MainTemplate.txt",
-                        "\"" + codeExercise.getFunctionName() + "\"",
+                        "\"" + codeExerciseWBD.getFunctionName() + "\"",
                         "true",
                         TestcaseUtil.convertTestcaseList(testCases),
                         enteredInputs),
@@ -65,13 +65,13 @@ public class DockerImpl implements DockerService {
                           String contentFile,
                           String fileName,
                           List<IOTestCase> inputs,
-                          CodeExercise codeExercise) {
+                          CodeExerciseWBD codeExerciseWBD) {
         String pathFile = Constant.DOCKER_CONTAINER_FILE_PATH + fileName + ".java";
         dockerHelper.replaceFile(containerId, contentFile, pathFile);
 
         // Config Main file in docker
         List<TestCase> testCases = new ArrayList<>();
-        for(String id: codeExercise.getTestcases()){
+        for(String id: codeExerciseWBD.getTestcases()){
             testCases.add(this.testcaseService.getTestcaseById(id));
         }
 
@@ -79,7 +79,7 @@ public class DockerImpl implements DockerService {
                 containerId,
                 FileHelper.replaceTemplateFile(
                         "./template/java/MainTemplate.txt",
-                        "\"" + codeExercise.getFunctionName() + "\"",
+                        "\"" + codeExerciseWBD.getFunctionName() + "\"",
                         "true",
                         TestcaseUtil.convertTestcaseList(testCases),
                         TestcaseUtil.convertStudentInputsToMap(inputs)),

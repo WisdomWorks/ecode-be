@@ -39,6 +39,9 @@ public class Topic {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "is_show_all")
+    private boolean isShowAll;
+
     @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private LocalDateTime createdDate;
@@ -65,6 +68,7 @@ public class Topic {
         LocalDateTime now = LocalDateTime.now();
         this.createdDate = now;
         this.updatedDate = now;
+        this.isShowAll = true;
     }
     @PreUpdate
     protected void onUpdate() {

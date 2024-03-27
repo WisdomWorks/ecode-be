@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "view_permission_topic")
-@IdClass(ViewPermissionTopic.class)
+@IdClass(ViewPermissionTopicId.class)
 public class ViewPermissionTopic {
     @Id
     @NotBlank(message = "Topic ID is required")

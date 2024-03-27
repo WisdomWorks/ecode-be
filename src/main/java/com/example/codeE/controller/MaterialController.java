@@ -1,15 +1,11 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.material.Material;
 import com.example.codeE.request.material.CreateMaterialRequest;
+import com.example.codeE.request.material.CreatePermissionMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
 import com.example.codeE.service.material.MaterialService;
-import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -75,8 +71,8 @@ public class MaterialController {
 
     @PostMapping
     @RequestMapping(value = "/view", method = RequestMethod.POST)
-    public ResponseEntity<?> addViewPermission(@RequestParam String materialId, @RequestParam List<String> groupIds) {
-        if (this.materialService.addViewPermission(materialId, groupIds))
+    public ResponseEntity<?> addViewPermission(@RequestBody CreatePermissionMaterialRequest request) {
+        if (this.materialService.addViewPermission(request.getMaterialId(), request.getGroupIds(), request.isShowAll()))
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Grant permission for material successful"));
         else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("massage", "Can not grant permission for this material"));
