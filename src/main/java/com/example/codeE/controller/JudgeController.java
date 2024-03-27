@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/judge")
@@ -38,7 +39,17 @@ public class JudgeController {
         submission.setMemory(1);
         submission.setLanguageId("C");
         submission.setSource("#include <stdio.h>\nint main() { printf(\"Hello, World!\"); return 0; }");
-        submission.setStudentId("id");
+//        submission.setStudentId("id");
+//        submission.setError("error");
+//        submission.setJudgedOn("judgedOn");
+//        submission.setPretested(true);
+        submission.setLockedAfter(LocalDateTime.now().plusHours(1));
+//        submission.setCasePoints(1.0f);
+//        submission.setCaseTotal(1.0f);
+//        submission.setCurrentTestcase(1);
+//        submission.setStatus("status"); //here
+//        submission.setResult("result");
+
 
 //        CodeSubmission savedSubmission = codeSubmissionService.updateCodeSubmission(submission);
         CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);

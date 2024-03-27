@@ -31,7 +31,7 @@ public class CodeSubmission extends Submission {
     private String languageId;
 
     @Field
-    private String status;
+    private String status = "QU";
 
     @Field
     private String result;
@@ -48,7 +48,7 @@ public class CodeSubmission extends Submission {
     @Field
     private Float caseTotal;
 
-    private String judgedOn;
+    private String judgedOn = "ExampleJudge";
 
     @Field
     private boolean isPretested;

@@ -12,8 +12,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.netty.Connection;
+import reactor.netty.tcp.TcpClient;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,51 +40,97 @@ public class JudgeImpl implements JudgeService {
 
     @Override
     public Object judgeRequest(Object packet, boolean reply) {
-        try (Socket socket = new Socket(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT)) {
-            // Convert to JSON
-            String output = gson.toJson(packet);
-            // Compress the JSON
-            byte[] compressedOutput = ZlibCompression.zlibify(output);
+//        try (Socket socket = new Socket(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT)) {
+//            // Convert to JSON
+//            String output = gson.toJson(packet);
+//            // Compress the JSON
+//            byte[] compressedOutput = ZlibCompression.zlibify(output);
+//
+//            // Send the compressed data through the socket
+//            DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+//            writer.writeInt(compressedOutput.length);
+//            writer.write(compressedOutput);
+//            writer.flush();
+//
+//            // If reply is true, read the response from the socket
+//            if (reply) {
+//                // Read the response from the socket
+//                DataInputStream reader = new DataInputStream(socket.getInputStream());
+//                int length = reader.readInt();
+//                byte[] data = new byte[length];
+//                reader.readFully(data);
+//
+//                // If the data is empty, throw an exception
+//                if (data.length == 0) {
+//                    throw new IOException("Judge did not respond");
+//                }
+//
+//                // Decompress the data
+//                String decompressedInput;
+//                try {
+//                    decompressedInput = ZlibCompression.dezlibify(data);
+//                } catch (DataFormatException e) {
+//                    throw new IOException("Failed to decompress data", e);
+//                }
+//
+//                // Return the decompressed data
+//                return gson.fromJson(decompressedInput, Object.class);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        Connection connection = TcpClient.create()
+                .host(Constant.BRIDGED_HOST)
+                .port(Constant.BRIDGED_SPRING_BOOT_PORT)
+                .doOnConnected(connection1 -> {
+                    System.out.println("Connected");
+                })
+                .connectNow();
 
-            // Send the compressed data through the socket
-            DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-            writer.writeInt(compressedOutput.length);
-            writer.write(compressedOutput);
-            writer.flush();
+//        String packetString = null;
+//        try {
+//            packetString = mapper.writeValueAsString();
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
 
-            // If reply is true, read the response from the socket
-            if (reply) {
-                // Read the response from the socket
-                DataInputStream reader = new DataInputStream(socket.getInputStream());
-                int length = reader.readInt();
-                byte[] data = new byte[length];
-                reader.readFully(data);
-
-                // If the data is empty, throw an exception
-                if (data.length == 0) {
-                    throw new IOException("Judge did not respond");
-                }
-
-                // Decompress the data
-                String decompressedInput;
-                try {
-                    decompressedInput = ZlibCompression.dezlibify(data);
-                } catch (DataFormatException e) {
-                    throw new IOException("Failed to decompress data", e);
-                }
-
-                // Return the decompressed data
-                return gson.fromJson(decompressedInput, Object.class);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        byte[] compressedData = new byte[0];
+        try {
+            compressedData = ZlibCompression.zlibify((String) packet);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+
+        ByteBuf buffer = Unpooled.buffer(4 + compressedData.length);
+        buffer.writeInt(compressedData.length);
+        buffer.writeBytes(compressedData);
+
+        connection
+                .outbound()
+                .send(Mono.just(buffer))
+                .then()
+                .subscribe();
+
+        return connection.inbound()
+                .receive()
+                .asByteArray()
+                .take(1) // Take only one response
+                .doOnTerminate(connection::dispose) // Dispose the connection after receiving the response
+                .map(response -> {
+                    try {
+                        System.out.println("Received data from server: " + ZlibCompression.dezlibify(response));
+                        return ZlibCompression.dezlibify(response);
+                    } catch (DataFormatException | IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .blockFirst();
+//        return null;
     }
 
     @Override
     public boolean judgeSubmission(CodeSubmission submission, boolean rejudge) {
-        CodeSubmission updates = new CodeSubmission();
+        CodeSubmission updates = codeSubmissionService.getCodeSubmissionById(submission.getSubmissionId());
         updates.setTime(null);
         updates.setMemory(null);
         updates.setScore(null);
@@ -107,7 +158,7 @@ public class JudgeImpl implements JudgeService {
         packet.put("submission-id", submission.getSubmissionId());
         packet.put("problem-id", submission.getExerciseId());
         packet.put("language", submission.getLanguageId());
-//        packet.put("source", submission.get());
+        packet.put("source", submission.getSource());
         packet.put("judge-id", submission.getJudgedOn());
         packet.put("priority", rejudge ? Constant.REJUDGE_PRIORITY : priority);
 
@@ -124,6 +175,7 @@ public class JudgeImpl implements JudgeService {
             // If the response is valid, return true
             success = true;
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Failed to send request to judge");
             // If the request fails, update the submission status to IE
             codeSubmissionService.updateStatusAndResult(submission.getSubmissionId(), "IE", "IE");
