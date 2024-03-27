@@ -9,6 +9,7 @@ import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.GroupStudentRepository;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
+import com.example.codeE.request.exercise.ExerciseStudentResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import jakarta.ws.rs.NotSupportedException;
@@ -42,6 +43,12 @@ public class ExerciseImpl implements ExerciseService{
     @Override
     public Exercise saveEsayExercise(EssayExercise exercise) {
         return this.exerciseRepository.save(exercise);
+    }
+
+    @Override
+    public ExerciseStudentResponse getPreviewExercise(String exerciseId) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
+        return new ExerciseStudentResponse(exercise);
     }
 
     @Override
