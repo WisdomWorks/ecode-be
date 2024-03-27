@@ -158,14 +158,14 @@ public class ExerciseController {
 
     @PutMapping
     @RequestMapping(value = "quiz", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateQuizExercise(@RequestParam String exerciseId, @RequestBody UpdateQuizExerciseRequest request){
-        QuizExercise updatedExercise = this.quizExerciseService.updateQuizExercise(exerciseId, request);
+    public ResponseEntity<?> updateQuizExercise(@RequestBody UpdateQuizExerciseRequest request){
+        QuizExercise updatedExercise = this.quizExerciseService.updateQuizExercise(request.getExerciseId(), request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
     @PutMapping
     @RequestMapping(value = "essay", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateEssayExercise(@RequestParam String exerciseId, @RequestBody UpdateEssayExerciseRequest request){
-        EssayExercise updatedExercise = this.essayExerciseService.updateEssayExercise(exerciseId, request);
+    public ResponseEntity<?> updateEssayExercise(@RequestBody UpdateEssayExerciseRequest request){
+        EssayExercise updatedExercise = this.essayExerciseService.updateEssayExercise(request.getExerciseId(), request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
     @PostMapping
