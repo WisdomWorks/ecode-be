@@ -54,12 +54,12 @@ public class Exercise {
 
     @Field
     @NotNull(message = "Exercise start time is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private Date startTime;
 
     @Field
     @NotNull(message = "Exercise end time is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private Date endTime;
 
     @Field

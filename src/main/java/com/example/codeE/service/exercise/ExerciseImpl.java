@@ -10,11 +10,15 @@ import com.example.codeE.repository.GroupStudentRepository;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
+import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import jakarta.ws.rs.NotSupportedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class ExerciseImpl implements ExerciseService{
@@ -25,7 +29,10 @@ public class ExerciseImpl implements ExerciseService{
     private GroupRepository groupRepository;
     @Autowired
     private GroupStudentRepository groupStudentRepository;
-
+    @Autowired
+    private EssaySubmissionService essaySubmissionService;
+    @Autowired
+    private QuizSubmissionService quizSubmissionService;
 
     @Override
     public Exercise saveQuizExercise(QuizExercise exercise) {
@@ -61,14 +68,34 @@ public class ExerciseImpl implements ExerciseService{
     }
 
     @Override
-    public Exercise getDetailExercise(String exerciseId, String key) {
+    public Exercise getDetailExercise(String exerciseId, String key, String studentId) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
-        if(exercise.getKey().equals(key)){
-            return exercise;
-        }else
+
+        if (!exercise.getKey().equals(key))
             throw new IllegalArgumentException("Wrong key to enroll exercise");
+        else if (!isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
+            throw new DataIntegrityViolationException("Student have do this " + exercise.getType() + " " + exercise.getReAttempt() + " time");
+        else if (exercise.getKey().equals(key) && isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
+            return exercise;
+        else
+            throw new IllegalArgumentException("Some thing wrong when get detail exercise");
     }
 
+    private boolean isReTemp(String exerciseId, String userId, String type, int reTemp) {
+        switch (type) {
+            case "quiz" -> {
+                var quizSubmission = this.quizSubmissionService.getQuizSubmissionByUserId(exerciseId, userId);
+                if (quizSubmission.isEmpty() || quizSubmission.size() < reTemp)
+                    return true;
+            }
+            case "essay" -> {
+                var quizSubmission = this.essaySubmissionService.getEssaySubmissionByUserId(exerciseId, userId);
+                if (quizSubmission.isEmpty() || quizSubmission.size() < reTemp)
+                    return true;
+            }
+        }
+        return false;
+    }
     @Override
     public void deleteExerciseById(String exerciseId) {
         this.exerciseRepository.deleteById(exerciseId);

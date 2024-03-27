@@ -1,11 +1,14 @@
 package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.EssaySubmission;
+import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.repository.EssaySubmissionRepository;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -20,14 +23,40 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     }
 
     @Override
+    public List<EssaySubmission> getEssaySubmissionByExerciseId(String exerciseId) {
+        List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
+        var result = new ArrayList<EssaySubmission>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public EssaySubmission getEssayQuizSubmission(String submissionId) {
+        return this.essaySubmissionRepository.findById(submissionId).orElseThrow(() -> new NoSuchElementException("No Submission found"));
+    }
+
+    @Override
+    public List<EssaySubmission> getEssaySubmissionByUserId(String exerciseId, String userId) {
+        List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
+        var result = new ArrayList<EssaySubmission>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public EssaySubmission gradeSubmission(String essaySubmissionId, float score) {
         if (score < 0 || score > 10) {
             throw new IllegalArgumentException("Score must be between 0 and 10");
         }
-        EssaySubmission essaySubmission = this.essaySubmissionRepository.findById(essaySubmissionId).get();
-        if(essaySubmission == null){
-            throw new NoSuchElementException("Essay Submission not found");
-        }
+        EssaySubmission essaySubmission = this.essaySubmissionRepository.findById(essaySubmissionId).orElseThrow(() -> new NoSuchElementException("No Exercise found by Id: " + essaySubmissionId));
         essaySubmission.setScore(score);
         this.essaySubmissionRepository.save(essaySubmission);
         return essaySubmission;
