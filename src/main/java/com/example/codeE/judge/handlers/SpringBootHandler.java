@@ -23,10 +23,12 @@ import java.util.function.Function;
 @ChannelHandler.Sharable
 public class SpringBootHandler extends ChannelInboundHandlerAdapter {
     @Autowired
-    JudgeList judges;
+    private final JudgeList judges;
     private HashMap<String, Function<ObjectNode, ObjectNode>> methodMap;
-    public SpringBootHandler() {
-//        this.judges = new JudgeList();
+
+    @Autowired
+    public SpringBootHandler(JudgeList judges) {
+        this.judges = judges;
 
         methodMap = new HashMap<>();
         methodMap.put("submission-request", this::onSubmission);

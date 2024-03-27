@@ -15,12 +15,14 @@ import java.net.InetSocketAddress;
 public class CodeEApplication {
 	@Autowired
 	private JudgeHandler judgeHandler;
+	@Autowired
+	private SpringBootHandler springBootHandler;
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(CodeEApplication.class, args);
 		InetSocketAddress address1 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT);
 		InetSocketAddress address2 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_JUDGE_PORT);
 
-		Server server1 = new Server(address1, new SpringBootHandler());
+		Server server1 = new Server(address1, context.getBean(SpringBootHandler.class));
 		Server server2 = new Server(address2, context.getBean(JudgeHandler.class));
 		Thread t1 = new Thread(() -> {
 			try {

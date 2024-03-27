@@ -5,6 +5,7 @@ import com.example.codeE.judge.handlers.JudgeHandler;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.common.Judge;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ class PriorityMarker {
     }
 }
 
+@Component
 public class JudgeList {
     private final int priorities = 4;
     LinkedList<Object> queue = new LinkedList<>();
@@ -151,6 +153,7 @@ public class JudgeList {
                 try {
                     this.judge.submit(submissionId, problem, language, source);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     System.out.println("Failed to dispatch " + submissionId + " (" + problem + ", " + language + ") to " + judge.getName());
                 }
             } else {
