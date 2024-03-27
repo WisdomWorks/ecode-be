@@ -49,4 +49,9 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     public CodeSubmission updateCodeSubmission(CodeSubmission codeSubmission) {
         return codeSubmissionRepository.save(codeSubmission);
     }
+
+    @Override
+    public CodeSubmission saveCodeSubmission(CodeSubmission codeSubmission) {
+        return codeSubmissionRepository.save(codeSubmission);
+    }
 }

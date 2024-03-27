@@ -4,6 +4,7 @@ import com.example.codeE.helper.ZlibCompression;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.judge.ClientService;
+import com.example.codeE.service.judge.JudgeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,18 +26,22 @@ public class JudgeController {
     @Autowired
     private CodeSubmissionService codeSubmissionService;
 
+    @Autowired
+    private JudgeService judgeService;
+
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> exampleRq() throws IOException {
-        CodeSubmission submission = new CodeSubmission();
+        CodeSubmission submission = new CodeSubmission(judgeService);
         submission.setExerciseId("6603897fdd74386f36d28783");
         submission.setTime(2.0);
         submission.setMemory(1);
         submission.setLanguageId("C");
         submission.setSource("#include <stdio.h>\nint main() { printf(\"Hello, World!\"); return 0; }");
+        submission.setStudentId("id");
 
-        CodeSubmission savedSubmission = codeSubmissionService.updateCodeSubmission(submission);
-
+//        CodeSubmission savedSubmission = codeSubmissionService.updateCodeSubmission(submission);
+        CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
         savedSubmission.judge(false, false);
 
         return ResponseEntity.status(200).build();

@@ -8,4 +8,5 @@ public interface CodeSubmissionService {
     public void updateStatusAndResult(String submissionId, String status, String result);
     public CodeSubmission getCodeSubmissionById(String id);
     public CodeSubmission updateCodeSubmission(CodeSubmission codeSubmission);
+    public CodeSubmission saveCodeSubmission(CodeSubmission codeSubmission);
 }

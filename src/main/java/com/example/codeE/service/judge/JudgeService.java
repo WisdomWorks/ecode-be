@@ -5,7 +5,6 @@ import com.example.codeE.model.exercise.common.Judge;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
-@Service
 public interface JudgeService {
     Object judgeRequest(Object packet, boolean reply);
 

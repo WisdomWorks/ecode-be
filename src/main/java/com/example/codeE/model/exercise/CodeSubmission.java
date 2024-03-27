@@ -3,11 +3,13 @@ package com.example.codeE.model.exercise;
 import com.example.codeE.constant.Constant;
 import com.example.codeE.service.judge.JudgeImpl;
 import com.example.codeE.service.judge.JudgeService;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -16,7 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Document(collection = "code_submission")
 public class CodeSubmission extends Submission {
     @Field
@@ -57,8 +59,29 @@ public class CodeSubmission extends Submission {
     @Field
     private String source;
 
-    @Autowired
+    @Transient
     private JudgeService judgeService;
+
+    public CodeSubmission(String submissionId, @NotNull(message = "Student ID is required") String studentId, @NotNull(message = "Exercise ID is required") String exerciseId, Float score, String dateSubmit, String dateGrade, @NotNull(message = "Reviewable is required") boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
+        super(submissionId, studentId, exerciseId, score, dateSubmit, dateGrade, reviewable);
+        this.time = time;
+        this.memory = memory;
+        this.languageId = languageId;
+        this.status = status;
+        this.result = result;
+        this.error = error;
+        this.currentTestcase = currentTestcase;
+        this.casePoints = casePoints;
+        this.caseTotal = caseTotal;
+        this.judgedOn = judgedOn;
+        this.isPretested = isPretested;
+        this.lockedAfter = lockedAfter;
+        this.source = source;
+    }
+
+    public CodeSubmission(JudgeService judgeService) {
+        this.judgeService = judgeService;
+    }
 
     public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
         super(studentId, exerciseId, score, reviewable);

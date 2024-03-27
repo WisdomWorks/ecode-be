@@ -21,11 +21,11 @@ public class Submission {
     private String submissionId;
 
     @Field
-    @NotNull(message = "Student ID is required")
+//    @NotNull(message = "Student ID is required")
     private String studentId;
 
     @Field
-    @NotNull(message = "Exercise ID is required")
+//    @NotNull(message = "Exercise ID is required")
     private String exerciseId;
 
     private Float score;
@@ -39,7 +39,7 @@ public class Submission {
     private String dateGrade;
 
     @Field
-    @NotNull(message = "Reviewable is required")
+//    @NotNull(message = "Reviewable is required")
     private boolean reviewable;
 
     public Submission(String studentId, String exerciseId, boolean reviewable) {
