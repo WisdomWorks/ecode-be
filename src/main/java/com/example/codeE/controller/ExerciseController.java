@@ -105,8 +105,8 @@ public class ExerciseController {
     }
     @GetMapping
     @RequestMapping(value = "detail/{exerciseId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getExerciseDetail(@PathVariable String exerciseId, @RequestParam String key){
-        Exercise exercise = this.exerciseService.getDetailExercise(exerciseId, key);
+    public ResponseEntity<?> getExerciseDetail(@PathVariable String exerciseId, @RequestParam String key, @RequestParam String studentId){
+        Exercise exercise = this.exerciseService.getDetailExercise(exerciseId, key, studentId);
         return switch (exercise.getType()){
             case "quiz" ->
                 ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(exerciseId));
@@ -172,5 +172,47 @@ public class ExerciseController {
     @RequestMapping(value = "view", method = RequestMethod.POST)
     public ResponseEntity<?> addPermissionExercise(@RequestBody CreatePermissionExerciseRequest request){
         return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.modifiedPermission(request));
+    }
+
+    @GetMapping
+    @RequestMapping(value = "{exerciseId}/all-submission", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type) {
+        return switch (type) {
+            case "quiz" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionByExerciseId(exerciseId));
+            case "essay" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByExerciseId(exerciseId));
+            case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
+            default ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
+        };
+    }
+
+    @GetMapping
+    @RequestMapping(value = "essay/submit/{submissionId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getStudentEssaySubmission(@PathVariable String submissionId, @RequestParam String type) {
+        return switch (type) {
+            case "quiz" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getStudentQuizSubmission(submissionId));
+            case "essay" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByExerciseId(submissionId));
+            case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
+            default ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
+        };
+    }
+
+    @GetMapping
+    @RequestMapping(value = "essay/submit/user/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getStudentEssayUserId(@RequestParam String exerciseId, @PathVariable String userId, @RequestParam String type) {
+        return switch (type) {
+            case "quiz" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionByUserId(exerciseId, userId));
+            case "essay" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByUserId(exerciseId, userId));
+            case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
+            default ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
+        };
     }
 }

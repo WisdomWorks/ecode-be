@@ -8,7 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 @Getter
 @Setter
@@ -18,9 +21,9 @@ public class EssayDetailResponse {
     private String exerciseId;
     private String topicId;
     private String exerciseName;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private Date startTime;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private Date endTime;
     private int durationTime;
     private int reAttempt;
@@ -30,6 +33,7 @@ public class EssayDetailResponse {
     private String question;
 
     public EssayDetailResponse(EssayExercise essayExercise){
+        TimeZone tz = TimeZone.getTimeZone("UTC");
         this.exerciseId = essayExercise.getExerciseId();
         this.exerciseName = essayExercise.getExerciseName();
         this.topicId = essayExercise.getTopicId();

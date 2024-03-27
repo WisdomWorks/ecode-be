@@ -6,11 +6,8 @@ import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 
 public interface EssayExerciseService {
     EssayExercise createEssayExercise (EssayExercise essayExercise);
-
     EssayExercise getEssayExerciseById(String exerciseId);
-
     void deleteEssayExerciseById(String exerciseId);
-
     EssayExercise updateEssayExercise(String exerciseId,UpdateEssayExerciseRequest updateRequest);
     EssayDetailResponse getEssayExerciseDetail(String exerciseId);
 }

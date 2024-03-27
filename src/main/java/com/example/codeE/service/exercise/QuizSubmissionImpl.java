@@ -1,6 +1,6 @@
 package com.example.codeE.service.exercise;
 
-import com.example.codeE.model.exercise.QuizExercise;
+import com.example.codeE.model.exercise.EssaySubmission;
 import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.exercise.common.QuizAnswers;
 import com.example.codeE.model.exercise.common.QuizChoice;
@@ -11,8 +11,10 @@ import com.example.codeE.repository.QuizSubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class QuizSubmissionImpl implements QuizSubmissionService{
@@ -33,6 +35,35 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
             quizAnswersList.get(i).setQuizAnswerId(savedQuizAns.getQuizAnswerId());
         }
         return this.quizSubmissionRepository.save(quizSubmission);
+    }
+
+    @Override
+    public List<QuizSubmission> getQuizSubmissionByExerciseId(String exerciseId) {
+        List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
+        var result = new ArrayList<QuizSubmission>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public QuizSubmission getStudentQuizSubmission(String submissionId) {
+        return this.quizSubmissionRepository.findById(submissionId).orElseThrow(() -> new NoSuchElementException("No Submission found"));
+    }
+
+    @Override
+    public List<QuizSubmission> getQuizSubmissionByUserId(String exerciseId, String userId) {
+        List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
+        var result = new ArrayList<QuizSubmission>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
+                result.add(item);
+            }
+        }
+        return result;
     }
 
     @Override

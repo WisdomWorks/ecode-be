@@ -13,7 +13,7 @@ public interface ExerciseService {
     Exercise saveEsayExercise(EssayExercise exercise);
     List<Exercise> getExercisesByCourseId(String courseId);
     Exercise getExerciseById(String exerciseId);
-    Exercise getDetailExercise(String exerciseId, String key);
+    Exercise getDetailExercise(String exerciseId, String key, String studentId);
     void deleteExerciseById(String exerciseId);
     List<ExerciseResponse> getExercisesByTopicId(String topicId);
     List<ExerciseResponse> getExercisesByUserId(String topicId, String userId);
