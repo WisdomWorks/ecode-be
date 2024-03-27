@@ -23,10 +23,10 @@ public class CodeExercise extends Exercise {
 //    @Field("code")
 //    private String code;
 
-    @NotBlank(message = "Problem name is required")
-    @Size(max = 100, message = "Problem name must not exceed 100 characters")
-    @Field("name")
-    private String name;
+//    @NotBlank(message = "Problem name is required")
+//    @Size(max = 100, message = "Problem name must not exceed 100 characters")
+//    @Field("name")
+//    private String name;
 
     @Field
     private String description;

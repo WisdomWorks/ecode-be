@@ -15,4 +15,9 @@ public class RuntimeVersionImpl implements RuntimeVersionService{
     public void saveRuntimeVersion(RuntimeVersion runtimeVersion) {
         runtimeVersionRepository.save(runtimeVersion);
     }
+
+    @Override
+    public void deleteAllRuntimeVersion() {
+        runtimeVersionRepository.deleteAll();
+    }
 }

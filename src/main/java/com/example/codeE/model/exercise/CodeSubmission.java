@@ -2,6 +2,7 @@ package com.example.codeE.model.exercise;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.service.judge.JudgeImpl;
+import com.example.codeE.service.judge.JudgeService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class CodeSubmission extends Submission {
     private Double time;
 
     @Field
-    private Double memory;
+    private Integer memory;
 
     @Field
     private String languageId;
@@ -57,9 +58,9 @@ public class CodeSubmission extends Submission {
     private String source;
 
     @Autowired
-    private JudgeImpl judgeImpl;
+    private JudgeService judgeService;
 
-    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Double memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
+    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
         super(studentId, exerciseId, score, reviewable);
         this.time = time;
         this.memory = memory;
@@ -101,7 +102,7 @@ public class CodeSubmission extends Submission {
         return getResultFromCode(this.result, this.casePoints, this.caseTotal);
     }
 
-    public Double memoryBytes() {
+    public Integer memoryBytes() {
         return this.memory * 1024;
     }
 
@@ -119,12 +120,12 @@ public class CodeSubmission extends Submission {
 
     public void judge(boolean rejudge, boolean forceJudge) {
         if (forceJudge || !this.isLocked()) {
-            judgeImpl.judgeSubmission(this, rejudge);
+            judgeService.judgeSubmission(this, rejudge);
         }
     }
 
     public void abort() {
-        judgeImpl.abortSubmission(this);
+        judgeService.abortSubmission(this);
     }
 
     public boolean isGraded() {

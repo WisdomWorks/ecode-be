@@ -29,8 +29,9 @@ public class JudgeController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> exampleRq() throws IOException {
         CodeSubmission submission = new CodeSubmission();
-        submission.setSubmissionId("1");
-        submission.setExerciseId("1");
+        submission.setExerciseId("6603897fdd74386f36d28783");
+        submission.setTime(2.0);
+        submission.setMemory(1);
         submission.setLanguageId("C");
         submission.setSource("#include <stdio.h>\nint main() { printf(\"Hello, World!\"); return 0; }");
 

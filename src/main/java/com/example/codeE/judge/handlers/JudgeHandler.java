@@ -125,6 +125,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                 this.executors.keySet().stream().toList()
         );
 
+        this.runtimeVersionService.deleteAllRuntimeVersion();
+
         for (Map.Entry<String, List<List<Object>>> entry : this.executors.entrySet()) {
             String languageId = entry.getKey(); // Lấy languageId từ key
             List<List<Object>> values = entry.getValue(); // Lấy danh sách các giá trị từ value
@@ -440,31 +442,22 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                 submissionTestCase.setSubmissionId(submissionId);
                 int status = testCase.get("status").asInt();
                 // TODO: Fix this
-                switch (status) {
-                    case 4:
-                        submissionTestCase.setStatus("TLE");
-                        break;
-                    case 8:
-                        submissionTestCase.setStatus("MLE");
-                        break;
-                    case 64:
-                        submissionTestCase.setStatus("OLE");
-                        break;
-                    case 2:
-                        submissionTestCase.setStatus("RTE");
-                        break;
-                    case 16:
-                        submissionTestCase.setStatus("IR");
-                        break;
-                    case 1:
-                        submissionTestCase.setStatus("WA");
-                        break;
-                    case 32:
-                        submissionTestCase.setStatus("SC");
-                        break;
-                    default:
-                        submissionTestCase.setStatus("AC");
-                        break;
+                if ((status & 4) != 0) {
+                    submissionTestCase.setStatus("TLE");
+                } else if ((status & 8) != 0) {
+                    submissionTestCase.setStatus("MLE");
+                } else if ((status & 64) != 0) {
+                    submissionTestCase.setStatus("OLE");
+                } else if ((status & 2) != 0) {
+                    submissionTestCase.setStatus("RTE");
+                } else if ((status & 16) != 0) {
+                    submissionTestCase.setStatus("IR");
+                } else if ((status & 1) != 0) {
+                    submissionTestCase.setStatus("WA");
+                } else if ((status & 32) != 0) {
+                    submissionTestCase.setStatus("SC");
+                } else {
+                    submissionTestCase.setStatus("AC");
                 }
                 submissionTestCase.setTime(testCase.get("time").asDouble());
                 submissionTestCase.setMemory(testCase.get("memory").asDouble());
