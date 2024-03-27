@@ -1,0 +1,259 @@
+import java.lang.reflect.Method;
+import java.lang.*;
+import java.util.*;
+import java.util.stream.*;
+import java.util.stream.Collectors;
+
+public class Main {
+    public static Object callMethod(
+                String className, String methodName,
+                String[] parameterTypes, Object... args) {
+            try {
+                Class<?> targetClass = Class.forName(className);
+                Object instance = targetClass.newInstance();
+
+                Class<?>[] paramTypes = new Class<?>[parameterTypes.length];
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    paramTypes[i] = mapTypeNameToClass(parameterTypes[i]);
+                }
+
+                Method method = instance.getClass().getMethod(methodName, paramTypes);
+                return method.invoke(instance, args);
+            } catch (Exception e) {
+                System.out.print(e);
+            }
+            return null;
+        }
+
+        private static Class<?> mapTypeNameToClass(String typeName) {
+            switch (typeName) {
+                case "int":
+                    return int.class;
+                case "int[]":
+                    return int[].class;
+                case "float":
+                    return float.class;
+                case "float[]":
+                    return float[].class;
+                case "double":
+                    return double.class;
+                case "double[]":
+                    return double[].class;
+                case "char":
+                    return char.class;
+                case "char[]":
+                    return char[].class;
+                case "boolean":
+                    return boolean.class;
+                case "boolean[]":
+                    return boolean[].class;
+                case "String":
+                    return String.class;
+                case "String[]":
+                    return String[].class;
+                default:
+                    try {
+                        return Class.forName(typeName);
+                    } catch (ClassNotFoundException e) {
+                        System.out.print(e);
+                        return null;
+                    }
+            }
+        }
+
+        public static Object[] convertParameters(String[] parameters, String[] parameterTypes) {
+                List<Object> convertedParameters = new ArrayList<>();
+                try {
+                    for (int i = 0; i < parameters.length; i++) {
+                        String parameterType = parameterTypes[i];
+                        String parameter = parameters[i];
+                        String[] stringArr;
+
+                        switch(parameterType){
+                            case "int":
+                                int intValue = Integer.parseInt(parameter);
+                                convertedParameters.add(intValue);
+                                break;
+                            case "int[]":
+                                convertedParameters.add(
+                                        Arrays.stream(parameter
+                                                        .substring(1, parameter.length() - 1)
+                                                        .split(", "))
+                                        .mapToInt(Integer::parseInt).toArray());
+                                break;
+                            case "double":
+                                double doubleValue = Double.parseDouble(parameter);
+                                convertedParameters.add(doubleValue);
+                                break;
+                            case "double[]":
+                            case "ArrayList<Double>":
+                                convertedParameters.add(Arrays.stream(
+                                                parameter
+                                                        .substring(1, parameter.length() - 1)
+                                                        .split(", "))
+                                        .mapToDouble(Double::parseDouble).toArray());
+                                break;
+                            case "float":
+                                float floatValue = Float.parseFloat(parameter);
+                                convertedParameters.add(floatValue);
+                                break;
+                            case "float[]":
+                                stringArr = parameter.substring(1, parameter.length() - 1).split(", ");
+                                float[] floatArray = new float[stringArr.length];
+                                for(int index=0; index< stringArr.length; index++){
+                                    floatArray[index] = Float.parseFloat(stringArr[index]);
+                                }
+                                convertedParameters.add(floatArray);
+                                break;
+                            case "String":
+                                convertedParameters.add(parameter);
+                                break;
+                            case "String[]":
+                            case "ArrayList<String>":
+                                convertedParameters.add(parameter
+                                        .substring(1, parameter.length() - 1)
+                                        .split(", "));
+                                break;
+                            case "char":
+                                convertedParameters.add(parameter.charAt(0));
+                                break;
+                            case "char[]":
+                                char[] charArray = parameter
+                                        .substring(1, parameter.length() - 1)
+                                        .replaceAll("\\s+", "")
+                                        .toCharArray();
+                                convertedParameters.add(charArray);
+                                break;
+                            case "boolean":
+                                convertedParameters.add(Boolean.parseBoolean(parameter));
+                                break;
+                            case "boolean[]":
+                                stringArr = parameter.substring(1, parameter.length() - 1).split(", ");
+                                boolean[] boolArray = new boolean[stringArr.length];
+                                for(int index=0; index< stringArr.length; index++){
+                                    boolean value = Boolean.parseBoolean(stringArr[index]);
+                                    boolArray[index] = value;
+                                }
+                                convertedParameters.add(boolArray);
+                                break;
+                            default:
+                                try {
+                                    Object instance = Class.forName(parameterType).newInstance();
+                                    convertedParameters.add(instance);
+                                } catch (ClassNotFoundException e) {
+                                    System.out.print(e);
+                                }
+                        }
+                    }
+                }  catch (Exception e) {
+                    System.out.print(e);
+                }
+                return convertedParameters.toArray();
+            }
+
+        public static void printResultForSubmisstion(
+                String className, String methodName,
+                String expectedOutputType, String expectedOutput,
+                String[] parameterTypes, Object... args){
+            Object result = callMethod(className, methodName, parameterTypes, args);
+            Object convertedOutput = convertParameters(new String[] {expectedOutput}, new String[] {expectedOutputType})[0];
+            if (result.getClass().isArray()) {
+                switch (expectedOutputType){
+                    case "int[]":
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToIntArr(result), ConvertObjectToArray.convertToIntArr(convertedOutput)));
+                        break;
+                    case "float[]":
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToFloatArr(result), ConvertObjectToArray.convertToFloatArr(convertedOutput)));
+                        break;
+                    case "double[]":
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToDoubleArr(result), ConvertObjectToArray.convertToDoubleArr(convertedOutput)));
+                        break;
+                    case "char[]":
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToCharArr(result), ConvertObjectToArray.convertToCharArr(convertedOutput)));
+                        break;
+                    case "boolean[]":
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToBooleanArr(result), ConvertObjectToArray.convertToBooleanArr(convertedOutput)));
+                        break;
+                    case "String[]":
+                        System.out.println(Arrays.equals(ConvertObjectToArray.convertToStringArr(result), ConvertObjectToArray.convertToStringArr(convertedOutput)));
+                        break;
+                    default:
+                        System.out.println("false");
+                }
+            } else {
+                if (convertParameters(new String[] {expectedOutput}, new String[] {expectedOutputType})[0].equals(result)) {
+                    System.out.println("true");
+                } else {
+                    System.out.println("false");
+                }
+            }
+        }
+
+        public static void printResultForRunning(
+                String className, String methodName,
+                String[] parameterTypes, Object... args){
+            Object result = callMethod(className, methodName, parameterTypes, args);
+            if (result.getClass().isArray()){
+                if (result.getClass() == int[].class) {
+                    System.out.print(Arrays.toString((int[]) result));
+                }
+                if (result.getClass() == float[].class) {
+                    System.out.print(Arrays.toString((float[]) result));
+                }
+                if (result.getClass() == double[].class) {
+                    System.out.print(Arrays.toString((double[]) result));
+                }
+                if (result.getClass() == char[].class) {
+                    System.out.print("[");
+                    System.out.print((char[]) result);
+                    System.out.print("]");
+                }
+                if (result.getClass() == boolean[].class) {
+                    System.out.print(Arrays.toString((boolean[]) result));
+                }
+                if (result.getClass() == String[].class) {
+                    System.out.print(Arrays.toString((String[]) result));
+                }
+            } else {
+                System.out.print(result);
+            }
+        }
+
+    public static void main(String[] args) throws Exception {
+        String className = "JavaClass";
+        String methodName = %s;
+        boolean isCodeRunning = %s;
+
+        //Teacher's testcases
+        String [][] inputs = {%s};
+        String [][] inputTypes = {%s};
+        String[] outputs = {%s};
+        String[] outputTypes = {%s};
+
+        //Student's inputs
+        String[] enteredInput = %s;
+        String[] enteredInputType = %s;
+
+        if (isCodeRunning){
+            Object[] convertedParameters = convertParameters(enteredInput, enteredInputType);
+
+            printResultForRunning(
+                    className, methodName,
+                    enteredInputType, Arrays.stream(convertedParameters).toArray());
+        } else {
+            for (int i = 0; i < inputs.length; i++){
+                String[] parameterTypes = inputTypes[i];
+                String[] parameters = inputs[i];
+                String expectedOutput = outputs[i];
+                String expectedOutputType = outputTypes[i];
+
+                Object[] convertedParameters = convertParameters(parameters, parameterTypes);
+
+                printResultForSubmisstion(
+                        className, methodName,
+                        expectedOutputType, expectedOutput,
+                        parameterTypes, Arrays.stream(convertedParameters).toArray());
+            }
+        }
+    }
+}
