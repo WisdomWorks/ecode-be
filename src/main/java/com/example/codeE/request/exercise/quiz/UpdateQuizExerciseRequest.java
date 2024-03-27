@@ -16,6 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateQuizExerciseRequest {
+    @NotNull(message = "Exercise ID is required")
+    private String exerciseId;
     @NotNull(message = "Topic ID is required")
     private String topicId;
     @NotNull(message = "Exercise's name is required")
