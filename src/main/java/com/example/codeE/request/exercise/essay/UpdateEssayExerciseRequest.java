@@ -12,6 +12,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateEssayExerciseRequest {
+    @NotNull(message = "Exercise ID is required")
+    private String exerciseId;
     @NotNull(message = "Topic ID is required")
     private String topicId;
     @NotNull(message = "Exercise's name is required")
