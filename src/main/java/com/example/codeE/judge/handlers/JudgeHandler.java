@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.zip.DataFormatException;
 
 @Getter
 @Setter
@@ -78,15 +79,10 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     @Autowired
     private  SubmissionTestCaseService submissionTestCaseService;
 
-//    @Override
-//    public void handlerAdded(ChannelHandlerContext ctx) {
-//        channelGroup.add(ctx.channel());
-//    }
-//
-//    @Override
-//    public void handlerRemoved(ChannelHandlerContext ctx) {
-//        channelGroup.remove(ctx.channel());
-//    }
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) {
+        System.out.println("Client disconnected");
+    }
 
     public JudgeHandler(){
         this.judge = new Judge();
@@ -117,7 +113,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
 
     public void onConnect() {
-        this.timeout = 15;
+//        this.timeout = 15;
         //Output log
     }
 
@@ -191,7 +187,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             return null;
         }
 
-        this.timeout = 60;
+//        this.timeout = 60;
 
         JsonNode problemsNode = packet.get("problems");
         if (problemsNode.isArray()) {
@@ -243,21 +239,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void submit(String submissionId, String problemId, String language, String source) {
-
-        SubmissionData data = getRelatedSubmissionData(submissionId);
+//        SubmissionData data = getRelatedSubmissionData(submissionId);
         ObjectNode response = JsonNodeFactory.instance.objectNode();
-
-//        if (data != null) {
-//            response.put("name", "submission-request");
-//            response.put("submission-id", submissionId);
-//            response.put("problem-id", problemId);
-//            response.put("language", language);
-//            response.put("source", source);
-//            response.put("time-limit", data.getTime());
-//            response.put("memory-limit", data.getMemory());
-//            response.put("short-circuit", data.getShortCircuit());
-////            response.put("pretests-only", data.isPretests_only());
-//        }
 
         response.put("name", "submission-request");
         response.put("submission-id", 5);
@@ -269,9 +252,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         response.put("short-circuit", true);
 
         ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
-        metaNode.put("pretests-only", false);
+        metaNode.put("pretests-only", true);
         metaNode.put("in-contest", false);
-        metaNode.put("attempt-no", 3);
+        metaNode.put("attempt-no", 1);
         metaNode.put("user","ssssss");
 
         response.set("meta", metaNode);
@@ -572,23 +555,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                         }
                     }
                 });
+                break;
             }
-
-            // Write the buffer to the channel
-//            ChannelFuture future = channel.writeAndFlush(buffer);
-
-            // Add a listener to handle the write result
-//            future.addListener(new ChannelFutureListener() {
-//                @Override
-//                public void operationComplete(ChannelFuture future) throws Exception {
-//                    if (future.isSuccess()) {
-//                        System.out.println("Request sent successfully");
-//                    } else {
-//                        System.out.println("Failed to send request");
-//                        // Handle the failure case
-//                    }
-//                }
-//            });
         } catch (IOException e) {
             e.printStackTrace();
             // Handle the JSON processing exception
@@ -596,20 +564,21 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        super.channelRegistered(ctx);
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException, DataFormatException {
         channelGroup.add(ctx.channel());
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode result = JsonNodeFactory.instance.objectNode();
-        String printResult = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
-        System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
+
+        ByteBuf buf2 = (ByteBuf) msg;
+        byte[] compressedData = new byte[buf2.readableBytes()];
+        buf2.readBytes(compressedData);
+
+        String decompressedData = ZlibCompression.dezlibify(compressedData);
+        System.out.println("Received from client: " + decompressedData);
+//        System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
         try {
             String packetString = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
-            JsonNode packet = mapper.readTree(packetString);
+            JsonNode packet = mapper.readTree(decompressedData);
 
             Function<ObjectNode, ObjectNode> handler = this.handlers.get(packet.get("name").asText());
             result = handler.apply((ObjectNode) packet);
@@ -623,7 +592,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             byte[] compressed = ZlibCompression.zlibify(mapper.writeValueAsString(result));
 //            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());
             ByteBuf buf = Unpooled.wrappedBuffer(compressed);
-            final SpringBootHandler.WriteListener listener = new SpringBootHandler.WriteListener() {
+            final WriteListener listener = new WriteListener() {
                 @Override
                 public void messageRespond(boolean success) {
                     System.out.println(success ? "reply success" : "reply fail");
@@ -639,12 +608,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                 }
             });
         }
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.ctx = ctx;
-        super.channelActive(ctx);
     }
 
     public interface WriteListener {

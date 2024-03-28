@@ -94,10 +94,18 @@ public class SpringBootHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode result = JsonNodeFactory.instance.objectNode();
-        System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
+
+        ByteBuf buf2 = (ByteBuf) msg;
+        byte[] compressedData = new byte[buf2.readableBytes()];
+        buf2.readBytes(compressedData);
+
+        String decompressedData = ZlibCompression.dezlibify(compressedData);
+        System.out.println("Received from client: " + decompressedData);
+
+//        System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
         try {
             String packetString = ((ByteBuf) msg).toString(CharsetUtil.UTF_8);
-            JsonNode packet = mapper.readTree(packetString);
+            JsonNode packet = mapper.readTree(decompressedData);
             Function<ObjectNode, ObjectNode> handler = this.methodMap.get(packet.get("name").asText());
             result = handler.apply((ObjectNode) packet);
 
