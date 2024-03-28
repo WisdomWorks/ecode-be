@@ -239,25 +239,28 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void submit(String submissionId, String problemId, String language, String source) {
-//        SubmissionData data = getRelatedSubmissionData(submissionId);
+        SubmissionData data = getRelatedSubmissionData(submissionId);
         ObjectNode response = JsonNodeFactory.instance.objectNode();
 
-        response.put("name", "submission-request");
-        response.put("submission-id", 5);
-        response.put("problem-id", "6603897fdd74386f36d28783");
-        response.put("language", "C");
-        response.put("source", "#include <stdio.h>\nint main() { printf(\"Hello, World!\"); return 0; }");
-        response.put("time-limit", 2.0);
-        response.put("memory-limit", 1);
-        response.put("short-circuit", true);
+        if (data != null) {
 
-        ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
-        metaNode.put("pretests-only", true);
-        metaNode.put("in-contest", false);
-        metaNode.put("attempt-no", 1);
-        metaNode.put("user","ssssss");
+            response.put("name", "submission-request");
+            response.put("submission-id", Integer.parseInt(submissionId));
+            response.put("problem-id", problemId);
+            response.put("language", language);
+            response.put("source", source);
+            response.put("time-limit", data.time); //nhma may cai nay null ma, dung ko v :)))
+            response.put("memory-limit", data.memory);
+            response.put("short-circuit", data.shortCircuit);
 
-        response.set("meta", metaNode);
+            ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
+            metaNode.put("pretests-only", true);
+            metaNode.put("in-contest", false);
+            metaNode.put("attempt-no", 1);
+            metaNode.put("user","id");
+
+            response.set("meta", metaNode);
+        }
 
         this.working = submissionId;
         send(response);
@@ -273,7 +276,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             if (submission == null) {
                 LoggerHelper.logError("Submission vanished: " + id);
                 return null;
-            }
+            }// loi eo gi hai v :)))))
 
             CodeExercise problem = codeExerciseService.getProblemById(submission.getExerciseId());
             String problemId = submission.getExerciseId();
@@ -299,6 +302,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                     isPretested
             );
         } catch (Exception e) {
+            e.printStackTrace();
             LoggerHelper.logError("Something wrong with submission " + id);
             return null;
         }
@@ -514,8 +518,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SubmissionData {
-        private String submissionDataId;
-
         private Double time;
 
         private Integer memory;
@@ -523,13 +525,6 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         private Boolean shortCircuit;
 
         private boolean pretests_only;
-
-        public SubmissionData(Double time, Integer memory, Boolean shortCircuit, boolean isPretested) {
-            this.time = time;
-            this.memory = memory;
-            this.shortCircuit = shortCircuit;
-            this.pretests_only = isPretested;
-        }
     }
 
     private void send(ObjectNode request) {

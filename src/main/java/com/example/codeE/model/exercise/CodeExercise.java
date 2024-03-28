@@ -1,7 +1,5 @@
 package com.example.codeE.model.exercise;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,19 +30,19 @@ public class CodeExercise extends Exercise {
     private String description;
 
 //    @NotNull(message = "Time limit is required")
-    @Field("time_limit")
+    @Field
     private Double timeLimit;
 
-    @Field("memory_limit")
+    @Field
 //    @NotNull(message = "Memory limit is required")
     private Integer memoryLimit;
 
-    @Field("short_circuit")
+    @Field
     private Boolean shortCircuit;
 
     @Field
     private boolean partial = true;
 
-    @Field("allowed_language_ids")
+    @Field
     private List<String> allowedLanguageIds;
 }

@@ -1,16 +1,13 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.helper.ZlibCompression;
+import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
-import com.example.codeE.service.judge.ClientService;
 import com.example.codeE.service.judge.JudgeService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import com.mongodb.client.MongoDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,10 +27,17 @@ public class JudgeController {
     @Autowired
     private JudgeService judgeService;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> exampleRq() throws IOException {
+        MongoDatabase database = mongoTemplate.getDb();
+        AutoIncrement autoIncrement = new AutoIncrement(database);
+
         CodeSubmission submission = new CodeSubmission(judgeService);
+        submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
         submission.setExerciseId("6603897fdd74386f36d28783");
         submission.setTime(2.0);
         submission.setMemory(1);

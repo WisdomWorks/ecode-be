@@ -26,4 +26,9 @@ public class CodeExerciseImpl implements CodeExerciseService{
     public CodeExercise getProblemById(String problemId) {
         return codeExerciseRepository.findById(problemId).orElseThrow(() -> new RuntimeException("Problem not found"));
     }
+
+    @Override
+    public CodeExercise getCodeExerciseById(String exerciseId) {
+        return codeExerciseRepository.findById(exerciseId).get();
+    }
 }

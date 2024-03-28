@@ -7,4 +7,6 @@ import java.util.List;
 public interface CodeExerciseService {
     List<String> getProblemIds(List<CodeExercise> problems);
     CodeExercise getProblemById(String problemId);
+
+    CodeExercise getCodeExerciseById(String exerciseId);
 }
