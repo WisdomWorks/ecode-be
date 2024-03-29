@@ -4,15 +4,14 @@ import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizExercise;
-import com.example.codeE.repository.ExerciseRepository;
-import com.example.codeE.repository.GroupRepository;
-import com.example.codeE.repository.GroupStudentRepository;
+import com.example.codeE.model.topic.Topic;
+import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.ExerciseStudentResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
+import com.example.codeE.request.user.StudentSubmissionInformation;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
-import jakarta.ws.rs.NotSupportedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -34,6 +33,10 @@ public class ExerciseImpl implements ExerciseService{
     private EssaySubmissionService essaySubmissionService;
     @Autowired
     private QuizSubmissionService quizSubmissionService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private TopicRepository topicRepository;
 
     @Override
     public Exercise saveQuizExercise(QuizExercise exercise) {
@@ -52,21 +55,40 @@ public class ExerciseImpl implements ExerciseService{
     }
 
     @Override
-    public List<Exercise> getExercisesByCourseId(String courseId) {
-//        List<String> topicIdList = new ArrayList<>();
-//        for(TopicGetResponse topic: this.topicService.getAllTopicsByCourseId(courseId)) {
-//            topicIdList.add(topic.getTopicId());
-//        }
-//        List<Exercise> exercises = new ArrayList<>();
-//        for(String id: topicIdList){
-//            for(Exercise exc: this.exerciseRepository.findAll()){
-//                if (exc.getTopicId().equals(id)) {
-//                    exercises.add(exc);
-//                }
-//            }
-//        }
-//        return exercises;
-        throw new NotSupportedException("Api not support");
+    public List<ExerciseResponse> getExercisesByCourseId(String courseId) {
+        List<String> topicIdList = new ArrayList<>();
+        for (Topic topic : this.topicRepository.findAll()) {
+            System.out.println(topic.getTopicId());
+            if (topic.getCourseId().equals(courseId)) topicIdList.add(topic.getTopicId());
+        }
+        List<ExerciseResponse> exercises = new ArrayList<>();
+        for (String id : topicIdList) {
+            exercises.addAll(this.getExercisesByTopicId(id));
+        }
+        for (int i = 0; i < exercises.size(); i++) {
+            switch (exercises.get(i).getType()) {
+                case "essay" -> {
+                    var submission = this.essaySubmissionService.getEssaySubmissionByExerciseId(exercises.get(i).getExerciseId());
+                    List<StudentSubmissionInformation> submissionResponse = new ArrayList<>();
+                    for (var sub : submission) {
+                        var userInfor = this.userRepository.findById(sub.getStudentId()).get();
+                        submissionResponse.add(new StudentSubmissionInformation(userInfor.getUserId(), userInfor.getName(), sub.getDateSubmit(), sub.isReviewable()));
+                    }
+                    exercises.get(i).setStudents(submissionResponse);
+                }
+                case "quiz" -> {
+                    var submission = this.quizSubmissionService.getQuizSubmissionByExerciseId(exercises.get(i).getExerciseId());
+                    List<StudentSubmissionInformation> submissionResponse = new ArrayList<>();
+                    for (var sub : submission) {
+                        var userInfor = this.userRepository.findById(sub.getStudentId()).get();
+                        submissionResponse.add(new StudentSubmissionInformation(userInfor.getUserId(), userInfor.getName(), sub.getDateSubmit(), sub.isReviewable()));
+                    }
+                    exercises.get(i).setStudents(submissionResponse);
+                }
+                //code exercise here
+            }
+        }
+        return exercises;
     }
 
     @Override

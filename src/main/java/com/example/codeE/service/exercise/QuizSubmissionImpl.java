@@ -1,13 +1,10 @@
 package com.example.codeE.service.exercise;
 
-import com.example.codeE.model.exercise.EssaySubmission;
 import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.exercise.common.QuizAnswers;
 import com.example.codeE.model.exercise.common.QuizChoice;
 import com.example.codeE.model.exercise.common.QuizQuestion;
-import com.example.codeE.repository.QuizAnswersRepository;
-import com.example.codeE.repository.QuizQuestionRepository;
-import com.example.codeE.repository.QuizSubmissionRepository;
+import com.example.codeE.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,15 +17,18 @@ import java.util.NoSuchElementException;
 public class QuizSubmissionImpl implements QuizSubmissionService{
     @Autowired
     private QuizSubmissionRepository quizSubmissionRepository;
-
     @Autowired
     private QuizQuestionRepository quizQuestionRepository;
-
     @Autowired
     private QuizAnswersRepository quizAnswersRepository;
-
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ExerciseRepository exerciseRepository;
     @Override
     public QuizSubmission createSubmission(QuizSubmission quizSubmission) {
+        this.userRepository.findById(quizSubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + quizSubmission.getStudentId()));
+        this.exerciseRepository.findById(quizSubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + quizSubmission.getExerciseId()));
         List<QuizAnswers> quizAnswersList = quizSubmission.getSubmission();
         for(int i=0; i<quizAnswersList.size(); i++){
             QuizAnswers savedQuizAns = this.quizAnswersRepository.save(quizAnswersList.get(i));

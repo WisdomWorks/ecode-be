@@ -1,8 +1,9 @@
 package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.EssaySubmission;
-import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.repository.EssaySubmissionRepository;
+import com.example.codeE.repository.ExerciseRepository;
+import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,14 @@ import java.util.NoSuchElementException;
 public class EssaySubmissionImpl implements EssaySubmissionService{
     @Autowired
     private EssaySubmissionRepository essaySubmissionRepository;
-
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ExerciseRepository exerciseRepository;
     @Override
     public EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission) {
+        this.userRepository.findById(essaySubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + essaySubmission.getStudentId()));
+        this.exerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
         var submission = new EssaySubmission(essaySubmission, 0);
         return this.essaySubmissionRepository.save(submission);
     }

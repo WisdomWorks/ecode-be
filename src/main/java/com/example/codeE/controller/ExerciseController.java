@@ -2,6 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
+import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
@@ -77,16 +78,8 @@ public class ExerciseController {
 
     @GetMapping
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllExerciseByCourseId(@RequestParam String courseId) {
-        List<Exercise> exercises = this.exerciseService.getExercisesByCourseId(courseId);
-//        List<CodeExercise> codeExercises = new ArßrayList<>();
-//        for(Exercise exercise: exercises) {
-//            switch (exercise.getType()) {
-//                case "code":
-//                    codeExercises.add(this.codeExerciseService.getCodeExerciseById(exercise.getExerciseId()));
-//                    break;
-//            }
-//        }
+    public  ResponseEntity<?> getAllExerciseByCourseId(@RequestParam String courseId) {
+        List<ExerciseResponse> exercises = this.exerciseService.getExercisesByCourseId(courseId);
         return ResponseEntity.status(HttpStatus.OK).body(exercises);
     }
 
@@ -95,13 +88,7 @@ public class ExerciseController {
     public ResponseEntity<?> getExerciseById(@PathVariable String exerciseId){
         System.out.println(exerciseId);
         Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
-        return switch (exercise.getType()) {
-            case "quiz" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseById(exerciseId));
-            case "essay" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseById(exerciseId));
-            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
-        };
+        return  ResponseEntity.status(HttpStatus.OK).body(exercise);
     }
     @GetMapping
     @RequestMapping(value = "detail/{exerciseId}", method = RequestMethod.GET)
@@ -194,7 +181,7 @@ public class ExerciseController {
     }
 
     @GetMapping
-    @RequestMapping(value = "essay/submit/{submissionId}", method = RequestMethod.GET)
+    @RequestMapping(value = "submit/{submissionId}", method = RequestMethod.GET)
     public ResponseEntity<?> getStudentEssaySubmission(@PathVariable String submissionId, @RequestParam String type) {
         return switch (type) {
             case "quiz" ->
