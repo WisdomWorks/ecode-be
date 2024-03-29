@@ -42,7 +42,20 @@ public class JudgeController {
         submission.setTime(2.0);
         submission.setMemory(1);
         submission.setLanguageId("C");
-        submission.setSource("#include <stdio.h>\nint main() { printf(\"Hello, World!\"); return 0; }");
+        submission.setSource("#include <stdio.h>\n" +
+                "\n" +
+                "int main() {\n" +
+                "    int num_cases;\n" +
+                "    scanf(\"%d\", &num_cases);\n" +
+                "\n" +
+                "    for (int i = 0; i < num_cases; i++) {\n" +
+                "        int a, b;\n" +
+                "        scanf(\"%d %d\", &a, &b);\n" +
+                "        printf(\"%d\\n\", a + b);\n" +
+                "    }\n" +
+                "\n" +
+                "    return 0;\n" +
+                "}");
 //        submission.setStudentId("id");
 //        submission.setError("error");
 //        submission.setJudgedOn("judgedOn");

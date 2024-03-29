@@ -1,16 +1,22 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.exercise.common.TestCase;
 import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
 import com.example.codeE.service.exercise.common.TestcaseService;
+import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
+import com.example.codeE.service.judge.JudgeService;
+import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +52,9 @@ public class ExerciseController {
     private TestcaseService testcaseService;
 
     @Autowired
+    private CodeExerciseService codeExerciseService;
+
+    @Autowired
     private QuizExerciseService quizExerciseService;
 
     @Autowired
@@ -54,6 +65,15 @@ public class ExerciseController {
 
     @Autowired
     private EssaySubmissionService essaySubmissionService;
+
+    @Autowired
+    private CodeSubmissionService codeSubmissionService;
+
+    @Autowired
+    private JudgeService judgeService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
@@ -115,6 +135,28 @@ public class ExerciseController {
                 return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseById(exerciseId));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong");
+    }
+
+    @PostMapping
+    @RequestMapping(value = "code/submit", method = RequestMethod.POST)
+    public ResponseEntity<?> submitCodeExercise(@Valid @RequestBody SubmitCodeExerciseRequest request){
+        MongoDatabase database = mongoTemplate.getDb();
+        AutoIncrement autoIncrement = new AutoIncrement(database);
+
+        CodeSubmission submission = new CodeSubmission(judgeService);
+        submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
+        submission.setExerciseId(request.getExerciseId());
+        submission.setLanguageId(request.getLanguageId());
+        submission.setSource(request.getSource());
+
+        CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
+        submission.setTime(codeExercise.getTimeLimit());
+        submission.setMemory(codeExercise.getMemoryLimit());
+        submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
+        savedSubmission.judge(false, false);
+        return ResponseEntity.status(HttpStatus.OK).body("");
     }
 
     @PostMapping

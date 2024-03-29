@@ -229,8 +229,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.put("name", "handshake-success");
-        pingThread = new Thread(this::pingThread, "PingThread");
-        pingThread.start();
+//        pingThread = new Thread(this::pingThread, "PingThread");
+//        pingThread.start();
 
         connected();
         return response;
@@ -247,7 +247,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.put("problem-id", problemId);
             response.put("language", language);
             response.put("source", source);
-            response.put("time-limit", data.time); //nhma may cai nay null ma, dung ko v :)))
+            response.put("time-limit", data.time);
             response.put("memory-limit", data.memory);
             response.put("short-circuit", data.shortCircuit);
 
@@ -605,6 +605,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String requestJson = mapper.writeValueAsString(request);
+            System.out.println("Send submission: " + requestJson);
             byte[] compressedRequest = ZlibCompression.zlibify(requestJson);
             ByteBuf buffer = Unpooled.wrappedBuffer(compressedRequest);
 

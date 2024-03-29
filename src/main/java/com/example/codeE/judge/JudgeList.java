@@ -50,6 +50,7 @@ public class JudgeList {
                     String problemId = ((CodeSubmission) node).getExerciseId();
                     String languageKey = ((CodeSubmission) node).getLanguageId();
                     String source = ((CodeSubmission) node).getSource();
+                    System.out.println(((CodeSubmission) node).getSource());
                     try {
                         this.judge.submit(submissionId, problemId, languageKey, source);
                     } catch (Exception e) {
@@ -152,7 +153,7 @@ public class JudgeList {
                     System.out.println("Failed to dispatch " + submissionId + " (" + problem + ", " + language + ") to " + JudgeHandlerVariables.name);
                 }
             } else {
-                CodeSubmission submission = new CodeSubmission(submissionId, problem, language, source, judgeId);
+                CodeSubmission submission = new CodeSubmission(submissionId, problem, language, judgeId, source);
                 JudgeListVariables.queue.add(priority, submission);
                 JudgeListVariables.nodeMap.put(submissionId, submission);
                 System.out.println("Queued submission: " + submissionId);
