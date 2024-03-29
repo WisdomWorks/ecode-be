@@ -2,12 +2,14 @@ package com.example.codeE.request.exercise;
 
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.request.group.GroupTopicResponse;
+import com.example.codeE.request.user.StudentSubmissionInformation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class ExerciseResponse {
     private String type;
     private int reAttempt;
     private List<GroupTopicResponse> groups;
+    private List<StudentSubmissionInformation> students;
 
     public ExerciseResponse(Exercise exercise, List<GroupTopicResponse> groups) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -43,5 +46,6 @@ public class ExerciseResponse {
         this.type = exercise.getType();
         this.reAttempt = exercise.getReAttempt();
         this.groups = groups;
+        this.students = new ArrayList<>();
     }
 }

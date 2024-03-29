@@ -1,14 +1,13 @@
 package com.example.codeE.request.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.request.group.GroupTopicResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,7 +24,7 @@ public class ExerciseStudentResponse {
     private String type;
 
     public ExerciseStudentResponse(Exercise exercise) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
         this.exerciseId = exercise.getExerciseId();
         this.topicId = exercise.getTopicId();
         this.exerciseName = exercise.getExerciseName();
