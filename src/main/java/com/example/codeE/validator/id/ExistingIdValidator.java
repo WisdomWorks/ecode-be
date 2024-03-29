@@ -2,7 +2,6 @@ package com.example.codeE.validator.id;
 
 import com.example.codeE.repository.*;
 import com.example.codeE.request.course.*;
-import com.example.codeE.request.exercise.DeleteExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
@@ -37,10 +36,7 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
 
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext context) {
-        if (object instanceof DeleteExerciseRequest) {
-            DeleteExerciseRequest deleteExerciseRequest = (DeleteExerciseRequest) object;
-            return exerciseRepository.existsById(deleteExerciseRequest.getExerciseId());
-        } else if (object instanceof UpdateUserRequest) {
+        if (object instanceof UpdateUserRequest) {
             UpdateUserRequest updateUserRequest = (UpdateUserRequest) object;
             return userRepository.existsById(updateUserRequest.getUserId());
         } else if (object instanceof UpdateCourseRequest) {

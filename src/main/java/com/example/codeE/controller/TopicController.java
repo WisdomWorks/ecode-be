@@ -1,6 +1,7 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.model.topic.Topic;
+import com.example.codeE.request.topic.CreatePermissionTopicRequest;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.UpdateTopicRequest;
 import com.example.codeE.service.topic.TopicService;
@@ -73,8 +74,8 @@ public class TopicController {
 
     @PostMapping
     @RequestMapping(value = "/view", method = RequestMethod.POST)
-    public ResponseEntity<?> addViewPermission(@RequestParam String topicId, @RequestParam List<String> groupIds, @RequestParam boolean isShowAll) {
-        if (this.topicService.addViewPermission(topicId, groupIds, isShowAll))
+    public ResponseEntity<?> addViewPermission(@RequestBody CreatePermissionTopicRequest request) {
+        if (this.topicService.addViewPermission(request.getTopicId(), request.getGroupIds(), request.isShowAll()))
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","add permission success"));
         else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message","Something wrong when add view permission"));

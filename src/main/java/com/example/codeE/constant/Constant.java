@@ -14,6 +14,8 @@ public class Constant {
     //time format
     public static final String DATE_TIME_FORMAT_SECOND = "yyyy-MM-dd HH:mm:ss.SSSSSS";
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_TIME_ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static final String TIME_FORMAT = "HH:mm:ss";
 
     //file path
     public static final String EXCEL_FILE_PATH = "./excel/";

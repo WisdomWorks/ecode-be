@@ -1,7 +1,9 @@
 package com.example.codeE.model.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.validator.date.DateComparison;
-import jakarta.validation.constraints.Future;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -26,7 +30,6 @@ import java.util.List;
 public class Exercise {
     @Id
     private String exerciseId;
-
     @Field
     @NotNull(message = "Topic ID is required")
     private String topicId;
@@ -41,35 +44,35 @@ public class Exercise {
 
     @Field
     @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private String createdDate;
 
     @Field
     @LastModifiedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_FORMAT)
     private String updatedDate;
 
     @Field
     @NotNull(message = "Exercise start time is required")
-    @Future(message = "Exercise start time must be in the future")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private Date startTime;
 
     @Field
     @NotNull(message = "Exercise end time is required")
-    @Future(message = "Exercise end time must be in the future")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private Date endTime;
 
     @Field
-    @NotNull(message = "Exercise opened time is required")
-    @Future(message = "Exercise opened time must be in the future")
-    private Date openedTime;
+    @NotNull(message = "duration time is required")
+    private int durationTime;
 
     @Field
-    @NotNull(message = "Exercise closed time is required")
-    @Future(message = "Exercise closed time must be in the future")
-    private Date closedTime;
+    private boolean isShowAll;
 
     @Field
     @NotNull(message = "Re-Attempt is required")
     private int reAttempt;
+
     @Field
     @NotNull(message = "Exercise type is required")
     @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
@@ -89,32 +92,34 @@ public class Exercise {
         this.publicGroupIds = publicGroupIds;
     }
 
-    public Exercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, Date openedTime, Date closedTime, int reAttempt, String type, List<String> publicGroupIds) {
+    @PrePersist
+    protected void onCreate() {
+        this.isShowAll = true;
+    }
+
+    public Exercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, boolean isShowAll, List<String> publicGroupIds) {
         this.topicId = topicId;
         this.exerciseName = exerciseName;
         this.key = key;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.openedTime = openedTime;
-        this.closedTime = closedTime;
+        this.durationTime = durationTime;
         this.reAttempt = reAttempt;
         this.type = type;
+        this.isShowAll = isShowAll;
         this.publicGroupIds = publicGroupIds;
     }
-
-    @Override
-    public String toString() {
-        return "Exercise{" +
-                "exerciseId='" + exerciseId + '\'' +
-                ", topicId='" + topicId + '\'' +
-                ", exerciseName='" + exerciseName + '\'' +
-                ", key='" + key + '\'' +
-                ", createdDate='" + createdDate + '\'' +
-                ", updatedDate='" + updatedDate + '\'' +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", type='" + type + '\'' +
-                ", publicGroupIds=" + publicGroupIds +
-                '}';
+    public Exercise(String exerciseId,String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, boolean isShowAll, List<String> publicGroupIds) {
+        this.exerciseId = exerciseId;
+        this.topicId = topicId;
+        this.exerciseName = exerciseName;
+        this.key = key;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.durationTime = durationTime;
+        this.reAttempt = reAttempt;
+        this.type = type;
+        this.isShowAll = isShowAll;
+        this.publicGroupIds = publicGroupIds;
     }
 }

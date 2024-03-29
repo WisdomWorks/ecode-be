@@ -19,35 +19,27 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class Submission {
     @Id
     private String submissionId;
-
     @Field
 //    @NotNull(message = "Student ID is required")
     private String studentId;
-
     @Field
 //    @NotNull(message = "Exercise ID is required")
     private String exerciseId;
-
     private Float score;
-
     @Field
     @CreatedDate
     private String dateSubmit;
-
     @Field
     @LastModifiedDate
     private String dateGrade;
-
     @Field
 //    @NotNull(message = "Reviewable is required")
     private boolean reviewable;
-
     public Submission(String studentId, String exerciseId, boolean reviewable) {
         this.studentId = studentId;
         this.exerciseId = exerciseId;
         this.reviewable = reviewable;
     }
-
     public Submission(String studentId, String exerciseId, Float score, boolean reviewable) {
         this.studentId = studentId;
         this.exerciseId = exerciseId;

@@ -1,17 +1,21 @@
 package com.example.codeE.service.topic;
 
 import com.example.codeE.helper.LoggerHelper;
-import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.CourseRepository;
 import com.example.codeE.repository.GroupRepository;
 import com.example.codeE.repository.TopicRepository;
 import com.example.codeE.repository.ViewPermissionTopicRepository;
+import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
+import com.example.codeE.service.exercise.CodeExerciseService;
+import com.example.codeE.service.exercise.EssayExerciseService;
+import com.example.codeE.service.exercise.ExerciseService;
+import com.example.codeE.service.exercise.QuizExerciseService;
 import com.example.codeE.service.material.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,14 @@ public class TopicImpl implements TopicService {
     private GroupRepository groupRepository;
     @Autowired
     private MaterialService materialService;
+    @Autowired
+    private ExerciseService exerciseService;
+    @Autowired
+    private EssayExerciseService essayExerciseService;
+    @Autowired
+    private QuizExerciseService quizExerciseService;
+    @Autowired
+    private CodeExerciseService codeExerciseService;
 
     @Override
     public List<TopicGetResponse> getAllTopicsByCourseId(String courseId) {
@@ -38,7 +50,7 @@ public class TopicImpl implements TopicService {
         List<TopicGetResponse> result = new ArrayList<>();
         for (var item : topics) {
             var materials = this.materialService.getAllByTopicId(item.getTopicId());
-            List<Exercise> exercises = new ArrayList<Exercise>();
+            List<ExerciseResponse> exercises = this.exerciseService.getExercisesByTopicId(item.getTopicId());
             List<GroupTopicResponse> groupsResponse = new ArrayList<>();
             var groups = this.viewPermissionTopicRepository.getAllGroupsByTopicId(item.getTopicId());
             for(var g: groups){
@@ -98,7 +110,7 @@ public class TopicImpl implements TopicService {
 
     @Override
     public boolean addViewPermission(String topicId, List<String> groupIds, boolean isShowAll) {
-        var topic = this.topicRepository.findById(topicId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + topicId));
+        var topic = this.topicRepository.findById(topicId).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + topicId));
         for (String groupId : groupIds)
             this.groupRepository.findById(groupId).orElseThrow(() -> new NoSuchElementException("No group found with ID: " + groupId));
         try {
@@ -121,7 +133,7 @@ public class TopicImpl implements TopicService {
         var topics = this.topicRepository.getTopicByUser(studentId, courseId);
         for (var item : topics) {
             var materials = this.materialService.getMaterialByUserId(studentId, item.getTopicId());
-            var exercises = new ArrayList<Exercise>();
+            List<ExerciseResponse> exercises = this.exerciseService.getExercisesByUserId(item.getTopicId(), studentId);
             List<GroupTopicResponse> groupsResponse = new ArrayList<>();
             var groups = this.viewPermissionTopicRepository.getAllGroupsByTopicId(item.getTopicId());
             for(var g: groups){
@@ -164,10 +176,16 @@ public class TopicImpl implements TopicService {
 
     @Override
     public void deleteById(String id) {
-        if (topicRepository.existsById(id)) {
-            this.topicRepository.deleteById(id);
-        } else {
-            throw new NoSuchElementException("Topic not found with id: " + id);
+        var topic = this.topicRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + id));
+        var exercise = this.exerciseService.getExercisesByTopicId(id);
+        for(var item: exercise){
+            switch (item.getType()) {
+                case "essay" -> this.essayExerciseService.deleteEssayExerciseById(item.getExerciseId());
+                case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(item.getExerciseId());
+                case "code" -> this.codeExerciseService.deleteCodeExerciseById(item.getExerciseId());
+            }
+            this.exerciseService.deleteExerciseById(item.getExerciseId());
         }
+        this.topicRepository.deleteById(id);
     }
 }
