@@ -40,9 +40,10 @@ public class Server {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().
-                                    addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)).
-                                    addLast(new LengthFieldPrepender(4), ZlibCodecFactory.newZlibEncoder(ZlibWrapper.ZLIB)).
-                                    addLast(ZlibCodecFactory.newZlibDecoder(ZlibWrapper.ZLIB)).
+//                                    addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)).
+                                    addLast(new LengthFieldPrepender(4)).
+//                                    addLast(ZlibCodecFactory.newZlibEncoder(ZlibWrapper.ZLIB)).
+//                                    addLast(ZlibCodecFactory.newZlibDecoder(ZlibWrapper.ZLIB)).
                                     addLast(handler);
                         }
                     })

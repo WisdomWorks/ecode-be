@@ -1,13 +1,13 @@
 package com.example.codeE.controller;
 
-import com.example.codeE.helper.ZlibCompression;
-import com.example.codeE.service.judge.ClientService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import com.example.codeE.helper.AutoIncrement;
+import com.example.codeE.model.exercise.CodeSubmission;
+import com.example.codeE.service.exercise.submission.CodeSubmissionService;
+import com.example.codeE.service.judge.JudgeService;
+import com.mongodb.client.MongoDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,48 +15,63 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/judge")
 public class JudgeController {
 
-    private static final String HOST = "127.0.0.1";
-
-    private static final int PORT = 9998;
+    @Autowired
+    private CodeSubmissionService codeSubmissionService;
 
     @Autowired
-    private ClientService clientService;
+    private JudgeService judgeService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @PostMapping
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<?> exampleRq() throws IOException {
-        clientService.connect(HOST, PORT);
+        MongoDatabase database = mongoTemplate.getDb();
+        AutoIncrement autoIncrement = new AutoIncrement(database);
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode packet = JsonNodeFactory.instance.objectNode();
+        CodeSubmission submission = new CodeSubmission(judgeService);
+        submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
+        submission.setExerciseId("6603897fdd74386f36d28783");
+        submission.setTime(2.0);
+        submission.setMemory(1);
+        submission.setLanguageId("C");
+        submission.setSource("#include <stdio.h>\n" +
+                "\n" +
+                "int main() {\n" +
+                "    int num_cases;\n" +
+                "    scanf(\"%d\", &num_cases);\n" +
+                "\n" +
+                "    for (int i = 0; i < num_cases; i++) {\n" +
+                "        int a, b;\n" +
+                "        scanf(\"%d %d\", &a, &b);\n" +
+                "        printf(\"%d\\n\", a + b);\n" +
+                "    }\n" +
+                "\n" +
+                "    return 0;\n" +
+                "}");
+//        submission.setStudentId("id");
+//        submission.setError("error");
+//        submission.setJudgedOn("judgedOn");
+//        submission.setPretested(true);
+        submission.setLockedAfter(LocalDateTime.now().plusHours(1));
+//        submission.setCasePoints(1.0f);
+//        submission.setCaseTotal(1.0f);
+//        submission.setCurrentTestcase(1);
+//        submission.setStatus("status"); //here
+//        submission.setResult("result");
 
-        packet.put("name", "submission-request");
-        packet.put("submission-id", "1");
-        packet.put("problem-id", "1");
-        packet.put("language", "java");
-        packet.put("source", "source");
-        packet.put("judge-id", "1");
-        packet.put("priority", 0);
 
-        // Convert JSON object to string
-        String packetString = mapper.writeValueAsString(packet);
+//        CodeSubmission savedSubmission = codeSubmissionService.updateCodeSubmission(submission);
+        CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
+        savedSubmission.judge(false, false);
 
-        byte[] compressedData = ZlibCompression.zlibify(packetString);
-
-        ByteBuf buffer = Unpooled.buffer(4 + compressedData.length);
-        buffer.writeInt(compressedData.length);
-        buffer.writeBytes(compressedData);
-
-        clientService.sendRequest(buffer);
-        String result = clientService.receiveResponse();
-        System.out.println("result: " + result);
-
-        clientService.disconnect();
-        return ResponseEntity.status(200).body(result);
+        return ResponseEntity.status(200).build();
     }
 }

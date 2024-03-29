@@ -4,22 +4,28 @@ import com.example.codeE.constant.Constant;
 import com.example.codeE.judge.Server;
 import com.example.codeE.judge.handlers.JudgeHandler;
 import com.example.codeE.judge.handlers.SpringBootHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 import java.net.InetSocketAddress;
 import java.util.TimeZone;
 
 @SpringBootApplication
 public class CodeEApplication {
+	@Autowired
+	private JudgeHandler judgeHandler;
+	@Autowired
+	private SpringBootHandler springBootHandler;
 	public static void main(String[] args) {
-		SpringApplication.run(CodeEApplication.class, args);
+		ApplicationContext context = SpringApplication.run(CodeEApplication.class, args);
 		TimeZone.setDefault( TimeZone.getTimeZone("UTC"));
 		InetSocketAddress address1 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_SPRING_BOOT_PORT);
 		InetSocketAddress address2 = new InetSocketAddress(Constant.BRIDGED_HOST, Constant.BRIDGED_JUDGE_PORT);
 
-		Server server1 = new Server(address1, new SpringBootHandler());
-		Server server2 = new Server(address2, new JudgeHandler());
+		Server server1 = new Server(address1, context.getBean(SpringBootHandler.class));
+		Server server2 = new Server(address2, context.getBean(JudgeHandler.class));
 		Thread t1 = new Thread(() -> {
 			try {
 				server1.run();

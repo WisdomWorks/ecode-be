@@ -2,11 +2,14 @@ package com.example.codeE.model.exercise;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.service.judge.JudgeImpl;
+import com.example.codeE.service.judge.JudgeService;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -15,20 +18,20 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Document(collection = "code_submission")
 public class CodeSubmission extends Submission {
     @Field
-    private Float time;
+    private Double time;
 
     @Field
-    private Float memory;
+    private Integer memory;
 
     @Field
     private String languageId;
 
     @Field
-    private String status;
+    private String status = "QU";
 
     @Field
     private String result;
@@ -40,22 +43,47 @@ public class CodeSubmission extends Submission {
     private Integer currentTestcase;
 
     @Field
-    private Float casePoints;
+    private Double casePoints;
 
     @Field
-    private Float caseTotal;
+    private Double caseTotal;
 
-    private String judgedOn;
+    private String judgedOn = "ExampleJudge";
 
     @Field
     private boolean isPretested;
 
     @Field
     private LocalDateTime lockedAfter;
-    @Autowired
-    private JudgeImpl judgeImpl;
 
-    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Float time, Float memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter) {
+    @Field
+    private String source;
+
+    @Transient
+    private JudgeService judgeService;
+
+    public CodeSubmission(String submissionId, @NotNull(message = "Student ID is required") String studentId, @NotNull(message = "Exercise ID is required") String exerciseId, Float score, String dateSubmit, String dateGrade, @NotNull(message = "Reviewable is required") boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Double casePoints, Double caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
+        super(submissionId, studentId, exerciseId, score, dateSubmit, dateGrade, reviewable);
+        this.time = time;
+        this.memory = memory;
+        this.languageId = languageId;
+        this.status = status;
+        this.result = result;
+        this.error = error;
+        this.currentTestcase = currentTestcase;
+        this.casePoints = casePoints;
+        this.caseTotal = caseTotal;
+        this.judgedOn = judgedOn;
+        this.isPretested = isPretested;
+        this.lockedAfter = lockedAfter;
+        this.source = source;
+    }
+
+    public CodeSubmission(JudgeService judgeService) {
+        this.judgeService = judgeService;
+    }
+
+    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Double casePoints, Double caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
         super(studentId, exerciseId, score, reviewable);
         this.time = time;
         this.memory = memory;
@@ -69,9 +97,17 @@ public class CodeSubmission extends Submission {
         this.judgedOn = judgedOn;
         this.isPretested = isPretested;
         this.lockedAfter = lockedAfter;
+        this.source = source;
     }
 
-    public static String getResultFromCode(String result, Float casePoints, Float caseTotal) {
+    public CodeSubmission(String submissionId, String exerciseId, String languageId, String judgedOn, String source) {
+        super(submissionId, exerciseId);
+        this.languageId = languageId;
+        this.judgedOn = judgedOn;
+        this.source = source;
+    }
+
+    public static String getResultFromCode(String result, Double casePoints, Double caseTotal) {
         if (result.equals("AC")) {
 //            Number objects are compared using '==', not 'equals()'
             if (casePoints.equals(caseTotal)) {
@@ -89,7 +125,7 @@ public class CodeSubmission extends Submission {
         return getResultFromCode(this.result, this.casePoints, this.caseTotal);
     }
 
-    public Float memoryBytes() {
+    public Integer memoryBytes() {
         return this.memory * 1024;
     }
 
@@ -107,12 +143,12 @@ public class CodeSubmission extends Submission {
 
     public void judge(boolean rejudge, boolean forceJudge) {
         if (forceJudge || !this.isLocked()) {
-            judgeImpl.judgeSubmission(this, rejudge);
+            judgeService.judgeSubmission(this, rejudge);
         }
     }
 
     public void abort() {
-        judgeImpl.abortSubmission(this);
+        judgeService.abortSubmission(this);
     }
 
     public boolean isGraded() {

@@ -182,7 +182,7 @@ public class TopicImpl implements TopicService {
             switch (item.getType()) {
                 case "essay" -> this.essayExerciseService.deleteEssayExerciseById(item.getExerciseId());
                 case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(item.getExerciseId());
-                case "code" -> this.codeExerciseService.deleteCodeExerciseById(item.getExerciseId());
+//                case "code" -> this.codeExerciseService.deleteCodeExerciseById(item.getExerciseId());
             }
             this.exerciseService.deleteExerciseById(item.getExerciseId());
         }
