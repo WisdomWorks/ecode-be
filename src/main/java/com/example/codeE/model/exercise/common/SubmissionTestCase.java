@@ -17,11 +17,15 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "submission_testcase")
 public class SubmissionTestCase {
     @Id
-    private String testCaseId;
+    private String id;
 
     @NotNull(message = "Submission ID is required")
     @Field("submission_id")
     private String submissionId;
+
+    @NotNull(message = "Test case ID is required")
+    @Field("test_case_id")
+    private Integer testCaseId;
 
     @NotBlank(message = "Status is required")
     @Field("status")

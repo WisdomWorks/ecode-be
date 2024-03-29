@@ -2,6 +2,8 @@ package com.example.codeE.judge.handlers;
 
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.helper.ZlibCompression;
+import com.example.codeE.judge.configurations.JudgeHandlerVariables;
+import com.example.codeE.judge.configurations.JudgeHandlerVariables.*;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.common.Judge;
@@ -43,8 +45,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.zip.DataFormatException;
+
+import static com.example.codeE.judge.configurations.JudgeHandlerVariables.*;
+
 
 @Getter
 @Setter
@@ -54,15 +60,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     private static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
-
-    private Map<String, Double> problems;
-    HashMap<String, List<List<Object>>> executors;
-    private String working;
-    private String name;
-    private boolean isDisabled;
-    private String judgeAddress;
-    private int timeout;
-
+    
     @Autowired
     private RuntimeVersionService runtimeVersionService;
     private Map<String, Function<ObjectNode, ObjectNode>> handlers;
@@ -86,12 +84,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     public JudgeHandler(){
         this.judge = new Judge();
-        this.problems = new HashMap<>();
-        this.executors = new HashMap<>();
-        this.working = null;
-        this.name = null;
-        this.isDisabled = false;
-        this.judgeAddress = null;
+       
 
 
         handlers = new HashMap<>();
@@ -132,12 +125,12 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         this.judge.setOnline(true);
         this.judge.setProblemIds(new ArrayList<>(problems.keySet()));
         this.judge.setRuntimeIds(
-                this.executors.keySet().stream().toList()
+                executors.keySet().stream().toList()
         );
 
         this.runtimeVersionService.deleteAllRuntimeVersion();
 
-        for (Map.Entry<String, List<List<Object>>> entry : this.executors.entrySet()) {
+        for (Map.Entry<String, List<List<Object>>> entry : executors.entrySet()) {
             String languageId = entry.getKey(); // Lấy languageId từ key
             List<List<Object>> values = entry.getValue(); // Lấy danh sách các giá trị từ value
 
@@ -167,7 +160,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             }
         }
 
-        this.judgeAddress = "localhost:9999";
+        JudgeHandlerVariables.judgeAddress = "localhost:9999";
         //log judge successfully authenticated
     }
 
@@ -227,13 +220,16 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                     value.add(innerList);
                 }
             }
-            this.executors.put(key, value);
+            executors.put(key, value);
         }
 
-        this.name = packet.get("id").asText();
+        JudgeHandlerVariables.name = packet.get("id").asText();
 
         ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.put("name", "handshake-success");
+        pingThread = new Thread(this::pingThread, "PingThread");
+        pingThread.start();
+
         connected();
         return response;
     }
@@ -262,12 +258,12 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.set("meta", metaNode);
         }
 
-        this.working = submissionId;
+        JudgeHandlerVariables.working = submissionId;
         send(response);
     }
 
     public boolean isWorking() {
-        return this.working != null;
+        return JudgeHandlerVariables.working != null;
     }
 
     private  SubmissionData getRelatedSubmissionData(String id) {
@@ -328,9 +324,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     public  ObjectNode onSubmissionAcknowledged(ObjectNode packet) {
         String submissionId = packet.has("submission-id") ? packet.get("submission-id").asText() : null;
-        String working = this.working; // judgeId
+        String working = JudgeHandlerVariables.working; // judgeId
         if (submissionId == null || !submissionId.equals(working)) {
-            LoggerHelper.logError("Wrong acknowledgement: "+ this.getName() + ": "+ submissionId+ ", expected: " + working);
+            LoggerHelper.logError("Wrong acknowledgement: "+ JudgeHandlerVariables.name + ": "+ submissionId+ ", expected: " + working);
             onSubmissionWrongAcknowledge(packet, working, submissionId);
         } else {
             LoggerHelper.logInfo("Submission acknowledged: " + working);
@@ -398,7 +394,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         String submissionId = packet.get("submission-id").asText();
 //            String log = packet.get("log").asText();
 
-        LoggerHelper.logInfo(this.getName() + ": Submission failed to compile: " + submissionId);
+        LoggerHelper.logInfo(JudgeHandlerVariables.name + ": Submission failed to compile: " + submissionId);
         if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
             codeSubmissionService.updateStatusAndResult(submissionId, "CE", "CE");
         } else {
@@ -428,7 +424,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         try {
             throw new Exception("\n\n" + message);
         } catch (Exception e) {
-            LoggerHelper.logError("Judge " + this.getName() + " failed while handling submission " + submissionId, e);
+            LoggerHelper.logError("Judge " + JudgeHandlerVariables.name + " failed while handling submission " + submissionId, e);
         }
         if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
             codeSubmissionService.updateStatusAndResult(submissionId, "IE", "IE");
@@ -440,7 +436,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     public  ObjectNode onSubmissionTerminated(ObjectNode packet) {
         String submissionId = packet.get("submission-id").asText();
-        LoggerHelper.logInfo(this.getName() + ": Submission aborted: " + submissionId);
+        LoggerHelper.logInfo(JudgeHandlerVariables.name + ": Submission aborted: " + submissionId);
         if(codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
             codeSubmissionService.updateStatusAndResult(submissionId, "AB", "AB");
         } else {
@@ -459,6 +455,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
                 SubmissionTestCase submissionTestCase = new SubmissionTestCase();
 
                 submissionTestCase.setSubmissionId(submissionId);
+                submissionTestCase.setTestCaseId(testCase.get("position").asInt());
                 int status = testCase.get("status").asInt();
                 // TODO: Fix this
                 if ((status & 4) != 0) {
@@ -505,6 +502,28 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         return null;
 
         // Handle malformed packet
+    }
+
+    public void ping() {
+        ObjectNode packet = JsonNodeFactory.instance.objectNode();
+        packet.put("name", "ping");
+        packet.put("when", System.currentTimeMillis());
+
+        send(packet);
+    }
+
+    private void pingThread() {
+        try {
+            while (true) {
+                ping();
+                if (stopPing.await(10, TimeUnit.SECONDS)) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LoggerHelper.logError("Ping error in " + JudgeHandlerVariables.name, e);
+        }
     }
 
     public  ObjectNode onPingResponse(ObjectNode packet) {
@@ -578,11 +597,15 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             Function<ObjectNode, ObjectNode> handler = this.handlers.get(packet.get("name").asText());
             result = handler.apply((ObjectNode) packet);
 
+
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             result = JsonNodeFactory.instance.objectNode();
             result.put("name", "bad-request");
         } finally {
+            if (result == null) {
+                return;
+            }
             System.out.println("Sending to client: " + mapper.writeValueAsString(result));
             byte[] compressed = ZlibCompression.zlibify(mapper.writeValueAsString(result));
 //            ByteBuf buf = Unpooled.wrappedBuffer(mapper.writeValueAsString(result).getBytes());

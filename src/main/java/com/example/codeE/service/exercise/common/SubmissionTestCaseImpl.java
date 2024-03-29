@@ -23,7 +23,7 @@ public class SubmissionTestCaseImpl implements SubmissionTestCaseService{
     public int getMaxPosition(List<SubmissionTestCase> testCases) {
         List<Integer> positions = new ArrayList<>();
         for (SubmissionTestCase testCase : testCases) {
-            positions.add(Integer.parseInt(testCase.getTestCaseId()));
+            positions.add(testCase.getTestCaseId());
         }
         return positions.stream().max(Integer::compare).get();
     }

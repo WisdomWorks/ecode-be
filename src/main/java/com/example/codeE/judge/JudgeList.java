@@ -1,6 +1,7 @@
 package com.example.codeE.judge;
 
 import com.example.codeE.constant.JudgePriority;
+import com.example.codeE.judge.configurations.JudgeHandlerVariables;
 import com.example.codeE.judge.handlers.JudgeHandler;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.common.Judge;
@@ -47,7 +48,7 @@ public class JudgeList {
                 if (node instanceof PriorityMarker) {
                     priority = ((PriorityMarker) node).priority + 1;
                 } else if (priority >= JudgePriority.REJUDGE_PRIORITY
-                        && !judge.isWorking() && !judge.isDisabled())
+                        && !judge.isWorking() && !JudgeHandlerVariables.isDisabled)
                 {
                     return;
                 } else {
@@ -106,17 +107,17 @@ public class JudgeList {
     public void updateDisableJudge(boolean isDisabled) {
         this.lock.lock();
         try {
-            this.judge.setDisabled(isDisabled);
+            JudgeHandlerVariables.isDisabled = isDisabled;
         } finally {
             this.lock.unlock();
         }
     }
 
     public void onJudgeFree() {
-        System.out.println("Judge available after grading: " + judge.getName());
+        System.out.println("Judge available after grading: " + JudgeHandlerVariables.name);
         this.lock.lock();
         try {
-            this.judge.setWorking(null);
+            JudgeHandlerVariables.working = null;
             this.handleFreeJudge();
         } finally {
             this.lock.unlock();
@@ -149,12 +150,12 @@ public class JudgeList {
             if (this.nodeMap.containsKey(submissionId)) {
                 return;
             }
-            if (!judge.isWorking() && !judge.isDisabled()) {
+            if (!judge.isWorking() && !JudgeHandlerVariables.isDisabled) {
                 try {
                     this.judge.submit(submissionId, problem, language, source);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("Failed to dispatch " + submissionId + " (" + problem + ", " + language + ") to " + judge.getName());
+                    System.out.println("Failed to dispatch " + submissionId + " (" + problem + ", " + language + ") to " + JudgeHandlerVariables.name);
                 }
             } else {
                 CodeSubmission submission = new CodeSubmission(submissionId, problem, language, source, judgeId);
