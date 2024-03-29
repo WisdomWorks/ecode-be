@@ -45,4 +45,7 @@ public class CodeExercise extends Exercise {
 
     @Field
     private List<String> allowedLanguageIds;
+
+    @Field
+    private Double points;
 }

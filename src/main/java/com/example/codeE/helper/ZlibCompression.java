@@ -20,7 +20,7 @@ public class ZlibCompression {
         deflater.finish();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[8 * 1024];
+        byte[] buffer = new byte[8 * 8 * 1024];
 
         while (!deflater.finished()) {
             int compressedSize = deflater.deflate(buffer);
@@ -40,7 +40,7 @@ public class ZlibCompression {
             Inflater inflater = new Inflater();
             inflater.setInput(byteArray);
 
-            byte[] uncompressedData = new byte[8 * 1024];
+            byte[] uncompressedData = new byte[8 * 8 * 1024];
             int uncompressedLength = inflater.inflate(uncompressedData);
             inflater.end();
 

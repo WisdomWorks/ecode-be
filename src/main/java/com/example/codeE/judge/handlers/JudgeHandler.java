@@ -2,6 +2,7 @@ package com.example.codeE.judge.handlers;
 
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.helper.ZlibCompression;
+import com.example.codeE.judge.JudgeList;
 import com.example.codeE.judge.configurations.JudgeHandlerVariables;
 import com.example.codeE.judge.configurations.JudgeHandlerVariables.*;
 import com.example.codeE.model.exercise.CodeExercise;
@@ -60,6 +61,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
     private static final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Judge judge;
+    private JudgeList judgeList = new JudgeList(this);
     
     @Autowired
     private RuntimeVersionService runtimeVersionService;
@@ -304,7 +306,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public  ObjectNode onSubmissionProcessing(ObjectNode packet) {
+    public ObjectNode onSubmissionProcessing(ObjectNode packet) {
         String id = packet.get("submission-id").asText();
 
         CodeSubmission submission = codeSubmissionService.getCodeSubmissionById(id);
@@ -333,7 +335,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             onSubmissionProcessing(packet);
         }
 
-        return packet;
+        return null;
     }
 
     public  void onSubmissionWrongAcknowledge(ObjectNode packet, String expected, String got) {
@@ -384,10 +386,55 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         return null;
     }
 
-    public  ObjectNode onGradingEnd(ObjectNode packet) {
-        return null;
+    public ObjectNode onGradingEnd(ObjectNode packet) {
+        this.freeSelf(packet);
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(packet.get("submission-id").asText());
+        if (codeSubmission == null) {
+            LoggerHelper.logError("Unknown submission: " + packet.get("submission-id").asText());
+            return null;
+        }
 
-        // Handle grading end packet
+        Double time = 0.0;
+        Integer memory = 0;
+        Double points = 0.0;
+        Double total = 0.0;
+        Integer status = 0;
+        List<String> statusCodes = List.of("SC", "AC", "WA", "MLE", "TLE", "IR", "RTE", "OLE");
+
+        List<SubmissionTestCase> testCases = submissionTestCaseService.findBySubmissionId(codeSubmission.getSubmissionId());
+        for (SubmissionTestCase testCase : testCases) {
+            time += testCase.getTime();
+            memory = Math.max(memory, testCase.getMemory().intValue());
+            points += testCase.getPoints();
+            total += testCase.getTotal();
+            status = Math.max(status, statusCodes.indexOf(testCase.getStatus()));
+        }
+
+        points = (double) Math.round(points * 10) / 10;
+        total = (double) Math.round(total * 10) / 10;
+
+        codeSubmission.setCasePoints(points);
+        codeSubmission.setCaseTotal(total);
+
+        String problemId = codeSubmission.getExerciseId();
+        CodeExercise problem = codeExerciseService.getProblemById(problemId);
+        Double problemPoints = problem.getPoints();
+        Double subPoints = 0.0;
+        if (total > 0) {
+            subPoints = (double) Math.round((points / total) * problemPoints * 1000) / 1000;
+        }
+        if (!problem.isPartial() && !subPoints.equals(problemPoints)) {
+            subPoints = 0.0;
+        }
+
+        codeSubmission.setStatus("D");
+        codeSubmission.setTime(time);
+        codeSubmission.setMemory(memory);
+        codeSubmission.setCasePoints(points);
+        codeSubmission.setResult(statusCodes.get(status));
+
+        codeSubmissionService.updateCodeSubmission(codeSubmission);
+        return null;
     }
 
     public  ObjectNode onCompileError(ObjectNode packet) {
@@ -400,7 +447,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
-        return packet;
+
+        this.freeSelf(packet);
+        return null;
     }
 
     public  ObjectNode onCompileMessage(ObjectNode packet) {
@@ -431,7 +480,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
-        return packet;
+        this.freeSelf(packet);
+        return null;
     }
 
     public  ObjectNode onSubmissionTerminated(ObjectNode packet) {
@@ -442,6 +492,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
+        this.freeSelf(packet);
         return null;
     }
 
@@ -526,10 +577,14 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public  ObjectNode onPingResponse(ObjectNode packet) {
+    public ObjectNode onPingResponse(ObjectNode packet) {
         return null;
 
         // Handle ping response packet
+    }
+
+    private void freeSelf(ObjectNode packet) {
+        judgeList.onJudgeFree();
     }
 
     @Getter

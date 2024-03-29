@@ -43,10 +43,10 @@ public class CodeSubmission extends Submission {
     private Integer currentTestcase;
 
     @Field
-    private Float casePoints;
+    private Double casePoints;
 
     @Field
-    private Float caseTotal;
+    private Double caseTotal;
 
     private String judgedOn = "ExampleJudge";
 
@@ -62,7 +62,7 @@ public class CodeSubmission extends Submission {
     @Transient
     private JudgeService judgeService;
 
-    public CodeSubmission(String submissionId, @NotNull(message = "Student ID is required") String studentId, @NotNull(message = "Exercise ID is required") String exerciseId, Float score, String dateSubmit, String dateGrade, @NotNull(message = "Reviewable is required") boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
+    public CodeSubmission(String submissionId, @NotNull(message = "Student ID is required") String studentId, @NotNull(message = "Exercise ID is required") String exerciseId, Float score, String dateSubmit, String dateGrade, @NotNull(message = "Reviewable is required") boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Double casePoints, Double caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
         super(submissionId, studentId, exerciseId, score, dateSubmit, dateGrade, reviewable);
         this.time = time;
         this.memory = memory;
@@ -83,7 +83,7 @@ public class CodeSubmission extends Submission {
         this.judgeService = judgeService;
     }
 
-    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, boolean batch, Float casePoints, Float caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
+    public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Double casePoints, Double caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
         super(studentId, exerciseId, score, reviewable);
         this.time = time;
         this.memory = memory;
@@ -107,7 +107,7 @@ public class CodeSubmission extends Submission {
         this.source = source;
     }
 
-    public static String getResultFromCode(String result, Float casePoints, Float caseTotal) {
+    public static String getResultFromCode(String result, Double casePoints, Double caseTotal) {
         if (result.equals("AC")) {
 //            Number objects are compared using '==', not 'equals()'
             if (casePoints.equals(caseTotal)) {

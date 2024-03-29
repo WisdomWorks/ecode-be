@@ -32,4 +32,9 @@ public class SubmissionTestCaseImpl implements SubmissionTestCaseService{
     public void saveAll(List<SubmissionTestCase> testCases) {
         submissionTestCaseRepository.saveAll(testCases);
     }
+
+    @Override
+    public List<SubmissionTestCase> findBySubmissionId(String submissionId) {
+        return submissionTestCaseRepository.findBySubmissionId(submissionId);
+    }
 }
