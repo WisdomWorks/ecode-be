@@ -1,9 +1,11 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
@@ -11,14 +13,19 @@ import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
+import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
+import com.example.codeE.service.judge.JudgeService;
+import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +37,7 @@ public class ExerciseController {
     private CodeExerciseService codeExerciseService;
     @Autowired
     private ExerciseService exerciseService;
+
     @Autowired
     private QuizExerciseService quizExerciseService;
     @Autowired
@@ -38,6 +46,15 @@ public class ExerciseController {
     private EssayExerciseService essayExerciseService;
     @Autowired
     private EssaySubmissionService essaySubmissionService;
+
+    @Autowired
+    private CodeSubmissionService codeSubmissionService;
+
+    @Autowired
+    private JudgeService judgeService;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
@@ -103,6 +120,28 @@ public class ExerciseController {
         };
     }
     @PostMapping
+    @RequestMapping(value = "code/submit", method = RequestMethod.POST)
+    public ResponseEntity<?> submitCodeExercise(@Valid @RequestBody SubmitCodeExerciseRequest request){
+        MongoDatabase database = mongoTemplate.getDb();
+        AutoIncrement autoIncrement = new AutoIncrement(database);
+
+        CodeSubmission submission = new CodeSubmission(judgeService);
+        submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
+        submission.setExerciseId(request.getExerciseId());
+        submission.setLanguageId(request.getLanguageId());
+        submission.setSource(request.getSource());
+
+        CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
+        submission.setTime(codeExercise.getTimeLimit());
+        submission.setMemory(codeExercise.getMemoryLimit());
+        submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
+        savedSubmission.judge(false, false);
+        return ResponseEntity.status(HttpStatus.OK).body("");
+    }
+
+    @PostMapping
     @RequestMapping(value = "quiz/submit", method = RequestMethod.POST)
     public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody CreateQuizSubmissionRequest quizSubmission){
         QuizExercise quizExercise = this.quizExerciseService.getQuizExerciseById(quizSubmission.getExerciseId());
@@ -134,7 +173,7 @@ public class ExerciseController {
     public ResponseEntity<?> deleteExerciseById(@Valid @PathVariable String exerciseId, @Valid @RequestParam String type) {
         this.exerciseService.deleteExerciseById(exerciseId);
         switch (type) {
-            case "code" -> this.codeExerciseService.deleteCodeExerciseById(exerciseId);
+            // case "code" -> this.codeExerciseService.deleteCodeExerciseById(exerciseId);
             case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(exerciseId);
             case "essay" -> this.essayExerciseService.deleteEssayExerciseById(exerciseId);
             default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
@@ -142,11 +181,11 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Delete success"));
     }
 
-    @PutMapping
-    @RequestMapping(value = "code", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExerciseWBD exercise) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(exercise));
-    }
+    // @PutMapping
+    // @RequestMapping(value = "code", method = RequestMethod.PUT)
+    // public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExerciseWBD exercise) {
+    //     return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseServiceWBD.updateCodeExercise(exercise));
+    // }
 
     @PutMapping
     @RequestMapping(value = "quiz", method = RequestMethod.PUT)

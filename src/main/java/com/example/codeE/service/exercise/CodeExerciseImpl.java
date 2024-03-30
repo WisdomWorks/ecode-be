@@ -1,31 +1,34 @@
 package com.example.codeE.service.exercise;
 
-import com.example.codeE.model.exercise.CodeExerciseWBD;
+import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.repository.CodeExerciseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CodeExerciseImpl implements CodeExerciseService{
     @Autowired
     private CodeExerciseRepository codeExerciseRepository;
+
     @Override
-    public CodeExerciseWBD createCodeExercise(CodeExerciseWBD codeExerciseWBD) {
-        return this.codeExerciseRepository.save(codeExerciseWBD);
+    public List<String> getProblemIds(List<CodeExercise> problems) {
+        List<String> result = new ArrayList<>();
+        for(CodeExercise problem : problems) {
+            result.add(codeExerciseRepository.findById(problem.getExerciseId()).get().getExerciseId());
+        }
+        return result;
     }
 
     @Override
-    public CodeExerciseWBD getCodeExerciseById(String exerciseId) {
-        return this.codeExerciseRepository.findById(exerciseId).get();
+    public CodeExercise getProblemById(String problemId) {
+        return codeExerciseRepository.findById(problemId).orElseThrow(() -> new RuntimeException("Problem not found"));
     }
 
     @Override
-    public void deleteCodeExerciseById(String exerciseId) {
-        this.codeExerciseRepository.deleteById(exerciseId);
-    }
-
-    @Override
-    public CodeExerciseWBD updateCodeExercise(CodeExerciseWBD codeExerciseWBD) {
-        return this.codeExerciseRepository.save(codeExerciseWBD);
+    public CodeExercise getCodeExerciseById(String exerciseId) {
+        return codeExerciseRepository.findById(exerciseId).get();
     }
 }

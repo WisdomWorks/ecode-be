@@ -20,10 +20,10 @@ public class Submission {
     @Id
     private String submissionId;
     @Field
-    @NotNull(message = "Student ID is required")
+//    @NotNull(message = "Student ID is required")
     private String studentId;
     @Field
-    @NotNull(message = "Exercise ID is required")
+//    @NotNull(message = "Exercise ID is required")
     private String exerciseId;
     private Float score;
     @Field
@@ -33,7 +33,7 @@ public class Submission {
     @LastModifiedDate
     private String dateGrade;
     @Field
-    @NotNull(message = "Reviewable is required")
+//    @NotNull(message = "Reviewable is required")
     private boolean reviewable;
     public Submission(String studentId, String exerciseId, boolean reviewable) {
         this.studentId = studentId;
@@ -45,6 +45,11 @@ public class Submission {
         this.exerciseId = exerciseId;
         this.score = score;
         this.reviewable = reviewable;
+    }
+
+    public Submission(String submissionId, String exerciseId) {
+        this.submissionId = submissionId;
+        this.exerciseId = exerciseId;
     }
 
     @Override

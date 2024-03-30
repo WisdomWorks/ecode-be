@@ -18,13 +18,13 @@ import static com.example.codeE.constant.Constant.SERVER_NAME;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Judge {
-    private String judgeId = "sgfdskbg23";
+    private String judgeId = "ExampleJudge";
 
     private String name = SERVER_NAME;
 
     private LocalDateTime created = LocalDateTime.now();
 
-    private String authKey = "fdsf9h22re";
+    private String authKey = "100/Base64/characters/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/ABCDEFGHIJKLMN";
 
     private Boolean isBlocked = false;
 
