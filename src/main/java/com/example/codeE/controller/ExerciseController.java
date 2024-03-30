@@ -118,7 +118,7 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.createSubmission(essaySubmission));
     }
     @GetMapping
-    @RequestMapping(value = "{exerciseId}/preview", method = RequestMethod.GET)
+    @RequestMapping(value = "preview/{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getPreviewExercise(@PathVariable String exerciseId){
         return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getPreviewExercise(exerciseId));
     }

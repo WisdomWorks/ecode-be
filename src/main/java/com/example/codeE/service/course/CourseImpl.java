@@ -7,11 +7,11 @@ import com.example.codeE.model.course.Course;
 import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
+import com.example.codeE.repository.CourseStudentRepository;
 import com.example.codeE.repository.CourseTeacherRepository;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.*;
 import com.example.codeE.service.courseStudent.CourseStudentService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +29,8 @@ public class CourseImpl implements CourseService {
     private UserRepository userRepository;
     @Autowired
     private CourseTeacherRepository courseTeacherRepository;
+    @Autowired
+    private CourseStudentRepository courseStudentRepository;
     @Autowired
     private CourseStudentService courseStudentService;
     @Override
@@ -170,6 +172,20 @@ public class CourseImpl implements CourseService {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setError(e.getMessage());
             return response;
+        }
+    }
+
+    @Override
+    public void unEnrollUserInCourse(String userId, String courseId) {
+        var user = this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("Can not find student with ID: " + userId));
+        this.courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("Can not find course with ID: " + courseId));
+        try {
+            if (user.getRole().equals("student"))
+                this.courseStudentRepository.deleteByStudentIdAndCourseId(userId, courseId);
+            else
+                this.courseTeacherRepository.deleteByStudentIdAndCourseId(userId, courseId);
+        } catch (Exception e) {
+            throw new RuntimeException("student can not unenroll course now.");
         }
     }
 

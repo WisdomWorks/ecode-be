@@ -132,7 +132,12 @@ public class CourseController {
             default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         };
     }
-
+    @DeleteMapping
+    @RequestMapping(value = "unEnrollment", method = RequestMethod.DELETE)
+    public ResponseEntity<?> unEnrollUserInCourse(@Valid @RequestParam String userId, @RequestParam String courseId){
+        this.courseService.unEnrollUserInCourse(userId, courseId);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","UnEnroll successful"));
+    }
     @GetMapping
     @RequestMapping(value = "user/{userId}", method = RequestMethod.GET)
     public ResponseEntity<?> getCourseByUserId(@Valid @PathVariable String userId){
