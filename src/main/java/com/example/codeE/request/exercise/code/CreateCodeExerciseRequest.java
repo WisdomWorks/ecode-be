@@ -1,6 +1,5 @@
 package com.example.codeE.request.exercise.code;
 
-import com.example.codeE.model.exercise.common.TestCase;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -54,6 +53,4 @@ public class CreateCodeExerciseRequest {
     @NotNull(message = "Exercise description is required")
     private String description;
 
-    @NotNull(message = "Testcase is required")
-    private List<TestCase> testcases;
 }
