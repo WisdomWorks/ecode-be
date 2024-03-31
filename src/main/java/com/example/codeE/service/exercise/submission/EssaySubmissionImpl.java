@@ -5,6 +5,7 @@ import com.example.codeE.repository.EssaySubmissionRepository;
 import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
+import com.example.codeE.request.exercise.essay.EssaySubmissionsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     public EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission) {
         this.userRepository.findById(essaySubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + essaySubmission.getStudentId()));
         this.exerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
-        var submission = new EssaySubmission(essaySubmission, 0);
+        var submission = new EssaySubmission(essaySubmission, -1);
         return this.essaySubmissionRepository.save(submission);
     }
 
@@ -35,6 +36,19 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 result.add(item);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<EssaySubmissionsResponse> getEssaySubmissionsByExerciseId(String exerciseId) {
+        List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
+        var result = new ArrayList<EssaySubmissionsResponse>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId)) {
+                var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
+                result.add(new EssaySubmissionsResponse(item,student));
             }
         }
         return result;
