@@ -60,19 +60,23 @@ public class ExerciseController {
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
     public ResponseEntity<?> createCodeExercise(@Valid @RequestBody CreateCodeExerciseRequest request){
-//        List<String> testcaseIds = new ArrayList<>();
-//        for(TestCase tc: request.getTestcases()){
-//            String id = this.testcaseService.createTestcase(tc).getTestcaseId();
-//            testcaseIds.add(id);
-//        }
-//        CodeExerciseWBD codeExerciseWBD = this.codeExerciseService.createCodeExercise(
-//                new CodeExerciseWBD(request.getTopicId(), request.getExerciseName(), request.getKey(),
-//                        request.getStartTime(), request.getEndTime(), request.getType(), request.getPublicGroupIds(),
-//                        request.getLanguage(), request.getFunctionName(), request.getTemplate(),
-//                        request.getDescription(), testcaseIds)
-//        );
-//        this.exerciseService.saveExercise((Exercise) codeExerciseWBD);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(codeExerciseWBD);
+        CodeExercise codeExercise = new CodeExercise();
+        codeExercise.setTopicId(request.getTopicId());
+        codeExercise.setExerciseName(request.getExerciseName());
+        codeExercise.setKey(request.getKey());
+        codeExercise.setStartTime(request.getStartTime());
+        codeExercise.setEndTime(request.getEndTime());
+        codeExercise.setReAttempt(request.getReAttempt());
+        codeExercise.setPublicGroupIds(request.getPublicGroupIds());
+        codeExercise.setDescription(request.getDescription());
+        codeExercise.setTimeLimit(request.getTimeLimit());
+        codeExercise.setMemoryLimit(request.getMemoryLimit());
+        codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
+        codeExercise.setPoints(request.getPoints());
+
+        CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
+
+        codeExerciseService.createProblemFolder(request.getTestCaseList(), savedCodeExercise.getExerciseId());
         return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("Api is building");
     }
 
