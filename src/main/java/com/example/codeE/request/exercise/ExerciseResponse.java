@@ -1,8 +1,10 @@
 package com.example.codeE.request.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +25,9 @@ public class ExerciseResponse {
     private String exerciseName;
     private String createdDate;
     private String updatedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private String startTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private String endTime;
     private int durationTime;
     private boolean isShowAll;
