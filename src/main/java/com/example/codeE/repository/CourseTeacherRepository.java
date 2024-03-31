@@ -9,8 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface CourseTeacherRepository extends JpaRepository<CourseTeacher, String> {
     String deleteTeacherByCourseIdSql = "DELETE FROM course_teacher ct WHERE ct.course_id = ?1";
+    String deleteByTeacherIdAndCourseIdSql = "DELETE FROM course_teacher cs WHERE cs.teacher_id = ?1 AND cs.course_id = ?2";
     @Modifying
     @Transactional
     @Query(value = deleteTeacherByCourseIdSql, nativeQuery = true)
     void deleteTeacherInCourseByCourseId(String courseId);
+    @Modifying
+    @Transactional
+    @Query(value = deleteByTeacherIdAndCourseIdSql, nativeQuery = true)
+    void deleteByStudentIdAndCourseId(String studentId, String courseId);
 }

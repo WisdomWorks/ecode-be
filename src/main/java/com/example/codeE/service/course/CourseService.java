@@ -14,6 +14,7 @@ public interface CourseService extends CommonService<CourseResponse, CreateCours
     ResponseEntity<Map<String, String>> importByExcel(MultipartFile file);
     Boolean checkCourseExistById(String groupId);
     CourseEnrollmentResponse<CourseTeacherResponse> enrollStudentToCourse(CourseEnrollmentRequest request);
+    void unEnrollUserInCourse(String userId, String courseId);
     List<Course> getCourseByUserId(String userId);
     List<Course> getCourseByStudentId(String userId);
     List<Course> getCourseByTeacherId(String userId);

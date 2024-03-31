@@ -4,6 +4,7 @@ import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
+import com.example.codeE.request.exercise.GetDetailExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
@@ -107,15 +108,15 @@ public class ExerciseController {
         Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
         return  ResponseEntity.status(HttpStatus.OK).body(exercise);
     }
-    @GetMapping
-    @RequestMapping(value = "detail/{exerciseId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getExerciseDetail(@PathVariable String exerciseId, @RequestParam String key, @RequestParam String studentId){
-        Exercise exercise = this.exerciseService.getDetailExercise(exerciseId, key, studentId);
+    @PostMapping
+    @RequestMapping(value = "detail", method = RequestMethod.POST)
+    public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest request){
+        Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
         return switch (exercise.getType()){
             case "quiz" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(exerciseId));
+                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
             case "essay" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(exerciseId));
+                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(request.getExerciseId() ));
             default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         };
     }
@@ -157,7 +158,7 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.createSubmission(essaySubmission));
     }
     @GetMapping
-    @RequestMapping(value = "{exerciseId}/preview", method = RequestMethod.GET)
+    @RequestMapping(value = "preview/{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getPreviewExercise(@PathVariable String exerciseId){
         return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getPreviewExercise(exerciseId));
     }
