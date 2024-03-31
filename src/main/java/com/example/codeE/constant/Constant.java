@@ -21,7 +21,8 @@ public class Constant {
     public static final String EXCEL_FILE_PATH = "./excel/";
 
     //file path in docker container
-    public static final String DOCKER_CONTAINER_FILE_PATH = "app/student-submission/";
+    public static final String INIT_FILE_TEMPLATE = "archive: iozip.zip\n" + "test_cases:";
+    public static final String TESTCASE_TEMPLATE = "\n- {in: io.%s.in, out: io.%s.out, points: %s}";
     public static final List<String> VALID_ROLES = Arrays.asList("student", "teacher", "admin");
 
     //first param: name
@@ -108,4 +109,6 @@ public class Constant {
         CHECKERS.put("IDENTICAL", "identical");
         CHECKERS.put("LINE_COUNT", "linecount");
     }
+
+
 }

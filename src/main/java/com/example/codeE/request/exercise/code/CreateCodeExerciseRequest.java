@@ -1,8 +1,8 @@
 package com.example.codeE.request.exercise.code;
 
+import com.example.codeE.model.exercise.common.problem.TestCase;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,24 +33,27 @@ public class CreateCodeExerciseRequest {
     @Future(message = "Exercise end time must be in the future")
     private Date endTime;
 
-    @NotNull(message = "Exercise type is required")
-    @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
-    private String type;
+    @NotNull(message = "Re-Attempt is required")
+    private int reAttempt;
 
     @NotNull(message = "Exercise public option is required")
     private List<String> publicGroupIds;
 
-    @NotNull(message = "Programming language is required")
-    @Pattern(regexp = "^(c|c++|java|python)$", message = "Exercise type should be c, c++, java or python")
-    private String language;
-
-    @NotNull(message = "Function name is required")
-    private String functionName;
-
-    @NotNull(message = "Template exercise is required")
-    private String template;
-
     @NotNull(message = "Exercise description is required")
     private String description;
 
+    @NotNull(message = "Time limit is required")
+    private Double timeLimit;
+
+    @NotNull(message = "Memory limit is required")
+    private Integer memoryLimit;
+
+    @NotNull(message = "Allowed language Ids is required")
+    private List<String> allowedLanguageIds;
+
+    @NotNull(message = "Exercise points is required")
+    private Double points;
+
+    @NotNull(message = "Exercise testcase is required")
+    private List<TestCase> testCaseList;
 }
