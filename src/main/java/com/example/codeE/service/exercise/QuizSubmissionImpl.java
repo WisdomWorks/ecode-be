@@ -5,6 +5,7 @@ import com.example.codeE.model.exercise.common.QuizAnswers;
 import com.example.codeE.model.exercise.common.QuizChoice;
 import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.repository.*;
+import com.example.codeE.request.exercise.quiz.QuizSubmissionsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,19 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 result.add(item);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<QuizSubmissionsResponse> getQuizSubmissionsByExerciseId(String exerciseId) {
+        List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
+        var result = new ArrayList<QuizSubmissionsResponse>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId)) {
+                var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
+                result.add(new QuizSubmissionsResponse(item, student));
             }
         }
         return result;

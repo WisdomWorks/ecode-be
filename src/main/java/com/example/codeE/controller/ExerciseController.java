@@ -211,9 +211,9 @@ public class ExerciseController {
     public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type) {
         return switch (type) {
             case "quiz" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionByExerciseId(exerciseId));
+                    ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionsByExerciseId(exerciseId));
             case "essay" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByExerciseId(exerciseId));
+                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId));
             case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
             default ->
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
