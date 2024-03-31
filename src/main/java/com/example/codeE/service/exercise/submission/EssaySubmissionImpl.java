@@ -24,7 +24,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     public EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission) {
         this.userRepository.findById(essaySubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + essaySubmission.getStudentId()));
         this.exerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
-        var submission = new EssaySubmission(essaySubmission, 0);
+        var submission = new EssaySubmission(essaySubmission, -1);
         return this.essaySubmissionRepository.save(submission);
     }
 
