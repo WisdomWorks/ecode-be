@@ -29,6 +29,7 @@ class StudentSubmissionInformationDiffblueTest {
         actualStudentSubmissionInformation.setReviewable(true);
         actualStudentSubmissionInformation.setUserId("42");
         actualStudentSubmissionInformation.setUserName("janedoe");
+        actualStudentSubmissionInformation.setGrade(9.1f);
         String actualDateSubmit = actualStudentSubmissionInformation.getDateSubmit();
         String actualUserId = actualStudentSubmissionInformation.getUserId();
         String actualUserName = actualStudentSubmissionInformation.getUserName();

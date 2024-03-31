@@ -22,17 +22,17 @@ public class QuizSubmission extends Submission {
     @NotNull(message = "Submission is required")
     private List<QuizAnswers> submission;
 
-    public QuizSubmission(String studentId, String exerciseId, float score, boolean reviewable, List<QuizAnswers> submission) {
-        super(studentId, exerciseId, score, reviewable);
+    public QuizSubmission(String studentId, String exerciseId, float score, boolean reviewable, List<QuizAnswers> submission, String teacherComment) {
+        super(studentId, exerciseId, score, reviewable, teacherComment);
         this.submission = submission;
     }
 
-    public QuizSubmission(String studentId, String exerciseId, boolean reviewable, List<QuizAnswers> submission) {
-        super(studentId, exerciseId, reviewable);
+    public QuizSubmission(String studentId, String exerciseId, boolean reviewable, List<QuizAnswers> submission, String teacherComment) {
+        super(studentId, exerciseId, reviewable, teacherComment);
         this.submission = submission;
     }
     public QuizSubmission(CreateQuizSubmissionRequest request, float score){
-        super(request.getStudentId(), request.getExerciseId(), score, true);
+        super(request.getStudentId(), request.getExerciseId(), score, true, request.getTeacherComment());
         this.submission = request.getSubmission();
     }
     @Override

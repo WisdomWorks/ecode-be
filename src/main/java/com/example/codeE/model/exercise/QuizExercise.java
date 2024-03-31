@@ -11,8 +11,6 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,8 +25,8 @@ public class QuizExercise extends Exercise {
     @NotNull(message = "Exercise's questions is required")
     private List<QuizQuestion> questions;
 
-    public QuizExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, boolean isShowAll, List<String> publicGroupIds, List<QuizQuestion> questions) {
-        super(topicId, exerciseName, key, startTime, endTime, durationTime, reAttempt, type, isShowAll, publicGroupIds);
+    public QuizExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, String exerciseDescription, boolean isShowAll, List<String> publicGroupIds, List<QuizQuestion> questions) {
+        super(topicId, exerciseName, key, startTime, endTime, durationTime, reAttempt, type, exerciseDescription, isShowAll, publicGroupIds);
         this.questions = questions;
     }
     public QuizExercise(CreateQuizExerciseRequest request){
@@ -40,6 +38,7 @@ public class QuizExercise extends Exercise {
                 request.getDurationTime(),
                 request.getReAttempt(),
                 "quiz",
+                request.getExerciseDescription(),
                 false,
                 new ArrayList<String>());
         this.questions = request.getQuestions();
@@ -54,6 +53,7 @@ public class QuizExercise extends Exercise {
                 request.getDurationTime(),
                 request.getReAttempt(),
                 "quiz",
+                request.getExerciseDescription(),
                 isShowAll,
                 publicGroup);
         this.questions = request.getQuestions();

@@ -31,7 +31,6 @@ public class UpdateQuizExerciseRequest {
     @NotNull(message = "Duration time is required")
     private int durationTime;
     private int reAttempt;
+    private String exerciseDescription;
     private List<QuizQuestion> questions;
-
-
 }

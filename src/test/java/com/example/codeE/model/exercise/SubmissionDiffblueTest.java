@@ -19,8 +19,8 @@ class SubmissionDiffblueTest {
         assertEquals("Submission{submissionId='42', studentId='null', exerciseId='42', score=null, dateSubmit=null,"
                 + " dateGrade=null, reviewable=false}", (new Submission("42", "42")).toString());
         assertEquals("Submission{submissionId='null', studentId='42', exerciseId='42', score=10.0, dateSubmit=null,"
-                + " dateGrade=null, reviewable=true}", (new Submission("42", "42", 10.0f, true)).toString());
+                + " dateGrade=null, reviewable=true}", (new Submission("42", "42", 10.0f, true,"")).toString());
         assertEquals("Submission{submissionId='null', studentId='42', exerciseId='42', score=null, dateSubmit=null,"
-                + " dateGrade=null, reviewable=true}", (new Submission("42", "42", true)).toString());
+                + " dateGrade=null, reviewable=true}", (new Submission("42", "42", true, "")).toString());
     }
 }

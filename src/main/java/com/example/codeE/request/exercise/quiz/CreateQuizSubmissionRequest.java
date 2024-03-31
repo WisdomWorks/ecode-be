@@ -19,4 +19,5 @@ public class CreateQuizSubmissionRequest {
     @NotNull(message = "Exercise Id is required")
     private String exerciseId;
     private List<QuizAnswers> submission;
+    private String teacherComment;
 }
