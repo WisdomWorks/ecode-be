@@ -9,6 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.text.SimpleDateFormat;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +52,12 @@ public class QuizDetailResponse {
     }
 
     private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
+        Instant startInstant = startTime.toInstant();
+        Instant endInstant = endTime.toInstant();
+        ZonedDateTime utcStartDateTime = ZonedDateTime.ofInstant(startInstant, ZoneId.of("UTC"));
+        ZonedDateTime utcEndDateTime = ZonedDateTime.ofInstant(endInstant, ZoneId.of("UTC"));
+        startTime = Date.from(utcStartDateTime.toInstant());
+        endTime = Date.from(utcEndDateTime.toInstant());
         if(startTime == endTime){
             return new Date(0);
         }
@@ -55,7 +65,7 @@ public class QuizDetailResponse {
         if(current > endTime.getTime()){
             return new Date(0);
         }
-        if (startTime.getTime() + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
+        if (startTime.getTime() + ((long) durationTime * 60 * 10000) < endTime.getTime()) {
             return new Date((long) durationTime * 60 * 1000);
         } else {
             return new Date((long) endTime.getTime() - current);

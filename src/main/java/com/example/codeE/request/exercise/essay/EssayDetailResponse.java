@@ -10,6 +10,9 @@ import lombok.Setter;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -48,6 +51,12 @@ public class EssayDetailResponse {
         this.question = essayExercise.getQuestion();
     }
     private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
+        Instant startInstant = startTime.toInstant();
+        Instant endInstant = endTime.toInstant();
+        ZonedDateTime utcStartDateTime = ZonedDateTime.ofInstant(startInstant, ZoneId.of("UTC"));
+        ZonedDateTime utcEndDateTime = ZonedDateTime.ofInstant(endInstant, ZoneId.of("UTC"));
+        startTime = Date.from(utcStartDateTime.toInstant());
+        endTime = Date.from(utcEndDateTime.toInstant());
         if(startTime == endTime){
             return new Date(0);
         }
@@ -55,10 +64,9 @@ public class EssayDetailResponse {
         if(current > endTime.getTime()){
             return new Date(0);
         }
-        if (startTime.getTime() + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
+        if (startTime.getTime() + ((long) durationTime * 60 * 10000) < endTime.getTime()) {
             return new Date((long) durationTime * 60 * 1000);
-        }
-        else {
+        } else {
             return new Date((long) endTime.getTime() - current);
         }
     }
