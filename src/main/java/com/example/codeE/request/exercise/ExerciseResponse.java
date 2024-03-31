@@ -26,9 +26,9 @@ public class ExerciseResponse {
     private String createdDate;
     private String updatedDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
-    private String startTime;
+    private Date startTime;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
-    private String endTime;
+    private Date endTime;
     private int durationTime;
     private boolean isShowAll;
     private String type;
@@ -37,14 +37,13 @@ public class ExerciseResponse {
     private List<StudentSubmissionInformation> students;
 
     public ExerciseResponse(Exercise exercise, List<GroupTopicResponse> groups) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         this.exerciseId = exercise.getExerciseId();
         this.topicId = exercise.getTopicId();
         this.exerciseName = exercise.getExerciseName();
         this.createdDate = exercise.getCreatedDate();
         this.updatedDate = exercise.getUpdatedDate();
-        this.startTime = dateFormat.format(exercise.getStartTime());
-        this.endTime = dateFormat.format(exercise.getEndTime());
+        this.startTime = exercise.getStartTime();
+        this.endTime = exercise.getEndTime();
         this.durationTime = exercise.getDurationTime();
         this.isShowAll = exercise.isShowAll();
         this.type = exercise.getType();
