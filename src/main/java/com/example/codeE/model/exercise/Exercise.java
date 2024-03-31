@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jdk.jfr.Description;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +17,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -72,7 +71,8 @@ public class Exercise {
     @Field
     @NotNull(message = "Re-Attempt is required")
     private int reAttempt;
-
+    @Field
+    private String exerciseDescription;
     @Field
     @NotNull(message = "Exercise type is required")
     @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
@@ -97,7 +97,7 @@ public class Exercise {
         this.isShowAll = true;
     }
 
-    public Exercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, boolean isShowAll, List<String> publicGroupIds) {
+    public Exercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, String exerciseDescription, boolean isShowAll, List<String> publicGroupIds) {
         this.topicId = topicId;
         this.exerciseName = exerciseName;
         this.key = key;
@@ -107,9 +107,11 @@ public class Exercise {
         this.reAttempt = reAttempt;
         this.type = type;
         this.isShowAll = isShowAll;
+        this.exerciseDescription = exerciseDescription;
         this.publicGroupIds = publicGroupIds;
     }
-    public Exercise(String exerciseId,String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, boolean isShowAll, List<String> publicGroupIds) {
+
+    public Exercise(String exerciseId, String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, String exerciseDescription, boolean isShowAll, List<String> publicGroupIds) {
         this.exerciseId = exerciseId;
         this.topicId = topicId;
         this.exerciseName = exerciseName;
@@ -120,6 +122,7 @@ public class Exercise {
         this.reAttempt = reAttempt;
         this.type = type;
         this.isShowAll = isShowAll;
+        this.exerciseDescription = exerciseDescription;
         this.publicGroupIds = publicGroupIds;
     }
 }

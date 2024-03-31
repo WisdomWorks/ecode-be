@@ -29,6 +29,7 @@ public class CreateQuizExerciseRequest {
     @NotNull(message = "duration Time is required")
     private int durationTime;
     private int reAttempt;
+    private String exerciseDescription;
     @NotNull(message = "Exercise's questions is required")
     private List<QuizQuestion> questions;
 }

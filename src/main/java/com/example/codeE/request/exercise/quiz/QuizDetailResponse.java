@@ -30,6 +30,7 @@ public class QuizDetailResponse {
     private String type;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.TIME_FORMAT)
     private Date timeLess;
+    private String exerciseDescription;
     private List<QuizQuestionResponse> questions;
 
     public QuizDetailResponse(QuizExercise quizExercise) {
@@ -42,6 +43,7 @@ public class QuizDetailResponse {
         this.reAttempt = quizExercise.getReAttempt();
         this.type = quizExercise.getType();
         this.timeLess = GetTimeLess(quizExercise.getStartTime(), quizExercise.getEndTime(), quizExercise.getDurationTime());
+        this.exerciseDescription = quizExercise.getExerciseDescription();
         this.questions = convertQuestion(quizExercise.getQuestions());
     }
 

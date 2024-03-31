@@ -20,7 +20,6 @@ public class QuizQuestionResponse {
     private String title;
     private String description;
     private List<QuizChoice> choices;
-
     public QuizQuestionResponse(QuizQuestion question){
         this.questionId = question.getQuestionId();
         this.title = question.getTitle();

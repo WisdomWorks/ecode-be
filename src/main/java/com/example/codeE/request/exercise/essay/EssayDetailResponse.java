@@ -28,6 +28,7 @@ public class EssayDetailResponse {
     private int durationTime;
     private int reAttempt;
     private String type;
+    private String exerciseDescription;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.TIME_FORMAT)
     private Date timeLess;
     private String question;
@@ -42,6 +43,7 @@ public class EssayDetailResponse {
         this.durationTime = essayExercise.getDurationTime();
         this.reAttempt = essayExercise.getReAttempt();
         this.type = essayExercise.getType();
+        this.exerciseDescription = essayExercise.getExerciseDescription();
         this.timeLess = GetTimeLess(essayExercise.getStartTime(), essayExercise.getEndTime(), essayExercise.getDurationTime());
         this.question = essayExercise.getQuestion();
     }

@@ -72,7 +72,7 @@ public class ExerciseImpl implements ExerciseService{
                     List<StudentSubmissionInformation> submissionResponse = new ArrayList<>();
                     for (var sub : submission) {
                         var userInfor = this.userRepository.findById(sub.getStudentId()).get();
-                        submissionResponse.add(new StudentSubmissionInformation(userInfor.getUserId(), userInfor.getName(), sub.getDateSubmit(), sub.isReviewable()));
+                        submissionResponse.add(new StudentSubmissionInformation(userInfor.getUserId(), userInfor.getName(), sub.getDateSubmit(), sub.getScore(), sub.isReviewable()));
                     }
                     exercises.get(i).setStudents(submissionResponse);
                 }
@@ -81,7 +81,7 @@ public class ExerciseImpl implements ExerciseService{
                     List<StudentSubmissionInformation> submissionResponse = new ArrayList<>();
                     for (var sub : submission) {
                         var userInfor = this.userRepository.findById(sub.getStudentId()).get();
-                        submissionResponse.add(new StudentSubmissionInformation(userInfor.getUserId(), userInfor.getName(), sub.getDateSubmit(), sub.isReviewable()));
+                        submissionResponse.add(new StudentSubmissionInformation(userInfor.getUserId(), userInfor.getName(), sub.getDateSubmit(), sub.getScore(), sub.isReviewable()));
                     }
                     exercises.get(i).setStudents(submissionResponse);
                 }

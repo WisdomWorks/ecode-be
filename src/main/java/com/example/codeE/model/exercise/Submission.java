@@ -33,18 +33,22 @@ public class Submission {
     @LastModifiedDate
     private String dateGrade;
     @Field
+    private String teacherComment;
+    @Field
 //    @NotNull(message = "Reviewable is required")
     private boolean reviewable;
-    public Submission(String studentId, String exerciseId, boolean reviewable) {
+    public Submission(String studentId, String exerciseId, boolean reviewable, String teacherComment) {
         this.studentId = studentId;
         this.exerciseId = exerciseId;
         this.reviewable = reviewable;
+        this.teacherComment = teacherComment;
     }
-    public Submission(String studentId, String exerciseId, Float score, boolean reviewable) {
+    public Submission(String studentId, String exerciseId, Float score, boolean reviewable, String teacherComment) {
         this.studentId = studentId;
         this.exerciseId = exerciseId;
         this.score = score;
         this.reviewable = reviewable;
+        this.teacherComment = teacherComment;
     }
 
     public Submission(String submissionId, String exerciseId) {

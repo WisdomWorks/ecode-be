@@ -13,5 +13,6 @@ public class StudentSubmissionInformation {
     private String userId;
     private String userName;
     private String dateSubmit;
+    private float grade;
     private boolean reviewable;
 }

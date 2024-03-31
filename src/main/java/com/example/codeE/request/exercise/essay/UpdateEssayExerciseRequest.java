@@ -27,6 +27,7 @@ public class UpdateEssayExerciseRequest {
     @NotNull(message = "Duration time is required")
     private int durationTime;
     private int reAttempt;
+    private String exerciseDescription;
     @NotNull(message = "Question is required")
     private String question;
 }

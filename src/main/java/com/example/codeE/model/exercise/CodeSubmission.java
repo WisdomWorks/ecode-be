@@ -63,7 +63,7 @@ public class CodeSubmission extends Submission {
     private JudgeService judgeService;
 
     public CodeSubmission(String submissionId, @NotNull(message = "Student ID is required") String studentId, @NotNull(message = "Exercise ID is required") String exerciseId, Float score, String dateSubmit, String dateGrade, @NotNull(message = "Reviewable is required") boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Double casePoints, Double caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
-        super(submissionId, studentId, exerciseId, score, dateSubmit, dateGrade, reviewable);
+        super(submissionId, studentId, exerciseId, score, dateSubmit, dateGrade,"",reviewable);
         this.time = time;
         this.memory = memory;
         this.languageId = languageId;
@@ -84,7 +84,7 @@ public class CodeSubmission extends Submission {
     }
 
     public CodeSubmission(String studentId, String exerciseId, Float score, boolean reviewable, Double time, Integer memory, String languageId, String status, String result, String error, Integer currentTestcase, Double casePoints, Double caseTotal, String judgedOn, boolean isPretested, LocalDateTime lockedAfter, String source) {
-        super(studentId, exerciseId, score, reviewable);
+        super(studentId, exerciseId, score, reviewable, "");
         this.time = time;
         this.memory = memory;
         this.languageId = languageId;

@@ -20,17 +20,17 @@ public class EssaySubmission extends Submission {
     @NotNull(message = "Submission is required")
     private String submission;
 
-    public EssaySubmission(String studentId, String exerciseId, boolean reviewable, String submission) {
-        super(studentId, exerciseId, reviewable);
+    public EssaySubmission(String studentId, String exerciseId, boolean reviewable, String submission, String teacherComment) {
+        super(studentId, exerciseId, reviewable, teacherComment);
         this.submission = submission;
     }
 
-    public EssaySubmission(String studentId, String exerciseId, float score, boolean reviewable, String submission) {
-        super(studentId, exerciseId, score, reviewable);
+    public EssaySubmission(String studentId, String exerciseId, float score, boolean reviewable, String submission, String teacherComment) {
+        super(studentId, exerciseId, score, reviewable, teacherComment);
         this.submission = submission;
     }
     public EssaySubmission(CreateEssaySubmissionRequest request, float score){
-        super(request.getStudentId(), request.getExerciseId(), score, true);
+        super(request.getStudentId(), request.getExerciseId(), score, true, "");
         this.submission = request.getSubmission();
     }
     @Override
