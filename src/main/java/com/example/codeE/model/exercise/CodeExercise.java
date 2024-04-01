@@ -15,16 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @Document(collection = "code_exercise")
 public class CodeExercise extends Exercise {
-//    @NotBlank(message = "Problem code is required")
-//    @Size(max = 20, message = "Problem code must not exceed 20 characters")
-//    @Indexed(unique = true)
-//    @Field("code")
-//    private String code;
-
-//    @NotBlank(message = "Problem name is required")
-//    @Size(max = 100, message = "Problem name must not exceed 100 characters")
-//    @Field("name")
-//    private String name;
 
     @Field
     private String description;
@@ -38,7 +28,7 @@ public class CodeExercise extends Exercise {
     private Integer memoryLimit;
 
     @Field
-    private Boolean shortCircuit;
+    private Boolean shortCircuit = true;
 
     @Field
     private boolean partial = true;
@@ -48,4 +38,7 @@ public class CodeExercise extends Exercise {
 
     @Field
     private Double points;
+
+    @Field
+    private String template;
 }
