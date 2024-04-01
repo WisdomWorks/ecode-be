@@ -56,4 +56,6 @@ public class CreateCodeExerciseRequest {
 
     @NotNull(message = "Exercise testcase is required")
     private List<TestCase> testCaseList;
+
+    private String template;
 }

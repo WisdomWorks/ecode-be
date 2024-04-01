@@ -274,7 +274,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             if (submission == null) {
                 LoggerHelper.logError("Submission vanished: " + id);
                 return null;
-            }// loi eo gi hai v :)))))
+            }
 
             CodeExercise problem = codeExerciseService.getProblemById(submission.getExerciseId());
             String problemId = submission.getExerciseId();

@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TestCase {
-    private List<String> inputs;
-    private List<String> outputs;
+    private String input;
+    private String output;
     private int points;
 }

@@ -68,9 +68,8 @@ public class CodeExerciseImpl implements CodeExerciseService{
                 FileWriter inputFileWriter = new FileWriter(inputFile);
                 BufferedWriter inputFileBufferedWriter = new BufferedWriter(inputFileWriter);
 
-                for(String input: testCaseList.get(i).getInputs()){
-                    inputFileBufferedWriter.write(input +" ");
-                }
+                String input = testCaseList.get(i).getInput();
+                inputFileBufferedWriter.write(input);
 
                 inputFileBufferedWriter.close();
 
@@ -79,10 +78,8 @@ public class CodeExerciseImpl implements CodeExerciseService{
                 FileWriter outputFileWriter = new FileWriter(outputFile);
                 BufferedWriter outputFileBufferedWriter = new BufferedWriter(outputFileWriter);
 
-                for(String output: testCaseList.get(i).getOutputs()){
-                    outputFileBufferedWriter.write(output + " ");
-                    outputFileBufferedWriter.newLine();
-                }
+                String output = testCaseList.get(i).getOutput();
+                outputFileBufferedWriter.write(output);
 
                 outputFileBufferedWriter.close();
 
