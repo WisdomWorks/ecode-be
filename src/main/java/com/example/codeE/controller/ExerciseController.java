@@ -239,7 +239,7 @@ public class ExerciseController {
     }
 
     @GetMapping
-    @RequestMapping(value = "essay/submit/user/{userId}", method = RequestMethod.GET)
+    @RequestMapping(value = "submit/user/{userId}", method = RequestMethod.GET)
     public ResponseEntity<?> getStudentEssayUserId(@RequestParam String exerciseId, @PathVariable String userId, @RequestParam String type) {
         return switch (type) {
             case "quiz" ->
