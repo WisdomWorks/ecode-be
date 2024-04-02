@@ -33,6 +33,11 @@ public class CreateCodeExerciseRequest {
     @Future(message = "Exercise end time must be in the future")
     private Date endTime;
 
+    @NotNull(message = "Duration time is required")
+    private int durationTime;
+
+    private boolean isShowAll;
+
     @NotNull(message = "Re-Attempt is required")
     private int reAttempt;
 

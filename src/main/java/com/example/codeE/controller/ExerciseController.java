@@ -66,6 +66,8 @@ public class ExerciseController {
         codeExercise.setKey(request.getKey());
         codeExercise.setStartTime(request.getStartTime());
         codeExercise.setEndTime(request.getEndTime());
+        codeExercise.setDurationTime(request.getDurationTime());
+        codeExercise.setShowAll(request.isShowAll());
         codeExercise.setReAttempt(request.getReAttempt());
         codeExercise.setPublicGroupIds(request.getPublicGroupIds());
         codeExercise.setDescription(request.getDescription());
@@ -73,11 +75,13 @@ public class ExerciseController {
         codeExercise.setMemoryLimit(request.getMemoryLimit());
         codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
         codeExercise.setPoints(request.getPoints());
+        codeExercise.setType("code");
 
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
+        this.exerciseService.saveCodeExercise(savedCodeExercise);
 
         codeExerciseService.createProblemFolder(request.getTestCaseList(), savedCodeExercise.getExerciseId());
-        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("Api is building");
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCodeExercise);
     }
 
     @PostMapping
@@ -130,20 +134,24 @@ public class ExerciseController {
         MongoDatabase database = mongoTemplate.getDb();
         AutoIncrement autoIncrement = new AutoIncrement(database);
 
-        CodeSubmission submission = new CodeSubmission(judgeService);
-        submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
-        submission.setExerciseId(request.getExerciseId());
-        submission.setLanguageId(request.getLanguageId());
-        submission.setSource(request.getSource());
+        try{
+            CodeSubmission submission = new CodeSubmission(judgeService);
+            submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
+            submission.setExerciseId(request.getExerciseId());
+            submission.setLanguageId(request.getLanguageId());
+            submission.setSource(request.getSource());
 
-        CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
-        submission.setTime(codeExercise.getTimeLimit());
-        submission.setMemory(codeExercise.getMemoryLimit());
-        submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
+            submission.setTime(codeExercise.getTimeLimit());
+            submission.setMemory(codeExercise.getMemoryLimit());
+            submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-        CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
-        savedSubmission.judge(false, false);
-        return ResponseEntity.status(HttpStatus.OK).body("");
+            CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
+            savedSubmission.judge(false, false);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("isSuccess", true));
     }
 
     @PostMapping
@@ -240,7 +248,7 @@ public class ExerciseController {
 
     @GetMapping
     @RequestMapping(value = "submit/user/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getStudentEssayUserId(@RequestParam String exerciseId, @PathVariable String userId, @RequestParam String type) {
+    public ResponseEntity<?> getExerciseByUserId(@RequestParam String exerciseId, @PathVariable String userId, @RequestParam String type) {
         return switch (type) {
             case "quiz" ->
                     ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionByUserId(exerciseId, userId));

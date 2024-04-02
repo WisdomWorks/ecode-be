@@ -71,8 +71,10 @@ public class Exercise {
     @Field
     @NotNull(message = "Re-Attempt is required")
     private int reAttempt;
+
     @Field
     private String exerciseDescription;
+    
     @Field
     @NotNull(message = "Exercise type is required")
     @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
