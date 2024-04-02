@@ -1,5 +1,6 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizExercise;
@@ -12,6 +13,7 @@ import java.util.List;
 public interface ExerciseService {
     Exercise saveQuizExercise(QuizExercise exercise);
     Exercise saveEsayExercise(EssayExercise exercise);
+    Exercise saveCodeExercise(CodeExercise exercise);
     ExerciseStudentResponse getPreviewExercise(String exerciseId);
     List<ExerciseResponse> getExercisesByCourseId(String courseId);
     Exercise getExerciseById(String exerciseId);
