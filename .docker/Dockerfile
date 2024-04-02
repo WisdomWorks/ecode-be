@@ -3,4 +3,4 @@ COPY ../ /workspace
 WORKDIR /workspace
 RUN chmod +x ./mvnw
 # Run the application using maven
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["./mvnw", "spring-boot:run", "-DskipTests"]
