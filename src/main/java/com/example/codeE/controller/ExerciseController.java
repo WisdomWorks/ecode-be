@@ -92,18 +92,18 @@ public class ExerciseController {
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
 
-        List<TestCase> testCases = request.getTestCaseList();
+        List<TestCase> testCases = request.getTestCases();
         for(int i=0; i<testCases.size(); i++){
             testCases.get(i).setExerciseId(savedCodeExercise.getExerciseId());
             TestCase savedTestcase = this.codeExerciseTestcaseService.saveTestCase(testCases.get(i));
             testCases.get(i).setTestcaseId(savedTestcase.getTestcaseId());
         }
 
-        savedCodeExercise.setTestCases(request.getTestCaseList());
+        savedCodeExercise.setTestCases(request.getTestCases());
         codeExerciseService.createCodeExercise(savedCodeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
 
-        codeExerciseService.createProblemFolder(request.getTestCaseList(), savedCodeExercise.getExerciseId());
+        codeExerciseService.createProblemFolder(request.getTestCases(), savedCodeExercise.getExerciseId());
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Create success"));
     }
 

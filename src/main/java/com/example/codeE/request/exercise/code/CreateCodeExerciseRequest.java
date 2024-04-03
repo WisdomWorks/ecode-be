@@ -60,7 +60,7 @@ public class CreateCodeExerciseRequest {
     private Double points;
 
     @NotNull(message = "Exercise testcase is required")
-    private List<TestCase> testCaseList;
+    private List<TestCase> testCases;
 
     private String template;
 }
