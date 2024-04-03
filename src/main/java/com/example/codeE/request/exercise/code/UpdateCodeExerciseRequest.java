@@ -3,6 +3,7 @@ package com.example.codeE.request.exercise.code;
 import com.example.codeE.constant.Constant;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -28,10 +29,9 @@ public class UpdateCodeExerciseRequest {
 
     private String key;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private Date startTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
+    @Future(message = "Exercise end time must be in the future")
     private Date endTime;
 
     private int durationTime;
