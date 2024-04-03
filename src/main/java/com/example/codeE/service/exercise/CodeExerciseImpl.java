@@ -1,6 +1,7 @@
 package com.example.codeE.service.exercise;
 
 import com.example.codeE.constant.Constant;
+import com.example.codeE.helper.CloudStorageHelper;
 import com.example.codeE.helper.FileHelper;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.common.problem.TestCase;
@@ -9,6 +10,7 @@ import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,6 +29,9 @@ public class CodeExerciseImpl implements CodeExerciseService{
 
     @Autowired
     private ExerciseRepository exerciseRepository;
+
+    @Autowired
+    private CloudStorageHelper cloudStorageHelper;
 
     @Override
     public List<String> getProblemIds(List<CodeExercise> problems) {
@@ -86,12 +91,10 @@ public class CodeExerciseImpl implements CodeExerciseService{
     @Override
     public void createProblemFolder(List<TestCase> testCaseList, String exerciseId) {
         try {
-            //Create problem folder
-            Path path = Paths.get("/Users/nyan/Documents/CodeE/problems/"+exerciseId);
-            Files.createDirectories(path);
+            String store = "problems/" + exerciseId + "/";
 
             //Create init.yml file
-            File initFile = new File("/Users/nyan/Documents/CodeE/problems/"+exerciseId+"/init.yml");
+            File initFile = File.createTempFile("init", ".yml");
             String initFileContent = Constant.INIT_FILE_TEMPLATE;
 
             //Create temporary directory
@@ -123,14 +126,19 @@ public class CodeExerciseImpl implements CodeExerciseService{
             }
 
             //Zip iozip directory
-            Path zipFilePath = Paths.get("/Users/nyan/Documents/CodeE/problems/"+exerciseId+"/iozip.zip");
+            Path zipFilePath = Files.createTempFile("iozip", ".zip");
             FileHelper.zipFile(zipFilePath, tempDirectory);
 
             FileWriter initFileWriter = new FileWriter(initFile);
             BufferedWriter initFileBufferedWriter = new BufferedWriter(initFileWriter);
             initFileBufferedWriter.write(initFileContent);
             initFileBufferedWriter.close();
+
+            cloudStorageHelper.uploadFile(FileHelper.convertFileToMultiPartFile(initFile, "init.yml"), store);
+            cloudStorageHelper.uploadFile(FileHelper.convertFileToMultiPartFile(zipFilePath.toFile(), "iozip.zip"), store);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
