@@ -40,6 +40,14 @@ public class SubmissionTestCaseImpl implements SubmissionTestCaseService{
 
     @Override
     public List<SubmissionTestCase> getAllTcBySubmissionId(String submissionId) {
-        return submissionTestCaseRepository.findBySubmissionId(submissionId);
+        List<SubmissionTestCase> submissionTestCases = submissionTestCaseRepository.findBySubmissionId(submissionId);
+        // Get only the cases with total point = 0
+        List<SubmissionTestCase> testCases = new ArrayList<>();
+        for (SubmissionTestCase submissionTestCase : submissionTestCases) {
+            if (submissionTestCase.getTotal() == 0) {
+                testCases.add(submissionTestCase);
+            }
+        }
+        return testCases;
     }
 }
