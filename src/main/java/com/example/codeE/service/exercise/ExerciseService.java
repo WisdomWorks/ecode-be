@@ -14,7 +14,7 @@ public interface ExerciseService {
     Exercise saveQuizExercise(QuizExercise exercise);
     Exercise saveEsayExercise(EssayExercise exercise);
     Exercise saveCodeExercise(CodeExercise exercise);
-    ExerciseStudentResponse getPreviewExercise(String exerciseId);
+    ExerciseStudentResponse getPreviewExercise(String exerciseId, String studentId);
     List<ExerciseResponse> getExercisesByCourseId(String courseId);
     Exercise getExerciseById(String exerciseId);
     Exercise getDetailExercise(String exerciseId, String key, String studentId);

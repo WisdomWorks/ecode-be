@@ -14,9 +14,11 @@ import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +60,10 @@ public class ExerciseImpl implements ExerciseService{
     }
 
     @Override
-    public ExerciseStudentResponse getPreviewExercise(String exerciseId) {
+    public ExerciseStudentResponse getPreviewExercise(String exerciseId, String studentId) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
-        return new ExerciseStudentResponse(exercise);
+        var available = this.isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt());
+        return new ExerciseStudentResponse(exercise, available);
     }
 
     @Override
@@ -108,7 +111,6 @@ public class ExerciseImpl implements ExerciseService{
     @Override
     public Exercise getDetailExercise(String exerciseId, String key, String studentId) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
-
         if (!exercise.getKey().equals(key))
             throw new IllegalArgumentException("Invalid enrollment key. Please double-check and try again.");
         else if (!isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))

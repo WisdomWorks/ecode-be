@@ -186,8 +186,8 @@ public class ExerciseController {
     }
     @GetMapping
     @RequestMapping(value = "preview/{exerciseId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getPreviewExercise(@PathVariable String exerciseId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getPreviewExercise(exerciseId));
+    public ResponseEntity<?> getPreviewExercise(@PathVariable String exerciseId, @RequestParam String studentId){
+        return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getPreviewExercise(exerciseId, studentId));
     }
 
     @PutMapping
