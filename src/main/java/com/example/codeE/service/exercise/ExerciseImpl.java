@@ -12,6 +12,7 @@ import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.ExerciseStudentResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
+import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,6 +31,8 @@ public class ExerciseImpl implements ExerciseService{
     private GroupRepository groupRepository;
     @Autowired
     private GroupStudentRepository groupStudentRepository;
+    @Autowired
+    private CodeSubmissionService codeSubmissionService;
     @Autowired
     private EssaySubmissionService essaySubmissionService;
     @Autowired
@@ -107,13 +110,13 @@ public class ExerciseImpl implements ExerciseService{
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
 
         if (!exercise.getKey().equals(key))
-            throw new IllegalArgumentException("Wrong key to enroll exercise");
+            throw new IllegalArgumentException("Invalid enrollment key. Please double-check and try again.");
         else if (!isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
-            throw new DataIntegrityViolationException("Student have do this " + exercise.getType() + " " + exercise.getReAttempt() + " time");
+            throw new DataIntegrityViolationException("You have already submitted the exercise the maximum number of times allowed.");
         else if (exercise.getKey().equals(key) && isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
             return exercise;
         else
-            throw new IllegalArgumentException("Some thing wrong when get detail exercise");
+            throw new IllegalArgumentException("Failed to retrieve exercise information.");
     }
 
     private boolean isReTemp(String exerciseId, String userId, String type, int reTemp) {
@@ -126,6 +129,11 @@ public class ExerciseImpl implements ExerciseService{
             case "essay" -> {
                 var quizSubmission = this.essaySubmissionService.getEssaySubmissionByUserId(exerciseId, userId);
                 if (quizSubmission.isEmpty() || quizSubmission.size() < reTemp)
+                    return true;
+            }
+            case "code" -> {
+                var codeSubmission = this.codeSubmissionService.getCodeSubmissionByUserId(exerciseId, userId);
+                if (codeSubmission.isEmpty() || codeSubmission.size() < reTemp)
                     return true;
             }
         }

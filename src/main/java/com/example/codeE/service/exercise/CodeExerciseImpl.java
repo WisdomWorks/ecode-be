@@ -48,6 +48,11 @@ public class CodeExerciseImpl implements CodeExerciseService{
     }
 
     @Override
+    public void deleteCodeExercise(String exerciseId) {
+        codeExerciseRepository.deleteById(exerciseId);
+    }
+
+    @Override
     public void createProblemFolder(List<TestCase> testCaseList, String exerciseId) {
         try {
             //Create problem folder
