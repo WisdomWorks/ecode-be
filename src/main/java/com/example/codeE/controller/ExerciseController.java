@@ -81,7 +81,7 @@ public class ExerciseController {
         this.exerciseService.saveCodeExercise(savedCodeExercise);
 
         codeExerciseService.createProblemFolder(request.getTestCaseList(), savedCodeExercise.getExerciseId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCodeExercise);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Create success"));
     }
 
     @PostMapping
