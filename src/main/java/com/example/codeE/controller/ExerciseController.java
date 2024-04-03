@@ -263,7 +263,8 @@ public class ExerciseController {
                     ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionByUserId(exerciseId, userId));
             case "essay" ->
                     ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByUserId(exerciseId, userId));
-            case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
+            case "code" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionByUserId(exerciseId, userId));
             default ->
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };
