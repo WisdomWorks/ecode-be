@@ -14,4 +14,6 @@ public interface CodeExerciseService {
     void createProblemFolder(List<TestCase> testCaseList, String exerciseId);
 
     CodeExercise createCodeExercise(CodeExercise codeExercise);
+
+    void deleteCodeExercise(String exerciseId);
 }

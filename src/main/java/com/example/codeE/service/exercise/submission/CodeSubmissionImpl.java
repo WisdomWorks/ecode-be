@@ -2,13 +2,22 @@ package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.repository.CodeSubmissionRepository;
+import com.example.codeE.repository.UserRepository;
+import com.example.codeE.request.exercise.code.CodeSubmissionsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class CodeSubmissionImpl implements CodeSubmissionService{
     @Autowired
     private CodeSubmissionRepository codeSubmissionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public CodeSubmission checkStatusAndUpdate(CodeSubmission codeSubmission) {
@@ -53,5 +62,34 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     @Override
     public CodeSubmission saveCodeSubmission(CodeSubmission codeSubmission) {
         return codeSubmissionRepository.save(codeSubmission);
+    }
+
+    @Override
+    public List<CodeSubmissionsResponse> getCodeSubmissionsByExerciseId(String exerciseId) {
+        List<CodeSubmission> submissions = codeSubmissionRepository.findAll();
+        var result = new ArrayList<CodeSubmissionsResponse>();
+        for (var item : submissions) {
+            if (!item.getSubmissionId().equals("code_submission")){
+                if (item.getExerciseId().equals(exerciseId)) {
+                    var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
+                    result.add(new CodeSubmissionsResponse(item, student));
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<CodeSubmission> getCodeSubmissionByUserId(String exerciseId, String userId) {
+        List<CodeSubmission> submissions = codeSubmissionRepository.findAll();
+        var result = new ArrayList<CodeSubmission>();
+        for (var item : submissions) {
+            if (!item.getSubmissionId().equals("code_submission")){
+                if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
+                    result.add(item);
+                }
+            }
+        }
+        return result;
     }
 }

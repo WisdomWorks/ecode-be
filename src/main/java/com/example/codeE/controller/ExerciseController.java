@@ -121,6 +121,8 @@ public class ExerciseController {
     public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest request){
         Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
         return switch (exercise.getType()){
+            case "code" ->
+                ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseById(request.getExerciseId()));
             case "quiz" ->
                 ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
             case "essay" ->
@@ -140,6 +142,7 @@ public class ExerciseController {
             submission.setExerciseId(request.getExerciseId());
             submission.setLanguageId(request.getLanguageId());
             submission.setSource(request.getSource());
+            submission.setStudentId(request.getStudentId());
 
             CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
             submission.setTime(codeExercise.getTimeLimit());
@@ -186,9 +189,9 @@ public class ExerciseController {
     public ResponseEntity<?> deleteExerciseById(@Valid @PathVariable String exerciseId, @Valid @RequestParam String type) {
         this.exerciseService.deleteExerciseById(exerciseId);
         switch (type) {
-            // case "code" -> this.codeExerciseService.deleteCodeExerciseById(exerciseId);
             case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(exerciseId);
             case "essay" -> this.essayExerciseService.deleteEssayExerciseById(exerciseId);
+            case "code" -> this.codeExerciseService.deleteCodeExercise(exerciseId);
             default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         }
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Delete success"));
@@ -221,15 +224,21 @@ public class ExerciseController {
     @GetMapping
     @RequestMapping(value = "{exerciseId}/all-submission", method = RequestMethod.GET)
     public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type) {
-        return switch (type) {
-            case "quiz" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionsByExerciseId(exerciseId));
-            case "essay" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId));
-            case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
-            default ->
-                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
-        };
+        try{
+            return switch (type) {
+                case "quiz" ->
+                        ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionsByExerciseId(exerciseId));
+                case "essay" ->
+                        ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId));
+                case "code" ->
+                        ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionsByExerciseId(exerciseId));
+                default ->
+                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
+            };
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
     }
 
     @GetMapping
