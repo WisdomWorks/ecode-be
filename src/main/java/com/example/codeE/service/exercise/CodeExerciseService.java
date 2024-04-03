@@ -2,6 +2,7 @@ package com.example.codeE.service.exercise;
 
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.common.problem.TestCase;
+import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface CodeExerciseService {
     CodeExercise createCodeExercise(CodeExercise codeExercise);
 
     void deleteCodeExercise(String exerciseId);
+
+    CodeExercise updateCodeExercise(String exerciseId, UpdateCodeExerciseRequest updateCodeExerciseRequest);
 }

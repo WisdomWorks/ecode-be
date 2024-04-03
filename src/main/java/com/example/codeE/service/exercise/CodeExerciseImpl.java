@@ -5,6 +5,8 @@ import com.example.codeE.helper.FileHelper;
 import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.repository.CodeExerciseRepository;
+import com.example.codeE.repository.ExerciseRepository;
+import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,9 @@ import java.util.List;
 public class CodeExerciseImpl implements CodeExerciseService{
     @Autowired
     private CodeExerciseRepository codeExerciseRepository;
+
+    @Autowired
+    private ExerciseRepository exerciseRepository;
 
     @Override
     public List<String> getProblemIds(List<CodeExercise> problems) {
@@ -50,6 +55,32 @@ public class CodeExerciseImpl implements CodeExerciseService{
     @Override
     public void deleteCodeExercise(String exerciseId) {
         codeExerciseRepository.deleteById(exerciseId);
+    }
+
+    @Override
+    public CodeExercise updateCodeExercise(String exerciseId, UpdateCodeExerciseRequest updateCodeExerciseRequest) {
+        CodeExercise codeExercise = codeExerciseRepository.findById(exerciseId).get();
+        codeExercise.setExerciseName(updateCodeExerciseRequest.getExerciseName());
+        codeExercise.setTopicId(updateCodeExerciseRequest.getTopicId());
+        codeExercise.setKey(updateCodeExerciseRequest.getKey());
+        codeExercise.setStartTime(updateCodeExerciseRequest.getStartTime());
+        codeExercise.setEndTime(updateCodeExerciseRequest.getEndTime());
+        codeExercise.setDurationTime(updateCodeExerciseRequest.getDurationTime());
+        codeExercise.setShowAll(updateCodeExerciseRequest.isShowAll());
+        codeExercise.setReAttempt(updateCodeExerciseRequest.getReAttempt());
+        codeExercise.setDescription(updateCodeExerciseRequest.getDescription());
+        codeExercise.setAllowedLanguageIds(updateCodeExerciseRequest.getAllowedLanguageIds());
+        codeExercise.setPoints(updateCodeExerciseRequest.getPoints());
+        codeExercise.setMemoryLimit(updateCodeExerciseRequest.getMemoryLimit());
+        codeExercise.setTimeLimit(updateCodeExerciseRequest.getTimeLimit());
+        codeExercise.setTemplate(updateCodeExerciseRequest.getTemplate());
+        codeExercise.setType(updateCodeExerciseRequest.getType());
+        codeExercise.setPublicGroupIds(updateCodeExerciseRequest.getPublicGroupIds());
+        codeExercise.setTestCases(updateCodeExerciseRequest.getTestCases());
+
+        this.exerciseRepository.save(codeExercise);
+
+        return codeExerciseRepository.save(codeExercise);
     }
 
     @Override
