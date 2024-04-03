@@ -70,7 +70,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         var result = new ArrayList<CodeSubmissionsResponse>();
         for (var item : submissions) {
             if (!item.getSubmissionId().equals("code_submission")){
-                if (item.getExerciseId().equals(exerciseId)) {
+                if (item.getExerciseId().equals(exerciseId) && !item.isPretested()) {
                     var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
                     result.add(new CodeSubmissionsResponse(item, student));
                 }
@@ -85,7 +85,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         var result = new ArrayList<CodeSubmission>();
         for (var item : submissions) {
             if (!item.getSubmissionId().equals("code_submission")){
-                if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
+                if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId) && !item.isPretested()) {
                     result.add(item);
                 }
             }
