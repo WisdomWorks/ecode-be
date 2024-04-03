@@ -24,7 +24,7 @@ public class AllExceptionHandler {
     public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body("Data integrity violation: " + e.getMessage());
+                .body(Map.of("message", e.getMessage()));
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

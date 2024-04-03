@@ -25,8 +25,9 @@ public class ExerciseStudentResponse {
     private String endTime;
     private int durationTime;
     private String type;
+    private boolean isAvailable;
 
-    public ExerciseStudentResponse(Exercise exercise) {
+    public ExerciseStudentResponse(Exercise exercise, boolean isAvailable) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
         this.exerciseId = exercise.getExerciseId();
         this.topicId = exercise.getTopicId();
@@ -37,5 +38,6 @@ public class ExerciseStudentResponse {
         this.endTime = dateFormat.format(exercise.getEndTime());
         this.durationTime = exercise.getDurationTime();
         this.type = exercise.getType();
+        this.isAvailable = isAvailable;
     }
 }
