@@ -229,8 +229,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.put("name", "handshake-success");
-//        pingThread = new Thread(this::pingThread, "PingThread");
-//        pingThread.start();
+        pingThread = new Thread(this::pingThread, "PingThread");
+        pingThread.start();
 
         connected();
         return response;
