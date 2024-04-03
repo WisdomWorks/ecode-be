@@ -1,5 +1,6 @@
 package com.example.codeE.model.exercise;
 
+import com.example.codeE.model.exercise.common.problem.TestCase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,4 +42,7 @@ public class CodeExercise extends Exercise {
 
     @Field
     private String template;
+
+    @Field
+    private List<TestCase> testCases;
 }

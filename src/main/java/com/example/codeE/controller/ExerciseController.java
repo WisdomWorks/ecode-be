@@ -7,6 +7,7 @@ import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
+import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
@@ -80,6 +81,7 @@ public class ExerciseController {
         codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
         codeExercise.setPoints(request.getPoints());
         codeExercise.setType("code");
+        codeExercise.setTestCases(request.getTestCaseList());
 
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
@@ -207,11 +209,11 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Delete success"));
     }
 
-    // @PutMapping
-    // @RequestMapping(value = "code", method = RequestMethod.PUT)
-    // public ResponseEntity<?> updateCodeExercise(@Valid @RequestBody CodeExerciseWBD exercise) {
-    //     return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseServiceWBD.updateCodeExercise(exercise));
-    // }
+     @PutMapping
+     @RequestMapping(value = "code", method = RequestMethod.PUT)
+     public ResponseEntity<?> updateCodeExercise(@RequestBody UpdateCodeExerciseRequest request) {
+         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request));
+     }
 
     @PutMapping
     @RequestMapping(value = "quiz", method = RequestMethod.PUT)
