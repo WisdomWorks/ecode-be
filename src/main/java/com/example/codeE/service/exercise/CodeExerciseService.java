@@ -12,6 +12,8 @@ public interface CodeExerciseService {
 
     CodeExercise getCodeExerciseById(String exerciseId);
 
+    CodeExercise getCodeExerciseByIdPretestOnly(String exerciseId);
+
     void createProblemFolder(List<TestCase> testCaseList, String exerciseId);
 
     CodeExercise createCodeExercise(CodeExercise codeExercise);
