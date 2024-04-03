@@ -252,7 +252,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.put("short-circuit", data.shortCircuit);
 
             ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
-            metaNode.put("pretests-only", true);
+            metaNode.put("pretests-only", data.pretests_only);
             metaNode.put("in-contest", false);
             metaNode.put("attempt-no", 1);
             metaNode.put("user","id");
