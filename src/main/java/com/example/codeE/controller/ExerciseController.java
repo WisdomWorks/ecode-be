@@ -81,7 +81,7 @@ public class ExerciseController {
         this.exerciseService.saveCodeExercise(savedCodeExercise);
 
         codeExerciseService.createProblemFolder(request.getTestCaseList(), savedCodeExercise.getExerciseId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCodeExercise);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Create success"));
     }
 
     @PostMapping
@@ -263,7 +263,8 @@ public class ExerciseController {
                     ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionByUserId(exerciseId, userId));
             case "essay" ->
                     ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByUserId(exerciseId, userId));
-            case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
+            case "code" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionByUserId(exerciseId, userId));
             default ->
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };

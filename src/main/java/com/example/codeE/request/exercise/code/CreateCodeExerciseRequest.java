@@ -26,7 +26,7 @@ public class CreateCodeExerciseRequest {
     private String key;
 
     @NotNull(message = "Exercise start time is required")
-    @Future(message = "Exercise start time must be in the future")
+//    @Future(message = "Exercise start time must be in the future")
     private Date startTime;
 
     @NotNull(message = "Exercise end time is required")

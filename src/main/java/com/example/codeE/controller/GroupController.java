@@ -2,19 +2,17 @@ package com.example.codeE.controller;
 
 import com.example.codeE.model.group.UpdateGroupRequest;
 import com.example.codeE.request.group.CreateGroupRequest;
-
-import java.util.List;
-import java.util.Map;
-
 import com.example.codeE.request.group.CreateGroupStudentRequest;
+import com.example.codeE.service.group.GroupService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-
-import com.example.codeE.service.group.GroupService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/groups")
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class GroupController {
     @Autowired
     private GroupService groupService;
-
 
     @GetMapping
     @RequestMapping(value = "{groupId}",method = RequestMethod.GET)
