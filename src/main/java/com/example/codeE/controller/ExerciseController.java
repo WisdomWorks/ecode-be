@@ -6,6 +6,7 @@ import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
+import com.example.codeE.request.exercise.code.CodeRunRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
@@ -166,6 +167,7 @@ public class ExerciseController {
             submission.setLanguageId(request.getLanguageId());
             submission.setSource(request.getSource());
             submission.setStudentId(request.getStudentId());
+            submission.setPretested(false);
 
             CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
             submission.setTime(codeExercise.getTimeLimit());
@@ -178,6 +180,34 @@ public class ExerciseController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("isSuccess", true));
+    }
+
+    @PostMapping
+    @RequestMapping(value = "code/run", method = RequestMethod.POST)
+    public ResponseEntity<?> runCodeExercise(@Valid @RequestBody CodeRunRequest request){
+        MongoDatabase database = mongoTemplate.getDb();
+        AutoIncrement autoIncrement = new AutoIncrement(database);
+        String submissionId = String.valueOf(autoIncrement.getNextSequence("code_submission"));
+        try{
+            CodeSubmission submission = new CodeSubmission(judgeService);
+            submission.setSubmissionId(submissionId);
+            submission.setExerciseId(request.getExerciseId());
+            submission.setLanguageId(request.getLanguageId());
+            submission.setSource(request.getSource());
+            submission.setStudentId(request.getStudentId());
+            submission.setPretested(true);
+
+            CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
+            submission.setTime(codeExercise.getTimeLimit());
+            submission.setMemory(codeExercise.getMemoryLimit());
+            submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+            CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
+            savedSubmission.judge(false, false);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("submissionId", submissionId));
     }
 
     @GetMapping
