@@ -8,6 +8,6 @@ public interface SubmissionTestCaseService {
     public void deleteAllTcBySubmissionId(String submissionId);
     public int getMaxPosition(List<SubmissionTestCase> testCases);
     public void saveAll(List<SubmissionTestCase> testCases);
-
     public List<SubmissionTestCase> findBySubmissionId(String submissionId);
+    public List<SubmissionTestCase> getAllTcBySubmissionId(String submissionId);
 }

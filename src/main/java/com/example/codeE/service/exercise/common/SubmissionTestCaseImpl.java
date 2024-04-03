@@ -37,4 +37,9 @@ public class SubmissionTestCaseImpl implements SubmissionTestCaseService{
     public List<SubmissionTestCase> findBySubmissionId(String submissionId) {
         return submissionTestCaseRepository.findBySubmissionId(submissionId);
     }
+
+    @Override
+    public List<SubmissionTestCase> getAllTcBySubmissionId(String submissionId) {
+        return submissionTestCaseRepository.findBySubmissionId(submissionId);
+    }
 }
