@@ -253,13 +253,14 @@ public class ExerciseController {
 
     @GetMapping
     @RequestMapping(value = "submit/{submissionId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getStudentEssaySubmission(@PathVariable String submissionId, @RequestParam String type) {
+    public ResponseEntity<?> getStudentSubmission(@PathVariable String submissionId, @RequestParam String type) {
         return switch (type) {
             case "quiz" ->
                     ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getStudentQuizSubmission(submissionId));
             case "essay" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByExerciseId(submissionId));
-            case "code" -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body("API not provide");
+                    ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmission(submissionId));
+            case "code" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionById(submissionId));
             default ->
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };

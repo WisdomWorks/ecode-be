@@ -51,7 +51,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     
     @Override
     public CodeSubmission getCodeSubmissionById(String id) {
-        return codeSubmissionRepository.findById(id).get();
+        return codeSubmissionRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No Submission found"));
     }
 
     @Override

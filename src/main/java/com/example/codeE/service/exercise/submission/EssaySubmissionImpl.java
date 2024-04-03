@@ -55,7 +55,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     }
 
     @Override
-    public EssaySubmission getEssayQuizSubmission(String submissionId) {
+    public EssaySubmission getEssaySubmission(String submissionId) {
         return this.essaySubmissionRepository.findById(submissionId).orElseThrow(() -> new NoSuchElementException("No Submission found"));
     }
 
