@@ -6,6 +6,7 @@ import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.repository.CodeExerciseRepository;
 import com.example.codeE.repository.ExerciseRepository;
+import com.example.codeE.request.exercise.code.CodeDetailResponse;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
     }
 
     @Override
-    public CodeExercise getCodeExerciseByIdPretestOnly(String exerciseId) {
+    public CodeDetailResponse getCodeExerciseDetail(String exerciseId) {
         CodeExercise codeExercise = codeExerciseRepository.findById(exerciseId).get();
         // Get only TestCase with 0 points
         List<TestCase> testCases = codeExercise.getTestCases();
@@ -59,7 +60,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
             }
         }
         codeExercise.setTestCases(pretestCases);
-        return codeExercise;
+        return new CodeDetailResponse(codeExercise);
     }
 
     @Override
