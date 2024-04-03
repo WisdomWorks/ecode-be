@@ -2,6 +2,7 @@ package com.example.codeE.controller;
 
 import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.*;
+import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
@@ -16,11 +17,13 @@ import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
+import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
@@ -57,6 +60,9 @@ public class ExerciseController {
     private SubmissionTestCaseService submissionTestCaseService;
 
     @Autowired
+    private CodeExerciseTestcaseService codeExerciseTestcaseService;
+
+    @Autowired
     private JudgeService judgeService;
 
     @Autowired
@@ -81,9 +87,20 @@ public class ExerciseController {
         codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
         codeExercise.setPoints(request.getPoints());
         codeExercise.setType("code");
-        codeExercise.setTestCases(request.getTestCaseList());
+//        codeExercise.setTestCases(request.getTestCaseList());
 
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
+        this.exerciseService.saveCodeExercise(savedCodeExercise);
+
+        List<TestCase> testCases = request.getTestCaseList();
+        for(int i=0; i<testCases.size(); i++){
+            testCases.get(i).setExerciseId(savedCodeExercise.getExerciseId());
+            TestCase savedTestcase = this.codeExerciseTestcaseService.saveTestCase(testCases.get(i));
+            testCases.get(i).setTestcaseId(savedTestcase.getTestcaseId());
+        }
+
+        savedCodeExercise.setTestCases(request.getTestCaseList());
+        codeExerciseService.createCodeExercise(savedCodeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
 
         codeExerciseService.createProblemFolder(request.getTestCaseList(), savedCodeExercise.getExerciseId());
@@ -128,7 +145,10 @@ public class ExerciseController {
         Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
         return switch (exercise.getType()){
             case "code" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseById(request.getExerciseId()));
+                ResponseEntity.status(HttpStatus.OK).body(
+                        Map.of(
+                                "exercise", this.codeExerciseService.getCodeExerciseById(request.getExerciseId()),
+                                "testcases", this.codeExerciseTestcaseService.getAllZeroPointTestCases(request.getExerciseId())));
             case "quiz" ->
                 ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
             case "essay" ->
