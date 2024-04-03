@@ -14,6 +14,7 @@ import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
+import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.judge.JudgeService;
@@ -50,6 +51,9 @@ public class ExerciseController {
 
     @Autowired
     private CodeSubmissionService codeSubmissionService;
+
+    @Autowired
+    private SubmissionTestCaseService submissionTestCaseService;
 
     @Autowired
     private JudgeService judgeService;
@@ -155,6 +159,12 @@ public class ExerciseController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("isSuccess", true));
+    }
+
+    @GetMapping
+    @RequestMapping(value = "code/run/{submissionId}", method = RequestMethod.GET)
+    public ResponseEntity<?> runCodeExercise(@PathVariable String submissionId){
+        return ResponseEntity.status(HttpStatus.OK).body(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
     }
 
     @PostMapping
