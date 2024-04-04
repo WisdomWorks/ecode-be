@@ -1,12 +1,17 @@
 package com.example.codeE.service.authentication;
 
+import com.example.codeE.constant.Constant;
+import com.example.codeE.helper.EmailHelper;
 import com.example.codeE.helper.JWTUtils;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.course.CourseTeacherResponse;
 import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
+import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.service.course.CourseService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 @Service
 public class AuthenImpl implements  AuthenService{
@@ -121,6 +127,77 @@ public class AuthenImpl implements  AuthenService{
             userResponse.setMessage("Something wrong when get new session");
         }
         return userResponse;
+    }
+
+    @Override
+    public void SendForgetPasswordOTP(String userName, HttpServletResponse response) throws NoSuchMethodException {
+//        System.out.println(AuthenImpl.class.getResourceAsStream("/credential_gmail_api.json"));
+        var user = this.userRepository.findUserByUserName(userName);
+        System.out.println(user.getEmail());
+        if (user == null) throw new NoSuchMethodException("No user found by: " + userName);
+        String OTP = RandomNumberGenerator();
+        try {
+            String messageContent = String.format(Constant.SEND_OTP_MAIL_TEMPLATE, user.getName(), OTP);
+            EmailHelper emailHelper = new EmailHelper();
+            emailHelper.sendMail(
+                    "RESET PASSWORD OTP", messageContent, user.getEmail()
+            );
+            ResponseCookie cookie = ResponseCookie.from(user.getUserId() + "_OTP", OTP)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(180)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            cookie = ResponseCookie.from("currentUserRestPassword", user.getUserId())
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(180)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean CheckOTP(String OTP, String userId, HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                String cookieName = userId + "_OTP";
+                if (cookieName.equals(cookie.getName())) {
+                    if (OTP.equals(cookie.getValue()))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean updatePassword(String userId, String password) {
+        try {
+            var user = this.userRepository.findUserByUserId(userId);
+            password = BCryptPassword.passwordEncoder(password);
+            user.setPassword(password);
+            this.userRepository.save(user);
+            return true;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    private String RandomNumberGenerator() {
+        Random random = new Random();
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            int randomNumber = random.nextInt(9) + 1; // Generates random numbers between 1 and
+            result.append(Integer.toString(randomNumber));
+        }
+        return result.toString();
     }
     @Override
     public UserAuthenRequest signInAdmin(LoginRequest signInRequest, HttpServletResponse response) {
