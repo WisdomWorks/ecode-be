@@ -1,7 +1,7 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.helper.JWTUtils;
-import com.example.codeE.request.user.ChangePasswordRequest;
+import com.example.codeE.request.user.forgetPasswordRequest;
 import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.service.authentication.AuthenService;
@@ -143,11 +143,11 @@ public class AuthController {
     }
     @PutMapping
     @RequestMapping(value = "change-password", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUserPassword(@RequestBody ChangePasswordRequest request){
+    public ResponseEntity<?> updateUserPassword(@RequestBody forgetPasswordRequest request){
         if(this.authenService.updatePassword(request.getUserId(), request.getPassword())){
             return ResponseEntity.status(HttpStatus.OK).body("Change password successful.");
         }else
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("some thing wrong, when request change password!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "some thing wrong, when request change password!"));
     }
 
     private String getUserId(HttpServletRequest request) {

@@ -19,4 +19,5 @@ public interface UserService extends CommonService<User, CreateUserRequest> {
     // boolean exportExcel();
     User updateById(String userId, UpdateUserRequest updatedUser);
     User getUserByUserName(String role, String userName);
+    User ChangePassword(String userId, String newPassword, String oldPassword);
 }

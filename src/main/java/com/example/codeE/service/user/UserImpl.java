@@ -2,18 +2,19 @@ package com.example.codeE.service.user;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.EmailHelper;
+import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
 import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
-import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.security.BCryptPassword;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -108,6 +109,16 @@ public class UserImpl implements UserService, UserDetailsService {
     public User getUserByUserName(String role, String userName) {
         return this.userRepository.findUserByUserName(userName);
 //        return this.userRepository.findUserByRoleAndUserName(role, userName);
+    }
+
+    @Override
+    public User ChangePassword(String userId, String newPassword, String oldPassword) {
+        var user = this.userRepository.findUserByUserId(userId);
+        if (!BCryptPassword.checkPasswordBcrypt(oldPassword, user.getPassword())) {
+            throw new DataIntegrityViolationException("Can not change password");
+        }
+        user.setPassword(BCryptPassword.passwordEncoder(newPassword));
+        return this.userRepository.save(user);
     }
 
 
