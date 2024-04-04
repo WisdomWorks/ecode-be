@@ -6,6 +6,7 @@ import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.repository.CodeExerciseRepository;
 import com.example.codeE.repository.ExerciseRepository;
+import com.example.codeE.request.exercise.code.CodeDetailResponse;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,21 @@ public class CodeExerciseImpl implements CodeExerciseService{
     }
 
     @Override
+    public CodeDetailResponse getCodeExerciseDetail(String exerciseId) {
+        CodeExercise codeExercise = codeExerciseRepository.findById(exerciseId).get();
+        // Get only TestCase with 0 points
+        List<TestCase> testCases = codeExercise.getTestCases();
+        List<TestCase> pretestCases = new ArrayList<>();
+        for(TestCase testCase : testCases) {
+            if(testCase.getPoints() == 0) {
+                pretestCases.add(testCase);
+            }
+        }
+        codeExercise.setTestCases(pretestCases);
+        return new CodeDetailResponse(codeExercise);
+    }
+
+    @Override
     public CodeExercise createCodeExercise(CodeExercise codeExercise) {
         return codeExerciseRepository.save(codeExercise);
     }
@@ -74,9 +90,10 @@ public class CodeExerciseImpl implements CodeExerciseService{
         codeExercise.setMemoryLimit(updateCodeExerciseRequest.getMemoryLimit());
         codeExercise.setTimeLimit(updateCodeExerciseRequest.getTimeLimit());
         codeExercise.setTemplate(updateCodeExerciseRequest.getTemplate());
-        codeExercise.setType(updateCodeExerciseRequest.getType());
+        codeExercise.setType("code");
         codeExercise.setPublicGroupIds(updateCodeExerciseRequest.getPublicGroupIds());
         codeExercise.setTestCases(updateCodeExerciseRequest.getTestCases());
+
 
         this.exerciseRepository.save(codeExercise);
 

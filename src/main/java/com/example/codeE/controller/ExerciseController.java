@@ -1,11 +1,15 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.*;
+import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
+import com.example.codeE.request.exercise.code.CodeRunRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.code.RunCodeExerciseResponse;
 import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
@@ -16,6 +20,7 @@ import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import com.example.codeE.service.exercise.*;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
+import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.judge.JudgeService;
@@ -29,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +63,9 @@ public class ExerciseController {
     private SubmissionTestCaseService submissionTestCaseService;
 
     @Autowired
+    private CodeExerciseTestcaseService codeExerciseTestcaseService;
+
+    @Autowired
     private JudgeService judgeService;
 
     @Autowired
@@ -76,17 +85,27 @@ public class ExerciseController {
         codeExercise.setReAttempt(request.getReAttempt());
         codeExercise.setPublicGroupIds(request.getPublicGroupIds());
         codeExercise.setDescription(request.getDescription());
-        codeExercise.setTimeLimit(request.getTimeLimit());
-        codeExercise.setMemoryLimit(request.getMemoryLimit());
+        codeExercise.setTimeLimit((double) Constant.PROBLEM_MAX_TIME_LIMIT);
+        codeExercise.setMemoryLimit(Constant.PROBLEM_MAX_MEMORY_LIMIT);
         codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
         codeExercise.setPoints(request.getPoints());
         codeExercise.setType("code");
-        codeExercise.setTestCases(request.getTestCaseList());
 
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
 
-        codeExerciseService.createProblemFolder(request.getTestCaseList(), savedCodeExercise.getExerciseId());
+        List<TestCase> testCases = request.getTestCases();
+        for(int i=0; i<testCases.size(); i++){
+            testCases.get(i).setExerciseId(savedCodeExercise.getExerciseId());
+            TestCase savedTestcase = this.codeExerciseTestcaseService.saveTestCase(testCases.get(i));
+            testCases.get(i).setTestcaseId(savedTestcase.getTestcaseId());
+        }
+
+        savedCodeExercise.setTestCases(request.getTestCases());
+        codeExerciseService.createCodeExercise(savedCodeExercise);
+        this.exerciseService.saveCodeExercise(savedCodeExercise);
+
+        codeExerciseService.createProblemFolder(request.getTestCases(), savedCodeExercise.getExerciseId());
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Create success"));
     }
 
@@ -118,7 +137,6 @@ public class ExerciseController {
     @GetMapping
     @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseById(@PathVariable String exerciseId){
-        System.out.println(exerciseId);
         Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
         return  ResponseEntity.status(HttpStatus.OK).body(exercise);
     }
@@ -128,7 +146,7 @@ public class ExerciseController {
         Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
         return switch (exercise.getType()){
             case "code" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseById(request.getExerciseId()));
+                ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseDetail(request.getExerciseId()));
             case "quiz" ->
                 ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
             case "essay" ->
@@ -149,6 +167,7 @@ public class ExerciseController {
             submission.setLanguageId(request.getLanguageId());
             submission.setSource(request.getSource());
             submission.setStudentId(request.getStudentId());
+            submission.setPretested(false);
 
             CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
             submission.setTime(codeExercise.getTimeLimit());
@@ -163,10 +182,49 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("isSuccess", true));
     }
 
+    @PostMapping
+    @RequestMapping(value = "code/run", method = RequestMethod.POST)
+    public ResponseEntity<?> runCodeExercise(@Valid @RequestBody CodeRunRequest request){
+        MongoDatabase database = mongoTemplate.getDb();
+        AutoIncrement autoIncrement = new AutoIncrement(database);
+        String submissionId = String.valueOf(autoIncrement.getNextSequence("code_submission"));
+        try{
+            CodeSubmission submission = new CodeSubmission(judgeService);
+            submission.setSubmissionId(submissionId);
+            submission.setExerciseId(request.getExerciseId());
+            submission.setLanguageId(request.getLanguageId());
+            submission.setSource(request.getSource());
+            submission.setStudentId(request.getStudentId());
+            submission.setPretested(true);
+
+            CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
+            submission.setTime(codeExercise.getTimeLimit());
+            submission.setMemory(codeExercise.getMemoryLimit());
+            submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+            CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
+            savedSubmission.judge(false, false);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("submissionId", submissionId));
+    }
+
     @GetMapping
     @RequestMapping(value = "code/run/{submissionId}", method = RequestMethod.GET)
     public ResponseEntity<?> runCodeExercise(@PathVariable String submissionId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        CodeSubmission submission = this.codeSubmissionService.getCodeSubmissionById(submissionId);
+
+        RunCodeExerciseResponse response = new RunCodeExerciseResponse();
+        String status = submission.getStatus();
+        response.setStatus(status);
+        if (status.equals("CE") || status.equals("IE")){
+            response.setMessage(submission.getError());
+            response.setTestCases(new ArrayList<>());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        response.setTestCases(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping

@@ -229,8 +229,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.put("name", "handshake-success");
-//        pingThread = new Thread(this::pingThread, "PingThread");
-//        pingThread.start();
+        pingThread = new Thread(this::pingThread, "PingThread");
+        pingThread.start();
 
         connected();
         return response;
@@ -252,7 +252,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.put("short-circuit", data.shortCircuit);
 
             ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
-            metaNode.put("pretests-only", true);
+            metaNode.put("pretests-only", data.pretests_only);
             metaNode.put("in-contest", false);
             metaNode.put("attempt-no", 1);
             metaNode.put("user","id");
@@ -439,11 +439,15 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
     public  ObjectNode onCompileError(ObjectNode packet) {
         String submissionId = packet.get("submission-id").asText();
-//            String log = packet.get("log").asText();
+        String log = packet.get("log").asText();
 
         LoggerHelper.logInfo(JudgeHandlerVariables.name + ": Submission failed to compile: " + submissionId);
-        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-            codeSubmissionService.updateStatusAndResult(submissionId, "CE", "CE");
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if (codeSubmission != null) {
+            codeSubmission.setStatus("CE");
+            codeSubmission.setResult("CE");
+            codeSubmission.setError(log);
+            codeSubmissionService.updateCodeSubmission(codeSubmission);
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
@@ -475,8 +479,12 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             LoggerHelper.logError("Judge " + JudgeHandlerVariables.name + " failed while handling submission " + submissionId, e);
         }
-        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-            codeSubmissionService.updateStatusAndResult(submissionId, "IE", "IE");
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if (codeSubmission != null) {
+            codeSubmission.setStatus("IE");
+            codeSubmission.setResult("IE");
+            codeSubmission.setError(message);
+            codeSubmissionService.updateCodeSubmission(codeSubmission);
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
@@ -657,7 +665,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             result = JsonNodeFactory.instance.objectNode();
-            result.put("name", "bad-request");
+            result = null;
         } finally {
             if (result == null) {
                 return;
