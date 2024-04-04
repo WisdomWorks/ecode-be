@@ -9,7 +9,7 @@ import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
 import com.example.codeE.request.exercise.code.CodeRunRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
-import com.example.codeE.request.exercise.code.RunCodeExerciseErrorResponse;
+import com.example.codeE.request.exercise.code.RunCodeExerciseResponse;
 import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
@@ -26,7 +26,6 @@ import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
@@ -217,7 +216,7 @@ public class ExerciseController {
     public ResponseEntity<?> runCodeExercise(@PathVariable String submissionId){
         CodeSubmission submission = this.codeSubmissionService.getCodeSubmissionById(submissionId);
 
-        RunCodeExerciseErrorResponse response = new RunCodeExerciseErrorResponse();
+        RunCodeExerciseResponse response = new RunCodeExerciseResponse();
         String status = submission.getStatus();
         response.setStatus(status);
         if (status.equals("CE") || status.equals("IE")){

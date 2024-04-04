@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RunCodeExerciseErrorResponse {
+public class RunCodeExerciseResponse {
     String status;
     String message;
     List<SubmissionTestCase> testCases;
