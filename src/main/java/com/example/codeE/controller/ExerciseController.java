@@ -146,7 +146,7 @@ public class ExerciseController {
         Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
         return switch (exercise.getType()){
             case "code" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseByIdPretestOnly(request.getExerciseId()));
+                ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseDetail(request.getExerciseId()));
             case "quiz" ->
                 ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
             case "essay" ->
