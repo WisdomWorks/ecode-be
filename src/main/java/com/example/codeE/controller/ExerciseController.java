@@ -8,6 +8,7 @@ import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
 import com.example.codeE.request.exercise.code.CodeRunRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.code.RunCodeExerciseErrorResponse;
 import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
@@ -33,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -213,7 +215,18 @@ public class ExerciseController {
     @GetMapping
     @RequestMapping(value = "code/run/{submissionId}", method = RequestMethod.GET)
     public ResponseEntity<?> runCodeExercise(@PathVariable String submissionId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        CodeSubmission submission = this.codeSubmissionService.getCodeSubmissionById(submissionId);
+
+        RunCodeExerciseErrorResponse response = new RunCodeExerciseErrorResponse();
+        String status = submission.getStatus();
+        response.setStatus(status);
+        if (status.equals("CE") || status.equals("IE")){
+            response.setMessage(submission.getError());
+            response.setTestCases(new ArrayList<>());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        response.setTestCases(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping
