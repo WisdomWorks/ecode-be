@@ -7,6 +7,7 @@ import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
+import com.example.codeE.request.exercise.code.CodeDetailResponse;
 import com.example.codeE.request.exercise.code.CodeRunRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.RunCodeExerciseResponse;
@@ -144,15 +145,17 @@ public class ExerciseController {
     @RequestMapping(value = "detail", method = RequestMethod.POST)
     public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest request){
         Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
-        return switch (exercise.getType()){
-            case "code" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseDetail(request.getExerciseId()));
-            case "quiz" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
-            case "essay" ->
-                ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(request.getExerciseId() ));
-            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
-        };
+        switch (exercise.getType()){
+            case "code" :
+                CodeDetailResponse response = this.codeExerciseService.getCodeExerciseDetail(request.getExerciseId());
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            case "quiz":
+                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
+            case "essay":
+                return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(request.getExerciseId() ));
+            default:
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
+        }
     }
     @PostMapping
     @RequestMapping(value = "code/submit", method = RequestMethod.POST)
@@ -270,7 +273,23 @@ public class ExerciseController {
      @PutMapping
      @RequestMapping(value = "code", method = RequestMethod.PUT)
      public ResponseEntity<?> updateCodeExercise(@RequestBody UpdateCodeExerciseRequest request) {
-         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request));
+        CodeExercise updatedExercise = this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request);
+
+         List<TestCase> testCases = request.getTestCases();
+         for(int i=0; i<testCases.size(); i++){
+             if (testCases.get(i).getTestcaseId() == null){
+                 testCases.get(i).setExerciseId(updatedExercise.getExerciseId());
+                 TestCase savedTestcase = this.codeExerciseTestcaseService.saveTestCase(testCases.get(i));
+                 testCases.get(i).setTestcaseId(savedTestcase.getTestcaseId());
+             }
+         }
+
+         updatedExercise.setTestCases(request.getTestCases());
+         codeExerciseService.createCodeExercise(updatedExercise);
+         this.exerciseService.saveCodeExercise(updatedExercise);
+
+         codeExerciseService.createProblemFolder(request.getTestCases(), updatedExercise.getExerciseId());
+         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
      }
 
     @PutMapping
