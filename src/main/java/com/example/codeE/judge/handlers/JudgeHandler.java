@@ -665,7 +665,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             result = JsonNodeFactory.instance.objectNode();
-            result.put("name", "bad-request");
+            result = null;
         } finally {
             if (result == null) {
                 return;

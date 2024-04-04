@@ -137,7 +137,6 @@ public class ExerciseController {
     @GetMapping
     @RequestMapping(value = "{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseById(@PathVariable String exerciseId){
-        System.out.println(exerciseId);
         Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
         return  ResponseEntity.status(HttpStatus.OK).body(exercise);
     }
