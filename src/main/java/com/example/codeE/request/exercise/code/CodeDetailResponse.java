@@ -63,7 +63,9 @@ public class CodeDetailResponse {
     private HashMap<String, String> getTemplateMap(List<String> allowedLanguageIds) {
         HashMap<String, String> languageTemplate = new HashMap<>();
         for (String languageId : allowedLanguageIds) {
-            languageTemplate.put(languageId, Constant.LANGUAGE_TEMPLATE.get(languageId));
+            // template = null if key not found, search using Constant.LANGUAGE_TEMPLATE.get(languageId)
+            String template = Constant.LANGUAGE_TEMPLATE.get(languageId);
+            languageTemplate.put(languageId, template);
         }
         return languageTemplate;
     }
