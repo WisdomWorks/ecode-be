@@ -273,7 +273,9 @@ public class ExerciseController {
      @PutMapping
      @RequestMapping(value = "code", method = RequestMethod.PUT)
      public ResponseEntity<?> updateCodeExercise(@RequestBody UpdateCodeExerciseRequest request) {
-         return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request));
+        CodeExercise updatedExercise = this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request);
+         codeExerciseService.createProblemFolder(request.getTestCases(), updatedExercise.getExerciseId());
+         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
      }
 
     @PutMapping
