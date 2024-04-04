@@ -274,6 +274,20 @@ public class ExerciseController {
      @RequestMapping(value = "code", method = RequestMethod.PUT)
      public ResponseEntity<?> updateCodeExercise(@RequestBody UpdateCodeExerciseRequest request) {
         CodeExercise updatedExercise = this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request);
+
+         List<TestCase> testCases = request.getTestCases();
+         for(int i=0; i<testCases.size(); i++){
+             if (testCases.get(i).getTestcaseId() == null){
+                 testCases.get(i).setExerciseId(updatedExercise.getExerciseId());
+                 TestCase savedTestcase = this.codeExerciseTestcaseService.saveTestCase(testCases.get(i));
+                 testCases.get(i).setTestcaseId(savedTestcase.getTestcaseId());
+             }
+         }
+
+         updatedExercise.setTestCases(request.getTestCases());
+         codeExerciseService.createCodeExercise(updatedExercise);
+         this.exerciseService.saveCodeExercise(updatedExercise);
+
          codeExerciseService.createProblemFolder(request.getTestCases(), updatedExercise.getExerciseId());
          return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
      }
