@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class CodeDetailResponse {
@@ -27,6 +28,7 @@ public class CodeDetailResponse {
     private Date timeLess;
     private String exerciseDescription;
     private List<TestCase> testCases;
+    private HashMap<String, String> languageTemplate;
 
     public CodeDetailResponse(CodeExercise codeExercise) {
         this.exerciseId = codeExercise.getExerciseId();
@@ -40,6 +42,7 @@ public class CodeDetailResponse {
         this.timeLess = GetTimeLess(codeExercise.getStartTime(), codeExercise.getEndTime(), codeExercise.getDurationTime());
         this.exerciseDescription = codeExercise.getExerciseDescription();
         this.testCases = codeExercise.getTestCases();
+        this.languageTemplate = getTemplateMap(codeExercise.getAllowedLanguageIds());
     }
 
     private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
@@ -55,5 +58,13 @@ public class CodeDetailResponse {
         } else {
             return new Date((long) endTime.getTime() - current);
         }
+    }
+
+    private HashMap<String, String> getTemplateMap(List<String> allowedLanguageIds) {
+        HashMap<String, String> languageTemplate = new HashMap<>();
+        for (String languageId : allowedLanguageIds) {
+            languageTemplate.put(languageId, Constant.LANGUAGE_TEMPLATE.get(languageId));
+        }
+        return languageTemplate;
     }
 }

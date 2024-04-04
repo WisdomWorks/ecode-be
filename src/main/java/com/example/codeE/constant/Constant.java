@@ -57,6 +57,8 @@ public class Constant {
     public static final int PROBLEM_MIN_MEMORY_LIMIT = 0;  // kilobytes
     public static final int PROBLEM_MAX_MEMORY_LIMIT = 1048576; // kilobytes
 
+    public static final Map<String, String> LANGUAGE_TEMPLATE = new HashMap<>();
+
     static {
         USER_DISPLAY_CODES.put("AC", "Accepted");
         USER_DISPLAY_CODES.put("WA", "Wrong Answer");
@@ -110,5 +112,7 @@ public class Constant {
         CHECKERS.put("LINE_COUNT", "linecount");
     }
 
+    static {
 
+    }
 }
