@@ -60,7 +60,8 @@ public class CodeExerciseImpl implements CodeExerciseService{
             }
         }
         codeExercise.setTestCases(pretestCases);
-        return new CodeDetailResponse(codeExercise);
+        CodeDetailResponse response = new CodeDetailResponse(codeExercise);
+        return response;
     }
 
     @Override
@@ -87,8 +88,8 @@ public class CodeExerciseImpl implements CodeExerciseService{
         codeExercise.setDescription(updateCodeExerciseRequest.getDescription());
         codeExercise.setAllowedLanguageIds(updateCodeExerciseRequest.getAllowedLanguageIds());
         codeExercise.setPoints(updateCodeExerciseRequest.getPoints());
-        codeExercise.setMemoryLimit(updateCodeExerciseRequest.getMemoryLimit());
-        codeExercise.setTimeLimit(updateCodeExerciseRequest.getTimeLimit());
+        codeExercise.setMemoryLimit(Constant.PROBLEM_MAX_MEMORY_LIMIT);
+        codeExercise.setTimeLimit((double) Constant.PROBLEM_MAX_TIME_LIMIT);
         codeExercise.setTemplate(updateCodeExerciseRequest.getTemplate());
         codeExercise.setType("code");
         codeExercise.setPublicGroupIds(updateCodeExerciseRequest.getPublicGroupIds());
