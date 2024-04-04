@@ -89,9 +89,10 @@ public class CodeExerciseImpl implements CodeExerciseService{
         codeExercise.setMemoryLimit(updateCodeExerciseRequest.getMemoryLimit());
         codeExercise.setTimeLimit(updateCodeExerciseRequest.getTimeLimit());
         codeExercise.setTemplate(updateCodeExerciseRequest.getTemplate());
-        codeExercise.setType(updateCodeExerciseRequest.getType());
+        codeExercise.setType("code");
         codeExercise.setPublicGroupIds(updateCodeExerciseRequest.getPublicGroupIds());
         codeExercise.setTestCases(updateCodeExerciseRequest.getTestCases());
+
 
         this.exerciseRepository.save(codeExercise);
 
