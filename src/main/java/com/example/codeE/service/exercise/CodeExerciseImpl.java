@@ -102,11 +102,11 @@ public class CodeExerciseImpl implements CodeExerciseService{
     public void createProblemFolder(List<TestCase> testCaseList, String exerciseId) {
         try {
             //Create problem folder
-            Path path = Paths.get("D:\\Programming\\Capstone\\DEMO2\\problems/"+exerciseId);
+            Path path = Paths.get("/Users/nyan/Documents/CodeE/problems/"+exerciseId);
             Files.createDirectories(path);
 
             //Create init.yml file
-            File initFile = new File("D:\\Programming\\Capstone\\DEMO2\\problems/"+exerciseId+"/init.yml");
+            File initFile = new File("/Users/nyan/Documents/CodeE/problems/"+exerciseId+"/init.yml");
             String initFileContent = Constant.INIT_FILE_TEMPLATE;
 
             //Create temporary directory
@@ -138,7 +138,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
             }
 
             //Zip iozip directory
-            Path zipFilePath = Paths.get("D:\\Programming\\Capstone\\DEMO2\\problems/"+exerciseId+"/iozip.zip");
+            Path zipFilePath = Paths.get("/Users/nyan/Documents/CodeE/problems/"+exerciseId+"/iozip.zip");
             FileHelper.zipFile(zipFilePath, tempDirectory);
 
             FileWriter initFileWriter = new FileWriter(initFile);

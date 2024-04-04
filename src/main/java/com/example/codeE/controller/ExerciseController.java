@@ -1,5 +1,6 @@
 package com.example.codeE.controller;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.exercise.common.problem.TestCase;
@@ -8,6 +9,7 @@ import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
 import com.example.codeE.request.exercise.code.CodeRunRequest;
 import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
+import com.example.codeE.request.exercise.code.RunCodeExerciseResponse;
 import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
@@ -24,7 +26,6 @@ import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,12 +85,11 @@ public class ExerciseController {
         codeExercise.setReAttempt(request.getReAttempt());
         codeExercise.setPublicGroupIds(request.getPublicGroupIds());
         codeExercise.setDescription(request.getDescription());
-        codeExercise.setTimeLimit(request.getTimeLimit());
-        codeExercise.setMemoryLimit(request.getMemoryLimit());
+        codeExercise.setTimeLimit((double) Constant.PROBLEM_MAX_TIME_LIMIT);
+        codeExercise.setMemoryLimit(Constant.PROBLEM_MAX_MEMORY_LIMIT);
         codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
         codeExercise.setPoints(request.getPoints());
         codeExercise.setType("code");
-//        codeExercise.setTestCases(request.getTestCaseList());
 
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
@@ -213,7 +214,18 @@ public class ExerciseController {
     @GetMapping
     @RequestMapping(value = "code/run/{submissionId}", method = RequestMethod.GET)
     public ResponseEntity<?> runCodeExercise(@PathVariable String submissionId){
-        return ResponseEntity.status(HttpStatus.OK).body(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        CodeSubmission submission = this.codeSubmissionService.getCodeSubmissionById(submissionId);
+
+        RunCodeExerciseResponse response = new RunCodeExerciseResponse();
+        String status = submission.getStatus();
+        response.setStatus(status);
+        if (status.equals("CE") || status.equals("IE")){
+            response.setMessage(submission.getError());
+            response.setTestCases(new ArrayList<>());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        response.setTestCases(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping
