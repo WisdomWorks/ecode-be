@@ -16,9 +16,11 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
 import org.apache.commons.codec.binary.Base64;
+
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.internet.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import static javax.mail.Message.RecipientType.TO;
 public class EmailHelper {
 
     private static final String FROM_EMAIL = "wisdomworks.ww@gmail.com";
-    private static final String CREDENTIAL_PATH = "";
+    private static final String CREDENTIAL_PATH = "/credential_gmail_api.json";
     private static final List<String> SCOPES = new ArrayList<>();
     private final Gmail service;
     public EmailHelper() throws Exception {
@@ -43,7 +45,7 @@ public class EmailHelper {
     private static Credential getCredentials(final NetHttpTransport httpTransport, GsonFactory jsonFactory) throws IOException {
         InputStream in = EmailHelper.class.getResourceAsStream(CREDENTIAL_PATH);
         if (in == null) {
-            throw new FileNotFoundException(CREDENTIAL_PATH);
+            throw new FileNotFoundException("Can not found gmail credential.");
         }
         SCOPES.add(GmailScopes.GMAIL_SEND);
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory, new InputStreamReader(in));

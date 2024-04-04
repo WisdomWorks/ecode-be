@@ -1,9 +1,11 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.helper.JWTUtils;
+import com.example.codeE.request.user.ChangePasswordRequest;
 import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.service.authentication.AuthenService;
+import com.example.codeE.service.user.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -21,6 +25,8 @@ public class AuthController {
     private AuthenService authenService;
     @Autowired
     private JWTUtils jwtHelper;
+    @Autowired
+    private UserService userService;
 
     @PostMapping
     @RequestMapping(value = "/login/user", method = RequestMethod.POST)
@@ -110,6 +116,50 @@ public class AuthController {
             responseResult.setError("UNAUTHORIZED");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
         }
+    }
+
+    @GetMapping
+    @RequestMapping(value = "send-otp", method = RequestMethod.GET)
+    public ResponseEntity<?> sendOTP(@RequestParam String userName, HttpServletResponse response) throws NoSuchMethodException {
+        if (userName.isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "User Name can not blank"));
+        this.authenService.SendForgetPasswordOTP(userName, response);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Send OTP success, please check your mail box"));
+    }
+
+    @PostMapping
+    @RequestMapping(value = "check-otp", method = RequestMethod.POST)
+    public ResponseEntity<?> checkOTP(@RequestParam String OTP, HttpServletRequest request) {
+        String userId = getUserId(request);
+        if (userId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body("You request has been time out");
+        }
+        if (this.authenService.CheckOTP(OTP, userId, request)) {
+            var userInfo = this.userService.getById(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(userInfo);
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "OTP does not match"));
+        }
+    }
+    @PutMapping
+    @RequestMapping(value = "change-password", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUserPassword(@RequestBody ChangePasswordRequest request){
+        if(this.authenService.updatePassword(request.getUserId(), request.getPassword())){
+            return ResponseEntity.status(HttpStatus.OK).body("Change password successful.");
+        }else
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("some thing wrong, when request change password!");
+    }
+
+    private String getUserId(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("currentUserRestPassword".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return "";
     }
     private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();

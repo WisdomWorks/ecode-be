@@ -29,7 +29,7 @@ public class Constant {
     //second param: username
     //third param: password
     public static final String MAIL_TEMPLATE = """
-            Hi, %s,
+            Hi, %s
                         
             This is your account to login CODEE system:
                 User name: %s
@@ -38,7 +38,14 @@ public class Constant {
             Thank a lot.
                         
             WisdomWorks.""";
-
+    public static final String SEND_OTP_MAIL_TEMPLATE = """
+            Hi, %s,
+                        
+            OTP to reset password: %s
+            This OTP will be expired in 3 minute.                   
+            Thank a lot.
+                        
+            WisdomWorks.""";
     public static final String BRIDGED_HOST = "127.0.0.1";
     public static final int BRIDGED_SPRING_BOOT_PORT = 9998;
     public static final int BRIDGED_JUDGE_PORT = 9999;

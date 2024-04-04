@@ -62,6 +62,12 @@ public class TopicImpl implements TopicService {
             }
             result.add(new TopicGetResponse(item, materials, exercises, groupsResponse));
         }
+        result.sort(new Comparator<TopicGetResponse>() {
+            @Override
+            public int compare(TopicGetResponse o1, TopicGetResponse o2) {
+                return o1.getCreatedDate().compareTo(o2.getCreatedDate());
+            }
+        });
         return result;
     }
 
@@ -145,6 +151,12 @@ public class TopicImpl implements TopicService {
             }
             response.add(new TopicGetResponse(item, materials, exercises, groupsResponse));
         }
+        response.sort(new Comparator<TopicGetResponse>() {
+            @Override
+            public int compare(TopicGetResponse o1, TopicGetResponse o2) {
+                return o1.getCreatedDate().compareTo(o2.getCreatedDate());
+            }
+        });
         return response;
     }
 
