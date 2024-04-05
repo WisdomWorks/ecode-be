@@ -30,10 +30,12 @@ public class ZlibCompression {
         return outputStream.toByteArray();
     }
 
-    public static String dezlibify(byte[] data) throws IOException, DataFormatException {
+    public static String dezlibify(byte[] data, boolean isConfig) throws IOException, DataFormatException {
         ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
         try {
-            byteBuf.skipBytes(4);
+            if (!isConfig) {
+                byteBuf.skipBytes(4);
+            }
             byte[] byteArray = new byte[byteBuf.readableBytes()];
             byteBuf.readBytes(byteArray);
 

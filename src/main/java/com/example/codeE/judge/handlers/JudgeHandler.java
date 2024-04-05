@@ -651,7 +651,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         byte[] compressedData = new byte[buf2.readableBytes()];
         buf2.readBytes(compressedData);
 
-        String decompressedData = ZlibCompression.dezlibify(compressedData);
+        String decompressedData = ZlibCompression.dezlibify(compressedData, true);
         System.out.println("Received from client: " + decompressedData);
 //        System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
         try {
