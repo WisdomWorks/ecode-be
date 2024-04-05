@@ -10,7 +10,8 @@ public interface EssaySubmissionService {
     EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission);
     List<EssaySubmission> getEssaySubmissionByExerciseId(String exerciseId);
     List<EssaySubmissionsResponse> getEssaySubmissionsByExerciseId(String exerciseId);
-    EssaySubmission getEssaySubmission(String submissionId);
+    EssaySubmissionsResponse getEssaySubmission(String submissionId);
     List<EssaySubmission> getEssaySubmissionByUserId(String exerciseId, String userId);
     EssaySubmission gradeSubmission(String essaySubmissionId, float score);
+    EssaySubmission getLastEssaySubmissionByUserId(String exerciseId, String userId);
 }

@@ -1,5 +1,6 @@
 package com.example.codeE.request.exercise.quiz;
 
+import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.user.User;
 import lombok.AllArgsConstructor;
@@ -14,4 +15,5 @@ import lombok.Setter;
 public class QuizSubmissionsResponse {
     private QuizSubmission submissions;
     private User student;
+    private Exercise exercise;
 }

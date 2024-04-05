@@ -1,5 +1,6 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizSubmission;
 import com.example.codeE.model.exercise.common.QuizAnswers;
 import com.example.codeE.model.exercise.common.QuizChoice;
@@ -9,10 +10,7 @@ import com.example.codeE.request.exercise.quiz.QuizSubmissionsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class QuizSubmissionImpl implements QuizSubmissionService{
@@ -57,15 +55,18 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                result.add(new QuizSubmissionsResponse(item, student));
+                result.add(new QuizSubmissionsResponse(item, student, new Exercise()));
             }
         }
         return result;
     }
 
     @Override
-    public QuizSubmission getStudentQuizSubmission(String submissionId) {
-        return this.quizSubmissionRepository.findById(submissionId).orElseThrow(() -> new NoSuchElementException("No Submission found"));
+    public QuizSubmissionsResponse getStudentQuizSubmission(String submissionId) {
+        var quiz = this.quizSubmissionRepository.findById(submissionId).orElseThrow(() -> new NoSuchElementException("No Submission found"));
+        var user = this.userRepository.findUserByUserId(quiz.getStudentId());
+        var exercise = this.exerciseRepository.findById(quiz.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No Exercise found"));
+        return new QuizSubmissionsResponse(quiz, user, exercise);
     }
 
     @Override
@@ -94,5 +95,23 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
         }
         float questionQuantity = quizExercise.size();
         return 10 * (correctAnsCnt / questionQuantity);
+    }
+
+    @Override
+    public QuizSubmission getLastQuizSubmissionByUserId(String exerciseId, String userId) {
+        List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
+        var result = new ArrayList<QuizSubmission>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
+                result.add(item);
+            }
+        }
+        result.sort(new Comparator<QuizSubmission>() {
+            @Override
+            public int compare(QuizSubmission o1, QuizSubmission o2) {
+                return o1.getDateSubmit().compareTo(o2.getDateSubmit());
+            }
+        });
+        return result.get(result.size() - 1);
     }
 }

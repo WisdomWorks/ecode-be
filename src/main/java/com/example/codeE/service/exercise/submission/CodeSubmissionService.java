@@ -10,8 +10,10 @@ public interface CodeSubmissionService {
     public CodeSubmission checkStatusAndUpdate(CodeSubmission codeSubmission);
     public void updateStatusAndResult(String submissionId, String status, String result);
     public CodeSubmission getCodeSubmissionById(String id);
+    CodeSubmissionsResponse getCodeSubmissionResponseById(String id);
     public CodeSubmission updateCodeSubmission(CodeSubmission codeSubmission);
     public CodeSubmission saveCodeSubmission(CodeSubmission codeSubmission);
     public List<CodeSubmissionsResponse> getCodeSubmissionsByExerciseId(String exerciseId);
     public List<CodeSubmission> getCodeSubmissionByUserId(String exerciseId, String userId);
+    public CodeSubmission getLastCodeSubmissionByUserId(String exerciseId, String userId);
 }

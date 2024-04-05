@@ -1,7 +1,6 @@
 package com.example.codeE.service.exercise.problem;
 
 import com.example.codeE.model.exercise.common.problem.TestCase;
-import com.example.codeE.repository.CodeExerciseRepository;
 import com.example.codeE.repository.CodeExerciseTestcaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,8 +12,6 @@ public class CodeExerciseTestcaseImpl implements CodeExerciseTestcaseService{
     @Autowired
     private CodeExerciseTestcaseRepository codeExerciseTestcaseRepository;
 
-    @Autowired
-    private CodeExerciseRepository codeExerciseRepository;
 
     @Override
     public TestCase saveTestCase(TestCase testCase) {

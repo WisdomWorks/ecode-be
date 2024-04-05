@@ -339,12 +339,16 @@ public class ExerciseController {
             case "essay" ->
                     ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmission(submissionId));
             case "code" ->
-                    ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionById(submissionId));
+                    ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionResponseById(submissionId));
             default ->
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };
     }
-
+    @GetMapping
+    @RequestMapping(value = "all-submission/user/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllStudentSubmission(@PathVariable String userId, @RequestParam String CourseId){
+        return ResponseEntity.status(HttpStatus.OK).body("");
+    }
     @GetMapping
     @RequestMapping(value = "submit/user/{userId}", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseByUserId(@RequestParam String exerciseId, @PathVariable String userId, @RequestParam String type) {
