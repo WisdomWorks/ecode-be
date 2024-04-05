@@ -39,7 +39,6 @@ public class TopicImpl implements TopicService {
     private EssayExerciseService essayExerciseService;
     @Autowired
     private QuizExerciseService quizExerciseService;
-    @Autowired
 
     @Override
     public List<TopicGetResponse> getAllTopicsByCourseId(String courseId) {
