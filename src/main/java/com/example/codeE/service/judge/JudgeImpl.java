@@ -118,8 +118,8 @@ public class JudgeImpl implements JudgeService {
                 .doOnTerminate(connection::dispose) // Dispose the connection after receiving the response
                 .map(response -> {
                     try {
-                        System.out.println("Received data from server: " + ZlibCompression.dezlibify(response));
-                        return ZlibCompression.dezlibify(response);
+                        System.out.println("Received data from server: " + ZlibCompression.dezlibify(response, false));
+                        return ZlibCompression.dezlibify(response, false);
                     } catch (DataFormatException | IOException e) {
                         throw new RuntimeException(e);
                     }
