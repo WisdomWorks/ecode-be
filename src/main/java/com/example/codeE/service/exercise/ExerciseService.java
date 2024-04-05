@@ -4,6 +4,7 @@ import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizExercise;
+import com.example.codeE.request.exercise.AllStudentSubmissionResponse;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.ExerciseStudentResponse;
@@ -22,4 +23,5 @@ public interface ExerciseService {
     List<ExerciseResponse> getExercisesByTopicId(String topicId);
     List<ExerciseResponse> getExercisesByUserId(String topicId, String userId);
     ExerciseResponse modifiedPermission(CreatePermissionExerciseRequest request);
+    List<AllStudentSubmissionResponse> getAllStudentSubmission(String CourseId, String userId);
 }

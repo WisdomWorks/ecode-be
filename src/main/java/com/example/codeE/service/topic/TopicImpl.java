@@ -12,7 +12,6 @@ import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
-import com.example.codeE.service.exercise.CodeExerciseService;
 import com.example.codeE.service.exercise.EssayExerciseService;
 import com.example.codeE.service.exercise.ExerciseService;
 import com.example.codeE.service.exercise.QuizExerciseService;
@@ -41,7 +40,6 @@ public class TopicImpl implements TopicService {
     @Autowired
     private QuizExerciseService quizExerciseService;
     @Autowired
-    private CodeExerciseService codeExerciseService;
 
     @Override
     public List<TopicGetResponse> getAllTopicsByCourseId(String courseId) {
@@ -188,7 +186,7 @@ public class TopicImpl implements TopicService {
 
     @Override
     public void deleteById(String id) {
-        var topic = this.topicRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + id));
+        this.topicRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + id));
         var exercise = this.exerciseService.getExercisesByTopicId(id);
         for(var item: exercise){
             switch (item.getType()) {

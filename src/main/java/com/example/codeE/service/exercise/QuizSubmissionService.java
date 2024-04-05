@@ -11,7 +11,8 @@ public interface QuizSubmissionService {
     QuizSubmission createSubmission(QuizSubmission quizSubmission);
     List<QuizSubmission> getQuizSubmissionByExerciseId(String exerciseId);
     List<QuizSubmissionsResponse> getQuizSubmissionsByExerciseId(String exerciseId);
-    QuizSubmission getStudentQuizSubmission(String submissionId);
+    QuizSubmissionsResponse getStudentQuizSubmission(String submissionId);
     List<QuizSubmission> getQuizSubmissionByUserId(String exerciseId, String userId);
     float gradeSubmission(List<QuizAnswers> quizSubmission, List<QuizQuestion> quizExercise);
+    QuizSubmission getLastQuizSubmissionByUserId(String exerciseId, String userId);
 }

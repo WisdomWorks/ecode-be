@@ -1,6 +1,7 @@
 package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.EssaySubmission;
+import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.repository.EssaySubmissionRepository;
 import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.UserRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -48,15 +50,18 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                result.add(new EssaySubmissionsResponse(item,student));
+                result.add(new EssaySubmissionsResponse(item,student, new Exercise()));
             }
         }
         return result;
     }
 
     @Override
-    public EssaySubmission getEssaySubmission(String submissionId) {
-        return this.essaySubmissionRepository.findById(submissionId).orElseThrow(() -> new NoSuchElementException("No Submission found"));
+    public EssaySubmissionsResponse getEssaySubmission(String submissionId) {
+        var essay = this.essaySubmissionRepository.findById(submissionId).orElseThrow(() -> new NoSuchElementException("No Submission found"));
+        var user = this.userRepository.findUserByUserId(essay.getStudentId());
+        var exercise = this.exerciseRepository.findById(essay.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No Exercise found"));
+        return new EssaySubmissionsResponse(essay, user,exercise);
     }
 
     @Override
@@ -69,6 +74,23 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
             }
         }
         return result;
+    }
+    @Override
+    public EssaySubmission getLastEssaySubmissionByUserId(String exerciseId, String userId) {
+        List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
+        var result = new ArrayList<EssaySubmission>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
+                result.add(item);
+            }
+        }
+        result.sort(new Comparator<EssaySubmission>() {
+            @Override
+            public int compare(EssaySubmission o1, EssaySubmission o2) {
+                return o1.getDateSubmit().compareTo(o2.getDateSubmit());
+            }
+        });
+        return result.get(result.size()-1);
     }
 
     @Override

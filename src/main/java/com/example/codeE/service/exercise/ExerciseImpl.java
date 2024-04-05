@@ -7,6 +7,7 @@ import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.*;
+import com.example.codeE.request.exercise.AllStudentSubmissionResponse;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.ExerciseStudentResponse;
@@ -14,11 +15,9 @@ import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,6 +161,41 @@ public class ExerciseImpl implements ExerciseService{
             throw new RuntimeException("Something wrong when change permission.");
         }
     }
+
+    @Override
+    public List<AllStudentSubmissionResponse> getAllStudentSubmission(String courseId, String userId) {
+        List<AllStudentSubmissionResponse> responses = new ArrayList<>();
+        try {
+            List<String> topicIdList = new ArrayList<>();
+            for (Topic topic : this.topicRepository.findAll()) {
+                if (topic.getCourseId().equals(courseId)) topicIdList.add(topic.getTopicId());
+            }
+            List<ExerciseResponse> exercises = new ArrayList<>();
+            for (String id : topicIdList) {
+                exercises.addAll(this.getExercisesByTopicId(id));
+            }
+            for(var item: exercises){
+                switch (item.getType()) {
+                    case "essay" -> {
+                        var essay = this.essaySubmissionService.getLastEssaySubmissionByUserId(item.getExerciseId(), userId);
+                        responses.add(new AllStudentSubmissionResponse(essay, item.getExerciseName()));
+                    }case "code" -> {
+                        var code = this.codeSubmissionService.getLastCodeSubmissionByUserId(item.getExerciseId(), userId);
+                        responses.add(new AllStudentSubmissionResponse(code, item.getExerciseName()));
+                    }case "quiz" -> {
+                        var quiz = this.quizSubmissionService.getLastQuizSubmissionByUserId(item.getExerciseId(), userId);
+                        responses.add(new AllStudentSubmissionResponse(quiz, item.getExerciseName()));
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            LoggerHelper.logError(e.getMessage());
+            throw new RuntimeException("Something wrong when get exercise in this topic");
+        }
+        return responses;
+    }
+
     @Override
     public List<ExerciseResponse> getExercisesByTopicId(String topicId) {
         try {
@@ -191,7 +225,6 @@ public class ExerciseImpl implements ExerciseService{
                     }
                 } else {
                     if (item.getTopicId().equals(topicId)) {
-                        List<GroupTopicResponse> groupTopicResponses = new ArrayList<>();
                         for (String g : item.getPublicGroupIds()) {
                             var check = this.groupStudentRepository.isStudentInGroup(userId, g);
                             if (check != null) {
