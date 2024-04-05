@@ -1,6 +1,8 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.helper.JWTUtils;
+import com.example.codeE.request.auth.CheckOTPRequest;
+import com.example.codeE.request.auth.SendOTPRequest;
 import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.request.user.forgetPasswordRequest;
@@ -120,7 +122,8 @@ public class AuthController {
 
     @PostMapping
     @RequestMapping(value = "send-otp", method = RequestMethod.POST)
-    public ResponseEntity<?> sendOTP(@RequestBody String userName, HttpServletResponse response) throws NoSuchMethodException {
+    public ResponseEntity<?> sendOTP(@RequestBody SendOTPRequest otpRequest, HttpServletResponse response) throws NoSuchMethodException {
+        String userName = otpRequest.getUserName();
         if (userName.isEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "User Name can not blank"));
         this.authenService.SendForgetPasswordOTP(userName, response);
@@ -129,8 +132,9 @@ public class AuthController {
 
     @PostMapping
     @RequestMapping(value = "check-otp", method = RequestMethod.POST)
-    public ResponseEntity<?> checkOTP(@RequestBody String OTP, HttpServletRequest request) {
+    public ResponseEntity<?> checkOTP(@RequestBody CheckOTPRequest otpRequest, HttpServletRequest request) {
         String userId = getUserId(request);
+        String OTP = otpRequest.getOtp();
         if (userId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body("You request has been time out");
         }
