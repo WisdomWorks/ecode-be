@@ -3,6 +3,7 @@ package com.example.codeE.service.user;
 import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.EmailHelper;
 import com.example.codeE.helper.ExcelHelper;
+import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.user.UserFromExcel;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
@@ -58,7 +59,7 @@ public class UserImpl implements UserService, UserDetailsService {
 
     @Override
     public List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest) {
-        return (List<User>) this.userRepository.findUsersByRoleAndSearchKeyword(
+        return this.userRepository.findUsersByRoleAndSearchKeyword(
                 getUsersRequest.getRole(),
                 getUsersRequest.getSearchKeyword()
         );
@@ -71,15 +72,16 @@ public class UserImpl implements UserService, UserDetailsService {
         //send mail to user
         try{
             //need to change
-            String  messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),user.getUsername(), user.getPassword());
+            String  messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),user.getUsername(), passwordString);
             EmailHelper emailHelper = new EmailHelper();
             emailHelper.sendMail(
                     "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail()
             );
+            return this.userRepository.save(user);
         }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+            LoggerHelper.logError( "Create Error", e);
+            throw new RuntimeException("User create request is not valid");
         }
-        return this.userRepository.save(user);
     }
 
     @Override
@@ -152,7 +154,13 @@ public class UserImpl implements UserService, UserDetailsService {
                     try {
                         excelUser.setRole(excelUser.getRole().toLowerCase());
                         users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
-                        userRepository.save(users.get(users.size() - 1));
+                        User user = userRepository.save(users.get(users.size() - 1));
+
+                        String  messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),user.getUsername(), passwordHash);
+                        EmailHelper emailHelper = new EmailHelper();
+                        emailHelper.sendMail(
+                                "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail()
+                        );
                     } catch (Exception ex) {
                         unsuccessfulUsers.add(excelUser.getUsername());
                         logger.error("Error saving user to database", ex);
