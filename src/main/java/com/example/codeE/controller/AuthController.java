@@ -136,7 +136,7 @@ public class AuthController {
         String userId = getUserId(request);
         String OTP = otpRequest.getOtp();
         if (userId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body("You request has been time out");
+            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(Map.of("message","You request has been time out"));
         }
         if (this.authenService.CheckOTP(OTP, userId, request)) {
             var userInfo = this.userService.getById(userId);
@@ -149,7 +149,7 @@ public class AuthController {
     @RequestMapping(value = "change-password", method = RequestMethod.PUT)
     public ResponseEntity<?> updateUserPassword(@RequestBody forgetPasswordRequest request){
         if(this.authenService.updatePassword(request.getUserId(), request.getPassword())){
-            return ResponseEntity.status(HttpStatus.OK).body("Change password successful.");
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","Change password successful."));
         }else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "some thing wrong, when request change password!"));
     }
