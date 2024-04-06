@@ -29,7 +29,6 @@ import java.util.*;
 
 import static com.example.codeE.constant.Constant.VALID_ROLES;
 
-
 @Service
 public class UserImpl implements UserService, UserDetailsService {
     private static final Logger logger = LoggerFactory.getLogger(UserImpl.class);
@@ -38,8 +37,9 @@ public class UserImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public User getById(@NotBlank String userId) {    
-        return this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found with ID:" + userId));
+    public User getById(@NotBlank String userId) {
+        return this.userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("No user found with ID:" + userId));
     }
 
     @Override
@@ -48,7 +48,7 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public List<User> getUsersByRoleOrAll(String role){
+    public List<User> getUsersByRoleOrAll(String role) {
         if (role == null || role.equals("all")) {
             return this.userRepository.findAll();
         } else if (!VALID_ROLES.contains(role)) {
@@ -61,25 +61,24 @@ public class UserImpl implements UserService, UserDetailsService {
     public List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest) {
         return this.userRepository.findUsersByRoleAndSearchKeyword(
                 getUsersRequest.getRole(),
-                getUsersRequest.getSearchKeyword()
-        );
+                getUsersRequest.getSearchKeyword());
     }
 
     @Override
     public User createOne(CreateUserRequest userRequest) {
         String passwordString = BCryptPassword.generateRandomPassword();
         var user = new User(userRequest, UUID.randomUUID().toString(), BCryptPassword.passwordEncoder(passwordString));
-        //send mail to user
-        try{
-            //need to change
-            String  messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),user.getUsername(), passwordString);
+        // send mail to user
+        try {
+            // need to change
+            String messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(), user.getUsername(),
+                    passwordString);
             EmailHelper emailHelper = new EmailHelper();
             emailHelper.sendMail(
-                    "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail()
-            );
+                    "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail());
             return this.userRepository.save(user);
-        }catch (Exception e){
-            LoggerHelper.logError( "Create Error", e);
+        } catch (Exception e) {
+            LoggerHelper.logError("Create Error", e);
             throw new RuntimeException("User create request is not valid");
         }
     }
@@ -97,7 +96,7 @@ public class UserImpl implements UserService, UserDetailsService {
         if (updatedUser.getUpdatedUsername() != null) {
             existingUser.setUsername(updatedUser.getUpdatedUsername());
         }
-        if (updatedUser.getUpdatedPassword() != null){
+        if (updatedUser.getUpdatedPassword() != null) {
             existingUser.setPassword(updatedUser.getUpdatedPassword());
         }
         if (updatedUser.getUpdatedRole() != null) {
@@ -110,25 +109,24 @@ public class UserImpl implements UserService, UserDetailsService {
     @Override
     public User getUserByUserName(String role, String userName) {
         return this.userRepository.findUserByUserName(userName);
-//        return this.userRepository.findUserByRoleAndUserName(role, userName);
+        // return this.userRepository.findUserByRoleAndUserName(role, userName);
     }
 
     @Override
     public User ChangePassword(String userId, String newPassword, String oldPassword) {
         var user = this.userRepository.findUserByUserId(userId);
         if (!BCryptPassword.checkPasswordBcrypt(oldPassword, user.getPassword())) {
-            throw new DataIntegrityViolationException("Can not change password");
+            throw new DataIntegrityViolationException("Old password is incorrect");
         }
         user.setPassword(BCryptPassword.passwordEncoder(newPassword));
         return this.userRepository.save(user);
     }
 
-
     @Override
     public void deleteById(@NotBlank String userId) {
-        if(userRepository.existsById(userId)){
+        if (userRepository.existsById(userId)) {
             this.userRepository.deleteById(userId);
-        }else {
+        } else {
             throw new NoSuchElementException("User not found with id " + userId);
         }
     }
@@ -149,18 +147,19 @@ public class UserImpl implements UserService, UserDetailsService {
             try {
                 List<User> users = new ArrayList<>();
                 List<String> unsuccessfulUsers = new ArrayList<>();
-                List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(), UserFromExcel.class);
+                List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(),
+                        UserFromExcel.class);
                 for (UserFromExcel excelUser : importedUsers) {
                     try {
                         excelUser.setRole(excelUser.getRole().toLowerCase());
                         users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
                         User user = userRepository.save(users.get(users.size() - 1));
 
-                        String  messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),user.getUsername(), passwordHash);
+                        String messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),
+                                user.getUsername(), passwordHash);
                         EmailHelper emailHelper = new EmailHelper();
                         emailHelper.sendMail(
-                                "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail()
-                        );
+                                "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail());
                     } catch (Exception ex) {
                         unsuccessfulUsers.add(excelUser.getUsername());
                         logger.error("Error saving user to database", ex);
@@ -186,11 +185,11 @@ public class UserImpl implements UserService, UserDetailsService {
 
     // @Override
     // public boolean exportExcel() {
-    //     // List<User> users = (List<User>) this.userRepository.findAll();
-    //     // if (users.size() > 0) {
-    //     //     ExcelHelper.writeExcel(users, "Users", user);
-    //     //     return true;
-    //     // }
-    //     return false;
+    // // List<User> users = (List<User>) this.userRepository.findAll();
+    // // if (users.size() > 0) {
+    // // ExcelHelper.writeExcel(users, "Users", user);
+    // // return true;
+    // // }
+    // return false;
     // }
 }
