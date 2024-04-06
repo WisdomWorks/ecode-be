@@ -3,13 +3,10 @@ package com.example.codeE.request.exercise;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.EssaySubmission;
 import com.example.codeE.model.exercise.QuizSubmission;
-import com.google.rpc.Code;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -22,6 +19,7 @@ public class AllStudentSubmissionResponse {
     private String studentId;
     private String dateGrade;
     private String dateSubmission;
+    private String type;
     private Float score;
 
     public AllStudentSubmissionResponse(QuizSubmission quiz, String title){
@@ -31,6 +29,7 @@ public class AllStudentSubmissionResponse {
         this.studentId = quiz.getStudentId();
         this.dateGrade = quiz.getDateGrade();
         this.dateSubmission = quiz.getDateSubmit();
+        this.type = "quiz";
         this.score = quiz.getScore();
     }
     public AllStudentSubmissionResponse(CodeSubmission code, String title){
@@ -40,6 +39,7 @@ public class AllStudentSubmissionResponse {
         this.studentId = code.getStudentId();
         this.dateGrade = code.getDateGrade();
         this.dateSubmission = code.getDateSubmit();
+        this.type = "code";
         this.score = code.getScore();
     }
     public AllStudentSubmissionResponse(EssaySubmission essay, String title){
@@ -49,6 +49,7 @@ public class AllStudentSubmissionResponse {
         this.studentId = essay.getStudentId();
         this.dateGrade = essay.getDateGrade();
         this.dateSubmission = essay.getDateSubmit();
+        this.type = "essay";
         this.score = essay.getScore();
     }
 }
