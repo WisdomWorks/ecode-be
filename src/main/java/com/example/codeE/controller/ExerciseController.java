@@ -82,9 +82,9 @@ public class ExerciseController {
         codeExercise.setStartTime(request.getStartTime());
         codeExercise.setEndTime(request.getEndTime());
         codeExercise.setDurationTime(request.getDurationTime());
-        codeExercise.setShowAll(request.isShowAll());
+        codeExercise.setShowAll(false);
         codeExercise.setReAttempt(request.getReAttempt());
-        codeExercise.setPublicGroupIds(request.getPublicGroupIds());
+        codeExercise.setPublicGroupIds(new ArrayList<String>());
         codeExercise.setDescription(request.getDescription());
         codeExercise.setTimeLimit((double) Constant.PROBLEM_MAX_TIME_LIMIT);
         codeExercise.setMemoryLimit(Constant.PROBLEM_MAX_MEMORY_LIMIT);

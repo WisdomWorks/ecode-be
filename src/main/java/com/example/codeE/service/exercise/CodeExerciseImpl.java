@@ -83,7 +83,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
         codeExercise.setStartTime(updateCodeExerciseRequest.getStartTime());
         codeExercise.setEndTime(updateCodeExerciseRequest.getEndTime());
         codeExercise.setDurationTime(updateCodeExerciseRequest.getDurationTime());
-        codeExercise.setShowAll(updateCodeExerciseRequest.isShowAll());
+        codeExercise.setShowAll(codeExercise.isShowAll());
         codeExercise.setReAttempt(updateCodeExerciseRequest.getReAttempt());
         codeExercise.setDescription(updateCodeExerciseRequest.getDescription());
         codeExercise.setAllowedLanguageIds(updateCodeExerciseRequest.getAllowedLanguageIds());
@@ -92,12 +92,9 @@ public class CodeExerciseImpl implements CodeExerciseService{
         codeExercise.setTimeLimit((double) Constant.PROBLEM_MAX_TIME_LIMIT);
         codeExercise.setTemplate(updateCodeExerciseRequest.getTemplate());
         codeExercise.setType("code");
-        codeExercise.setPublicGroupIds(updateCodeExerciseRequest.getPublicGroupIds());
+        codeExercise.setPublicGroupIds(codeExercise.getPublicGroupIds());
         codeExercise.setTestCases(updateCodeExerciseRequest.getTestCases());
-
-
         this.exerciseRepository.save(codeExercise);
-
         return codeExerciseRepository.save(codeExercise);
     }
 

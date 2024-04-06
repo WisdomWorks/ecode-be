@@ -36,16 +36,12 @@ public class UpdateCodeExerciseRequest {
 
     private int durationTime;
 
-    private boolean isShowAll;
-
     private int reAttempt;
 
     private String exerciseDescription;
 
     @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
     private String type;
-
-    private List<String> publicGroupIds;
 
     private String description;
 

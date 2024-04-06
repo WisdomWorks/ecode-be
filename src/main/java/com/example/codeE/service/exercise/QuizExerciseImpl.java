@@ -33,11 +33,9 @@ public class QuizExerciseImpl implements QuizExerciseService{
         }
         List<QuizQuestion> questions = quizExercise.getQuestions();
         for(int i=0; i<questions.size(); i++){
-            questions.get(i).setQuestionId(UUID.randomUUID().toString());
             QuizQuestion quizQuestion = quizExercise.getQuestions().get(i);
             List<QuizChoice> choices = questions.get(i).getChoices();
             for(int j=0; j<choices.size(); j++){
-                choices.get(j).setChoiceId(UUID.randomUUID().toString());
                 QuizChoice savedChoice = quizChoiceRepository.save(choices.get(j));
                 quizQuestion.getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
                 quizExercise.getQuestions().get(i).getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
@@ -77,11 +75,9 @@ public class QuizExerciseImpl implements QuizExerciseService{
             }
             List<QuizQuestion> questions = updateExercise.getQuestions();
             for(int i=0; i<questions.size(); i++){
-                questions.get(i).setQuestionId(UUID.randomUUID().toString());
                 QuizQuestion quizQuestion = updateExercise.getQuestions().get(i);
                 List<QuizChoice> choices = questions.get(i).getChoices();
                 for(int j=0; j<choices.size(); j++){
-                    choices.get(j).setChoiceId(UUID.randomUUID().toString());
                     QuizChoice savedChoice = quizChoiceRepository.save(choices.get(j));
                     quizQuestion.getChoices().get(j).setChoiceId(savedChoice.getChoiceId());
                     updateExercise.getQuestions().get(i).getChoices().get(j).setChoiceId(savedChoice.getChoiceId());

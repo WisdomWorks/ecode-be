@@ -36,13 +36,8 @@ public class CreateCodeExerciseRequest {
     @NotNull(message = "Duration time is required")
     private int durationTime;
 
-    private boolean isShowAll;
-
     @NotNull(message = "Re-Attempt is required")
     private int reAttempt;
-
-    @NotNull(message = "Exercise public option is required")
-    private List<String> publicGroupIds;
 
     @NotNull(message = "Exercise description is required")
     private String description;
