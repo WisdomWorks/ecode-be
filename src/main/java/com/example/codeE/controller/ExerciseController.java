@@ -346,8 +346,8 @@ public class ExerciseController {
     }
     @GetMapping
     @RequestMapping(value = "all-submission/user/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllStudentSubmission(@PathVariable String userId, @RequestParam String CourseId){
-        return ResponseEntity.status(HttpStatus.OK).body("");
+    public ResponseEntity<?> getAllStudentSubmission(@PathVariable String userId, @RequestParam String courseId){
+        return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getAllStudentSubmission(courseId, userId));
     }
     @GetMapping
     @RequestMapping(value = "submit/user/{userId}", method = RequestMethod.GET)

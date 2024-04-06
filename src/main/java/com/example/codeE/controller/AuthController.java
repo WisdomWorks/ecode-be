@@ -147,8 +147,9 @@ public class AuthController {
     }
     @PutMapping
     @RequestMapping(value = "change-password", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUserPassword(@RequestBody forgetPasswordRequest request){
-        if(this.authenService.updatePassword(request.getUserId(), request.getPassword())){
+    public ResponseEntity<?> updateUserPassword(@RequestBody forgetPasswordRequest changePasswordRequest, HttpServletRequest request, HttpServletResponse response) {
+        if (this.authenService.updatePassword(changePasswordRequest.getUserId(), changePasswordRequest.getPassword())) {
+            this.clearForgetPasswordCookie(request, response, changePasswordRequest.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","Change password successful."));
         }else
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "some thing wrong, when request change password!"));
@@ -164,6 +165,24 @@ public class AuthController {
             }
         }
         return "";
+    }
+
+    private void clearForgetPasswordCookie(HttpServletRequest request, HttpServletResponse response, String userId) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessTokenUser".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+                if ((userId + "_OTP").equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+            }
+        }
     }
     private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
