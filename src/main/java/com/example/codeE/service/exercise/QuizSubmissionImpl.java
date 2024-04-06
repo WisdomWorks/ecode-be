@@ -112,6 +112,8 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
                 return o1.getDateSubmit().compareTo(o2.getDateSubmit());
             }
         });
+        if (!result.isEmpty())
         return result.get(result.size() - 1);
+        else return new QuizSubmission();
     }
 }
