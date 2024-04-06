@@ -92,7 +92,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         });
         if (!result.isEmpty())
         return result.get(result.size()-1);
-        else return new EssaySubmission();
+        else return null;
     }
 
     @Override

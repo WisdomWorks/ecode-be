@@ -114,6 +114,6 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
         });
         if (!result.isEmpty())
         return result.get(result.size() - 1);
-        else return new QuizSubmission();
+        else return null;
     }
 }

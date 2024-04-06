@@ -27,7 +27,12 @@ import java.util.NoSuchElementException;
 public class ExerciseImpl implements ExerciseService{
     @Autowired
     private ExerciseRepository exerciseRepository;
-
+    @Autowired
+    private EssayExerciseRepository essayExerciseRepository;
+    @Autowired
+    private QuizExerciseRepository quizExerciseRepository;
+    @Autowired
+    private CodeExerciseRepository codeExerciseRepository;
     @Autowired
     private GroupRepository groupRepository;
     @Autowired
@@ -151,6 +156,26 @@ public class ExerciseImpl implements ExerciseService{
             exercise.setPublicGroupIds(request.getGroupIds());
             exercise.setShowAll(request.isShowAll());
             this.exerciseRepository.save(exercise);
+            switch (exercise.getType()) {
+                case "code" -> {
+                    var code = this.codeExerciseRepository.findById(exercise.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No code exercise found with ID: " + request.getExerciseId()));
+                    code.setPublicGroupIds(request.getGroupIds());
+                    code.setShowAll(request.isShowAll());
+                    codeExerciseRepository.save(code);
+                }
+                case "quiz" -> {
+                    var quiz = this.quizExerciseRepository.findById(exercise.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No quiz exercise found with ID: " + request.getExerciseId()));
+                    quiz.setPublicGroupIds(request.getGroupIds());
+                    quiz.setShowAll(request.isShowAll());
+                    quizExerciseRepository.save(quiz);
+                }
+                case "essay" -> {
+                    var essay = this.essayExerciseRepository.findById(exercise.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No essay exercise found with ID: " + request.getExerciseId()));
+                    essay.setPublicGroupIds(request.getGroupIds());
+                    essay.setShowAll(request.isShowAll());
+                    essayExerciseRepository.save(essay);
+                }
+            }
             var groupResponse = new ArrayList<GroupTopicResponse>();
             for(var item: exercise.getPublicGroupIds()){
                 var group = this.groupRepository.findById(item).get();
@@ -179,13 +204,16 @@ public class ExerciseImpl implements ExerciseService{
                 switch (item.getType()) {
                     case "essay" -> {
                         var essay = this.essaySubmissionService.getLastEssaySubmissionByUserId(item.getExerciseId(), userId);
-                        responses.add(new AllStudentSubmissionResponse(essay, item.getExerciseName()));
+                        if (essay != null)
+                            responses.add(new AllStudentSubmissionResponse(essay, item.getExerciseName()));
                     }case "code" -> {
                         var code = this.codeSubmissionService.getLastCodeSubmissionByUserId(item.getExerciseId(), userId);
-                        responses.add(new AllStudentSubmissionResponse(code, item.getExerciseName()));
+                        if (code != null)
+                            responses.add(new AllStudentSubmissionResponse(code, item.getExerciseName()));
                     }case "quiz" -> {
                         var quiz = this.quizSubmissionService.getLastQuizSubmissionByUserId(item.getExerciseId(), userId);
-                        responses.add(new AllStudentSubmissionResponse(quiz, item.getExerciseName()));
+                        if (quiz != null)
+                            responses.add(new AllStudentSubmissionResponse(quiz, item.getExerciseName()));
                     }
                 }
             }

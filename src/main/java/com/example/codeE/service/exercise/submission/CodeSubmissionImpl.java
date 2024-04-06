@@ -125,6 +125,6 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         if (!result.isEmpty())
         return result.get(result.size()-1);
         else
-            return new CodeSubmission();
+            return null;
     }
 }
