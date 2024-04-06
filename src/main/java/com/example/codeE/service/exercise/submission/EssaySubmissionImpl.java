@@ -90,7 +90,9 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
                 return o1.getDateSubmit().compareTo(o2.getDateSubmit());
             }
         });
+        if (!result.isEmpty())
         return result.get(result.size()-1);
+        else return new EssaySubmission();
     }
 
     @Override

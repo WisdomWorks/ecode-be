@@ -164,6 +164,7 @@ public class ExerciseImpl implements ExerciseService{
 
     @Override
     public List<AllStudentSubmissionResponse> getAllStudentSubmission(String courseId, String userId) {
+        this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found"));
         List<AllStudentSubmissionResponse> responses = new ArrayList<>();
         try {
             List<String> topicIdList = new ArrayList<>();
