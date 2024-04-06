@@ -77,7 +77,7 @@ public class Exercise {
     
     @Field
     @NotNull(message = "Exercise type is required")
-    @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
+    @Pattern(regexp = "^(quiz|essay|code|file)$", message = "Exercise type should be quiz, essay, or code")
     private String type;
 
     @Field
