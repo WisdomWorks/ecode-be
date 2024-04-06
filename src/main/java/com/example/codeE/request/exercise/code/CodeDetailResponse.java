@@ -34,7 +34,7 @@ public class CodeDetailResponse {
     private String type;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.TIME_FORMAT)
     private Date timeLess;
-    private String exerciseDescription;
+    private String description;
     private List<TestCase> testCases;
     private HashMap<String, String> languageTemplate;
 
@@ -48,7 +48,7 @@ public class CodeDetailResponse {
         this.reAttempt = codeExercise.getReAttempt();
         this.type = codeExercise.getType();
         this.timeLess = GetTimeLess(codeExercise.getStartTime(), codeExercise.getEndTime(), codeExercise.getDurationTime());
-        this.exerciseDescription = codeExercise.getExerciseDescription();
+        this.description = codeExercise.getDescription();
         this.testCases = codeExercise.getTestCases();
         this.languageTemplate = getTemplateMap(codeExercise.getAllowedLanguageIds());
     }
