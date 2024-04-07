@@ -1,10 +1,7 @@
 package com.example.codeE.service.exercise;
 
 import com.example.codeE.helper.LoggerHelper;
-import com.example.codeE.model.exercise.CodeExercise;
-import com.example.codeE.model.exercise.EssayExercise;
-import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.model.exercise.QuizExercise;
+import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.AllStudentSubmissionResponse;
@@ -60,6 +57,11 @@ public class ExerciseImpl implements ExerciseService{
 
     @Override
     public Exercise saveCodeExercise(CodeExercise exercise) {
+        return this.exerciseRepository.save(exercise);
+    }
+
+    @Override
+    public Exercise saveFileExercise(FileExercise exercise) {
         return this.exerciseRepository.save(exercise);
     }
 

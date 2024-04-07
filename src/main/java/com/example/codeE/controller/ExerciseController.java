@@ -7,15 +7,12 @@ import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
-import com.example.codeE.request.exercise.code.CodeDetailResponse;
-import com.example.codeE.request.exercise.code.CodeRunRequest;
-import com.example.codeE.request.exercise.code.CreateCodeExerciseRequest;
-import com.example.codeE.request.exercise.code.RunCodeExerciseResponse;
-import com.example.codeE.request.exercise.code.SubmitCodeExerciseRequest;
-import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
+import com.example.codeE.request.exercise.code.*;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
+import com.example.codeE.request.exercise.file.CreateFileExerciseRequest;
+import com.example.codeE.request.exercise.file.CreateFileSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
@@ -24,15 +21,18 @@ import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
+import com.example.codeE.service.exercise.submission.FileSubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -47,7 +47,10 @@ public class ExerciseController {
     private CodeExerciseService codeExerciseService;
     @Autowired
     private ExerciseService exerciseService;
-
+    @Autowired
+    private FileExerciseService fileExerciseService;
+    @Autowired
+    private FileSubmissionService fileSubmissionService;
     @Autowired
     private QuizExerciseService quizExerciseService;
     @Autowired
@@ -128,6 +131,15 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(essaySave);
     }
 
+    @PostMapping
+    @RequestMapping(value = "file", method = RequestMethod.POST)
+    public ResponseEntity<?> createFileExercise(@Valid @RequestBody CreateFileExerciseRequest request){
+        FileExercise fileExercise = new FileExercise(request);
+        var fileSave = this.fileExerciseService.createFileExercise(fileExercise);
+        this.exerciseService.saveFileExercise(fileSave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fileSave);
+    }
+
     @GetMapping
     @RequestMapping(value = "", method = RequestMethod.GET)
     public  ResponseEntity<?> getAllExerciseByCourseId(@RequestParam String courseId) {
@@ -141,6 +153,7 @@ public class ExerciseController {
         Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
         return  ResponseEntity.status(HttpStatus.OK).body(exercise);
     }
+
     @PostMapping
     @RequestMapping(value = "detail", method = RequestMethod.POST)
     public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest request){
@@ -157,6 +170,7 @@ public class ExerciseController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         }
     }
+
     @PostMapping
     @RequestMapping(value = "code/submit", method = RequestMethod.POST)
     public ResponseEntity<?> submitCodeExercise(@Valid @RequestBody SubmitCodeExerciseRequest request){
@@ -245,6 +259,17 @@ public class ExerciseController {
     public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody CreateEssaySubmissionRequest essaySubmission){
         return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.createSubmission(essaySubmission));
     }
+
+    @PostMapping
+    @RequestMapping(value = "file/submit", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> submitFileExercise(@Valid @ModelAttribute CreateFileSubmissionRequest request, @RequestPart(required = false) MultipartFile file){
+        if (file == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Please upload your file"));
+        }
+        FileSubmission result = this.fileSubmissionService.createSubmission(request, file);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     @GetMapping
     @RequestMapping(value = "preview/{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getPreviewExercise(@PathVariable String exerciseId, @RequestParam String studentId){
@@ -270,9 +295,9 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Delete success"));
     }
 
-     @PutMapping
+    @PutMapping
      @RequestMapping(value = "code", method = RequestMethod.PUT)
-     public ResponseEntity<?> updateCodeExercise(@RequestBody UpdateCodeExerciseRequest request) {
+    public ResponseEntity<?> updateCodeExercise(@RequestBody UpdateCodeExerciseRequest request) {
         CodeExercise updatedExercise = this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request);
 
          List<TestCase> testCases = request.getTestCases();
@@ -298,12 +323,14 @@ public class ExerciseController {
         QuizExercise updatedExercise = this.quizExerciseService.updateQuizExercise(request.getExerciseId(), request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
+
     @PutMapping
     @RequestMapping(value = "essay", method = RequestMethod.PUT)
     public ResponseEntity<?> updateEssayExercise(@RequestBody UpdateEssayExerciseRequest request){
         EssayExercise updatedExercise = this.essayExerciseService.updateEssayExercise(request.getExerciseId(), request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
+
     @PostMapping
     @RequestMapping(value = "view", method = RequestMethod.POST)
     public ResponseEntity<?> addPermissionExercise(@RequestBody CreatePermissionExerciseRequest request){
@@ -344,11 +371,13 @@ public class ExerciseController {
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };
     }
+
     @GetMapping
     @RequestMapping(value = "all-submission/user/{userId}", method = RequestMethod.GET)
     public ResponseEntity<?> getAllStudentSubmission(@PathVariable String userId, @RequestParam String courseId){
         return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getAllStudentSubmission(courseId, userId));
     }
+
     @GetMapping
     @RequestMapping(value = "submit/user/{userId}", method = RequestMethod.GET)
     public ResponseEntity<?> getExerciseByUserId(@RequestParam String exerciseId, @PathVariable String userId, @RequestParam String type) {
