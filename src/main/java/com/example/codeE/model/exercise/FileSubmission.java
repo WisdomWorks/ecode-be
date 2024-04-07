@@ -17,8 +17,8 @@ public class FileSubmission extends Submission {
     @Field
     private String fileUrl;
 
-    public FileSubmission(CreateFileSubmissionRequest request, float score) {
+    public FileSubmission(CreateFileSubmissionRequest request, String url, float score) {
         super(request.getStudentId(), request.getExerciseId(), score, true, "");
-        this.fileUrl = request.getUrl();
+        this.fileUrl = url;
     }
 }
