@@ -50,12 +50,13 @@ public class QuizSubmissionImpl implements QuizSubmissionService{
 
     @Override
     public List<QuizSubmissionsResponse> getQuizSubmissionsByExerciseId(String exerciseId) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
         var result = new ArrayList<QuizSubmissionsResponse>();
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                result.add(new QuizSubmissionsResponse(item, student, new Exercise()));
+                result.add(new QuizSubmissionsResponse(item, student, exercise));
             }
         }
         return result;

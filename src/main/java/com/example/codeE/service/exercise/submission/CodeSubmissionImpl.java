@@ -78,13 +78,14 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
 
     @Override
     public List<CodeSubmissionsResponse> getCodeSubmissionsByExerciseId(String exerciseId) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<CodeSubmission> submissions = codeSubmissionRepository.findAll();
         var result = new ArrayList<CodeSubmissionsResponse>();
         for (var item : submissions) {
             if (!item.getSubmissionId().equals("code_submission")){
                 if (item.getExerciseId().equals(exerciseId) && !item.isPretested()) {
                     var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                    result.add(new CodeSubmissionsResponse(item, student, new Exercise()));
+                    result.add(new CodeSubmissionsResponse(item, student, exercise));
                 }
             }
         }
