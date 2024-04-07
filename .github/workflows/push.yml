@@ -1,9 +1,10 @@
 name: Push to Docker Hub
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - dev
+      - [dev, dev-deploy]
 
 jobs:
   push:
