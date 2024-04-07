@@ -45,12 +45,13 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
 
     @Override
     public List<EssaySubmissionsResponse> getEssaySubmissionsByExerciseId(String exerciseId) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
         var result = new ArrayList<EssaySubmissionsResponse>();
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                result.add(new EssaySubmissionsResponse(item,student, new Exercise()));
+                result.add(new EssaySubmissionsResponse(item,student, exercise));
             }
         }
         return result;
