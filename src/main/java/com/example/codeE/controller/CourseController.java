@@ -30,17 +30,15 @@ import java.util.Map;
 public class CourseController {
     @Autowired
     private CourseService courseService;
-
-
     @Autowired
     private CourseStudentService courseStudentService;
+
 
     @GetMapping
     @RequestMapping(value = "{courseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getById(@PathVariable String courseId){
         return ResponseEntity.ok(courseService.getById(courseId));
     }
-
     @GetMapping
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseEntity<?> getAll(){
