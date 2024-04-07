@@ -1,9 +1,6 @@
 package com.example.codeE.service.exercise;
 
-import com.example.codeE.model.exercise.CodeExercise;
-import com.example.codeE.model.exercise.EssayExercise;
-import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.model.exercise.QuizExercise;
+import com.example.codeE.model.exercise.*;
 import com.example.codeE.request.exercise.AllStudentSubmissionResponse;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
@@ -15,6 +12,7 @@ public interface ExerciseService {
     Exercise saveQuizExercise(QuizExercise exercise);
     Exercise saveEsayExercise(EssayExercise exercise);
     Exercise saveCodeExercise(CodeExercise exercise);
+    Exercise saveFileExercise(FileExercise exercise);
     ExerciseStudentResponse getPreviewExercise(String exerciseId, String studentId);
     List<ExerciseResponse> getExercisesByCourseId(String courseId);
     Exercise getExerciseById(String exerciseId);

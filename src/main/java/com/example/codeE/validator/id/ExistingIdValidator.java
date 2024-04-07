@@ -3,6 +3,7 @@ package com.example.codeE.validator.id;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.course.*;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
+import com.example.codeE.request.exercise.file.CreateFileExerciseRequest;
 import com.example.codeE.request.material.CreateMaterialRequest;
 import com.example.codeE.request.material.UpdateMaterialRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
@@ -36,34 +37,27 @@ public class ExistingIdValidator implements ConstraintValidator<ExistingId, Obje
 
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext context) {
-        if (object instanceof UpdateUserRequest) {
-            UpdateUserRequest updateUserRequest = (UpdateUserRequest) object;
+        if (object instanceof UpdateUserRequest updateUserRequest) {
             return userRepository.existsById(updateUserRequest.getUserId());
-        } else if (object instanceof UpdateCourseRequest) {
-            UpdateCourseRequest updateCourseRequest = (UpdateCourseRequest) object;
+        } else if (object instanceof UpdateCourseRequest updateCourseRequest) {
             return courseRepository.existsById(updateCourseRequest.getCourseId());
-        } else if (object instanceof AddStudentToCourseRequest) {
-            AddStudentToCourseRequest addStudentToCourseRequest = (AddStudentToCourseRequest) object;
+        } else if (object instanceof AddStudentToCourseRequest addStudentToCourseRequest) {
             return courseRepository.existsById(addStudentToCourseRequest.getCourseId());
-        } else if (object instanceof ImportStudentToCourseRequest) {
-            ImportStudentToCourseRequest importStudentToCourseRequest = (ImportStudentToCourseRequest) object;
+        } else if (object instanceof ImportStudentToCourseRequest importStudentToCourseRequest) {
             return courseRepository.existsById(importStudentToCourseRequest.getCourseId());
-        } else if (object instanceof RemoveStudentFromCourseRequest) {
-            RemoveStudentFromCourseRequest removeStudentFromCourseRequest = (RemoveStudentFromCourseRequest) object;
+        } else if (object instanceof RemoveStudentFromCourseRequest removeStudentFromCourseRequest) {
             return courseStudentRepository.existsByStudentIdAndCourseId(removeStudentFromCourseRequest.getStudentId(), removeStudentFromCourseRequest.getCourseId()) > 0;
-        } else if (object instanceof UpdateMaterialRequest) {
-            UpdateMaterialRequest updateMaterialRequest = (UpdateMaterialRequest) object;
+        } else if (object instanceof UpdateMaterialRequest updateMaterialRequest) {
             return materialRepository.existsById(updateMaterialRequest.getMaterialId());
-        } else if (object instanceof CreateMaterialRequest) {
-            CreateMaterialRequest createMaterialRequest = (CreateMaterialRequest) object;
+        } else if (object instanceof CreateMaterialRequest createMaterialRequest) {
             return topicRepository.existsById(createMaterialRequest.getTopicId());
-        } else if (object instanceof CreateEssayExerciseRequest) {
-            CreateEssayExerciseRequest createEssayExerciseRequest = (CreateEssayExerciseRequest) object;
+        } else if (object instanceof CreateEssayExerciseRequest createEssayExerciseRequest) {
             return topicRepository.existsById(createEssayExerciseRequest.getTopicId());
-        } else if (object instanceof UpdateStudentsToCourseRequest){
-            UpdateStudentsToCourseRequest updateStudentsToCourseRequest = (UpdateStudentsToCourseRequest) object;
+        } else if (object instanceof UpdateStudentsToCourseRequest updateStudentsToCourseRequest){
             return courseRepository.existsById(updateStudentsToCourseRequest.getCourseId()) &&
                     updateStudentsToCourseRequest.getStudentIds().stream().allMatch(studentId -> userRepository.existsById(studentId));
+        } else if (object instanceof CreateFileExerciseRequest createFileExerciseRequest) {
+            return topicRepository.existsById(createFileExerciseRequest.getTopicId());
         }
         return false;
     }

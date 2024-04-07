@@ -1,22 +1,29 @@
 package com.example.codeE.model.exercise;
 
-import com.example.codeE.model.exercise.common.QuizQuestion;
+import com.example.codeE.request.exercise.file.CreateFileExerciseRequest;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Date;
-import java.util.List;
+import java.util.ArrayList;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "FileExercise")
 public class FileExercise extends Exercise{
-    public FileExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, int durationTime, int reAttempt, String type, String exerciseDescription, boolean isShowAll, List<String> publicGroupIds) {
-        super(topicId, exerciseName, key, startTime, endTime, durationTime, reAttempt, type, exerciseDescription, isShowAll, publicGroupIds);
+    @Field
+    @NotNull(message = "Exercise's question is required")
+    private String question;
+
+    public FileExercise(CreateFileExerciseRequest request){
+        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "file",request.getExerciseDescription(), false,
+                new ArrayList<String>());
+        this.question = request.getQuestion();
     }
 }
