@@ -13,6 +13,7 @@ import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 import com.example.codeE.request.exercise.file.CreateFileExerciseRequest;
 import com.example.codeE.request.exercise.file.CreateFileSubmissionRequest;
+import com.example.codeE.request.exercise.file.UpdateFileExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
@@ -166,6 +167,8 @@ public class ExerciseController {
                 return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
             case "essay":
                 return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(request.getExerciseId() ));
+            case "file":
+                return ResponseEntity.status(HttpStatus.OK).body(this.fileExerciseService.getFileExerciseDetail(request.getExerciseId()));
             default:
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         }
@@ -290,13 +293,14 @@ public class ExerciseController {
             case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(exerciseId);
             case "essay" -> this.essayExerciseService.deleteEssayExerciseById(exerciseId);
             case "code" -> this.codeExerciseService.deleteCodeExercise(exerciseId);
+            case "file" -> this.fileExerciseService.deleteFileExerciseById(exerciseId);
             default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         }
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Delete success"));
     }
 
     @PutMapping
-     @RequestMapping(value = "code", method = RequestMethod.PUT)
+    @RequestMapping(value = "code", method = RequestMethod.PUT)
     public ResponseEntity<?> updateCodeExercise(@RequestBody UpdateCodeExerciseRequest request) {
         CodeExercise updatedExercise = this.codeExerciseService.updateCodeExercise(request.getExerciseId(), request);
 
@@ -331,6 +335,13 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
     }
 
+    @PutMapping
+    @RequestMapping(value = "file", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateFileExercise(@RequestBody UpdateFileExerciseRequest request){
+        FileExercise updatedExercise = this.fileExerciseService.updateFileExercise(request.getExerciseId(), request);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedExercise);
+    }
+
     @PostMapping
     @RequestMapping(value = "view", method = RequestMethod.POST)
     public ResponseEntity<?> addPermissionExercise(@RequestBody CreatePermissionExerciseRequest request){
@@ -348,6 +359,8 @@ public class ExerciseController {
                         ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId));
                 case "code" ->
                         ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionsByExerciseId(exerciseId));
+                case "file" ->
+                        ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.getFileSubmissionsByExerciseId(exerciseId));
                 default ->
                         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
             };
@@ -367,6 +380,8 @@ public class ExerciseController {
                     ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmission(submissionId));
             case "code" ->
                     ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionResponseById(submissionId));
+            case "file" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.getFileSubmissionById(submissionId));
             default ->
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };
@@ -388,6 +403,8 @@ public class ExerciseController {
                     ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionByUserId(exerciseId, userId));
             case "code" ->
                     ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionByUserId(exerciseId, userId));
+            case "file" ->
+                    ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.getFileSubmissionByUserId(exerciseId, userId));
             default ->
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };
