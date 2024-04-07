@@ -5,6 +5,7 @@ import com.example.codeE.request.exercise.AllStudentSubmissionResponse;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.ExerciseStudentResponse;
+import com.example.codeE.request.exercise.file.response.FilePreviewResponse;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface ExerciseService {
     Exercise saveCodeExercise(CodeExercise exercise);
     Exercise saveFileExercise(FileExercise exercise);
     ExerciseStudentResponse getPreviewExercise(String exerciseId, String studentId);
+    FilePreviewResponse getFilePreviewExercise(String exerciseId, String studentId);
     List<ExerciseResponse> getExercisesByCourseId(String courseId);
     Exercise getExerciseById(String exerciseId);
     Exercise getDetailExercise(String exerciseId, String key, String studentId);

@@ -24,7 +24,7 @@ public class FileExercise extends Exercise{
     private String question;
 
     public FileExercise(CreateFileExerciseRequest request){
-        super(request.getTopicId(), request.getExerciseName(), request.getKey(), request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "file",
+        super(request.getTopicId(), request.getExerciseName(), null, request.getStartTime(), request.getEndTime(), request.getDurationTime(), request.getReAttempt(), "file",
                 request.getExerciseDescription(), false, new ArrayList<String>());
         this.question = request.getQuestion();
     }

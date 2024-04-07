@@ -8,10 +8,12 @@ import com.example.codeE.request.exercise.AllStudentSubmissionResponse;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.ExerciseStudentResponse;
+import com.example.codeE.request.exercise.file.response.FilePreviewResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
+import com.example.codeE.service.exercise.submission.FileSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class ExerciseImpl implements ExerciseService{
     @Autowired
     private CodeExerciseRepository codeExerciseRepository;
     @Autowired
+    private FileExerciseRepository fileExerciseRepository;
+    @Autowired
     private GroupRepository groupRepository;
     @Autowired
     private GroupStudentRepository groupStudentRepository;
@@ -44,6 +48,8 @@ public class ExerciseImpl implements ExerciseService{
     private UserRepository userRepository;
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private FileSubmissionService fileSubmissionService;
 
     @Override
     public Exercise saveQuizExercise(QuizExercise exercise) {
@@ -70,6 +76,13 @@ public class ExerciseImpl implements ExerciseService{
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
         var available = this.isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt());
         return new ExerciseStudentResponse(exercise, available);
+    }
+    @Override
+    public FilePreviewResponse getFilePreviewExercise(String exerciseId, String studentId) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
+        var available = this.isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt());
+        var fileExercise = this.fileExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No file exercise found with ID: " + exerciseId));
+        return new FilePreviewResponse(fileExercise,fileExercise.getQuestion(), available);
     }
 
     @Override
@@ -142,6 +155,11 @@ public class ExerciseImpl implements ExerciseService{
             case "code" -> {
                 var codeSubmission = this.codeSubmissionService.getCodeSubmissionByUserId(exerciseId, userId);
                 if (codeSubmission.isEmpty() || codeSubmission.size() < reTemp)
+                    return true;
+            }
+            case "file" -> {
+                var fileSubmission = this.fileSubmissionService.getFileSubmissionByUserId(exerciseId, userId);
+                if (fileSubmission.isEmpty() || fileSubmission.size() < reTemp)
                     return true;
             }
         }
