@@ -1,6 +1,7 @@
 package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.CodeSubmission;
+import com.example.codeE.request.exercise.AllSubmissionResponse;
 import com.example.codeE.request.exercise.code.CodeSubmissionsResponse;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface CodeSubmissionService {
     CodeSubmissionsResponse getCodeSubmissionResponseById(String id);
     public CodeSubmission updateCodeSubmission(CodeSubmission codeSubmission);
     public CodeSubmission saveCodeSubmission(CodeSubmission codeSubmission);
-    public List<CodeSubmissionsResponse> getCodeSubmissionsByExerciseId(String exerciseId);
+    public AllSubmissionResponse getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter);
     public List<CodeSubmission> getCodeSubmissionByUserId(String exerciseId, String userId);
     public CodeSubmission getLastCodeSubmissionByUserId(String exerciseId, String userId);
 }

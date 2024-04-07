@@ -23,6 +23,7 @@ import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.exercise.submission.FileSubmissionService;
+import com.example.codeE.service.exercise.submission.QuizSubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
@@ -350,17 +351,17 @@ public class ExerciseController {
 
     @GetMapping
     @RequestMapping(value = "{exerciseId}/all-submission", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type) {
+    public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type,@RequestParam List<String> groupFilter) {
         try{
             return switch (type) {
                 case "quiz" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionsByExerciseId(exerciseId));
+                        ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionsByExerciseId(exerciseId, groupFilter));
                 case "essay" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId));
+                        ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId, groupFilter));
                 case "code" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionsByExerciseId(exerciseId));
+                        ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionsByExerciseId(exerciseId, groupFilter));
                 case "file" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.getFileSubmissionsByExerciseId(exerciseId));
+                        ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.getFileSubmissionsByExerciseId(exerciseId, groupFilter));
                 default ->
                         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
             };
