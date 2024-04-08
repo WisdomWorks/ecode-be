@@ -113,12 +113,13 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     }
 
     @Override
-    public EssaySubmission gradeSubmission(String essaySubmissionId, float score) {
+    public EssaySubmission gradeSubmission(String essaySubmissionId, float score, String comment) {
         if (score < 0 || score > 10) {
             throw new IllegalArgumentException("Score must be between 0 and 10");
         }
         EssaySubmission essaySubmission = this.essaySubmissionRepository.findById(essaySubmissionId).orElseThrow(() -> new NoSuchElementException("No Exercise found by Id: " + essaySubmissionId));
         essaySubmission.setScore(score);
+        essaySubmission.setTeacherComment(comment);
         this.essaySubmissionRepository.save(essaySubmission);
         return essaySubmission;
     }

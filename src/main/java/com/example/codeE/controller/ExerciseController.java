@@ -7,6 +7,7 @@ import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
+import com.example.codeE.request.exercise.GradeSubmission;
 import com.example.codeE.request.exercise.code.*;
 import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
@@ -287,10 +288,14 @@ public class ExerciseController {
 
     @PutMapping
     @RequestMapping(value = "essay/grade", method = RequestMethod.PUT)
-    public ResponseEntity<?> gradeEssaySubmission(@RequestParam String essaySubmissionId, @RequestParam float score){
-        return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.gradeSubmission(essaySubmissionId, score));
+    public ResponseEntity<?> gradeEssaySubmission(@RequestBody GradeSubmission request){
+        return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.gradeSubmission(request.getSubmissionId(), request.getScore(), request.getComment()));
     }
-
+    @PutMapping
+    @RequestMapping(value = "code/grade", method = RequestMethod.PUT)
+    public ResponseEntity<?> gradeCodeSubmission(@RequestBody GradeSubmission request){
+        return ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.GradeCodeSubmission(request.getSubmissionId(), request.getScore(), request.getComment()));
+    }
     @DeleteMapping
     @RequestMapping(value = "{exerciseId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteExerciseById(@Valid @PathVariable String exerciseId, @Valid @RequestParam String type) {
@@ -415,4 +420,6 @@ public class ExerciseController {
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
         };
     }
+
+
 }

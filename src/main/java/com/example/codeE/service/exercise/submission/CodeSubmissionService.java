@@ -18,4 +18,5 @@ public interface CodeSubmissionService {
     public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter);
     public List<CodeSubmission> getCodeSubmissionByUserId(String exerciseId, String userId);
     public CodeSubmission getLastCodeSubmissionByUserId(String exerciseId, String userId);
+    public CodeSubmission GradeCodeSubmission (String submissionId, float score, String comment);
 }

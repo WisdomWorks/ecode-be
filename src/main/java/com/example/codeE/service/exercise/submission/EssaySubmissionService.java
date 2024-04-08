@@ -14,6 +14,6 @@ public interface EssaySubmissionService {
     AllSubmissionResponse<SubmissionDetail> getEssaySubmissionsByExerciseId(String exerciseId, List<String> groupFilter);
     EssaySubmissionsResponse getEssaySubmission(String submissionId);
     List<EssaySubmission> getEssaySubmissionByUserId(String exerciseId, String userId);
-    EssaySubmission gradeSubmission(String essaySubmissionId, float score);
+    EssaySubmission gradeSubmission(String essaySubmissionId, float score, String comment);
     EssaySubmission getLastEssaySubmissionByUserId(String exerciseId, String userId);
 }
