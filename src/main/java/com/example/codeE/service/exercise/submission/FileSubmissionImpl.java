@@ -55,7 +55,7 @@ public class FileSubmissionImpl implements FileSubmissionService {
     }
 
     @Override
-    public AllSubmissionResponse<SubmissionDetail> getFileSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+    public AllSubmissionResponse<SubmissionDetail> getFileSubmissionsByExerciseId(String exerciseId) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<FileSubmission> submissions = this.fileSubmissionRepository.findAll();
         var listSubmissions = new ArrayList<SubmissionDetail>();
@@ -65,12 +65,18 @@ public class FileSubmissionImpl implements FileSubmissionService {
                 listSubmissions.add(new SubmissionDetail(student, item));
             }
         }
-        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupFilter);
         List<Group> groups = new ArrayList<>();
         for (var item : exercise.getPublicGroupIds()) {
             groups.add(this.groupService.getById(item));
         }
-        return new AllSubmissionResponse<SubmissionDetail>(exercise, listSubmissions, report, groups);
+        List<String> groupIds = new ArrayList<>();
+        if (!exercise.isShowAll()) {
+            for (var group : groups) {
+                groupIds.add(group.getGroupId());
+            }
+        }
+        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupIds);
+        return new AllSubmissionResponse<SubmissionDetail>(exercise, listSubmissions, report, exercise.isShowAll() ? null : groups);
     }
 
     @Override

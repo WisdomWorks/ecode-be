@@ -63,7 +63,7 @@ public class QuizSubmissionImpl implements QuizSubmissionService {
     }
 
     @Override
-    public AllSubmissionResponse<SubmissionDetail> getQuizSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+    public AllSubmissionResponse<SubmissionDetail> getQuizSubmissionsByExerciseId(String exerciseId) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
         var listSubmissions = new ArrayList<SubmissionDetail>();
@@ -73,12 +73,18 @@ public class QuizSubmissionImpl implements QuizSubmissionService {
                 listSubmissions.add(new SubmissionDetail(student, item));
             }
         }
-        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupFilter);
         List<Group> groups = new ArrayList<>();
         for (var item : exercise.getPublicGroupIds()) {
             groups.add(this.groupService.getById(item));
         }
-        return new AllSubmissionResponse<SubmissionDetail>(exercise, listSubmissions, report,groups);
+        List<String> groupIds = new ArrayList<>();
+        if (!exercise.isShowAll()) {
+            for (var group : groups) {
+                groupIds.add(group.getGroupId());
+            }
+        }
+        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupIds);
+        return new AllSubmissionResponse<SubmissionDetail>(exercise, listSubmissions, report, exercise.isShowAll() ? null : groups);
     }
 
     @Override

@@ -361,17 +361,17 @@ public class ExerciseController {
 
     @GetMapping
     @RequestMapping(value = "{exerciseId}/all-submission", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type,@RequestParam(required = false) List<String> groupFilter) {
+    public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type) {
         try{
             return switch (type) {
                 case "quiz" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionsByExerciseId(exerciseId, groupFilter));
+                        ResponseEntity.status(HttpStatus.OK).body(this.quizSubmissionService.getQuizSubmissionsByExerciseId(exerciseId));
                 case "essay" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId, groupFilter));
+                        ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.getEssaySubmissionsByExerciseId(exerciseId));
                 case "code" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionsByExerciseId(exerciseId, groupFilter));
+                        ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.getCodeSubmissionsByExerciseId(exerciseId));
                 case "file" ->
-                        ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.getFileSubmissionsByExerciseId(exerciseId, groupFilter));
+                        ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.getFileSubmissionsByExerciseId(exerciseId));
                 default ->
                         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong, type must be quiz/essay/code"));
             };

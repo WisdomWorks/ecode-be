@@ -94,7 +94,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     }
 
     @Override
-    public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+    public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<CodeSubmission> submissions = codeSubmissionRepository.getCodeSubmissionByExerciseId(exerciseId);
         var listSubmissions = new ArrayList<CodeSubmissionDetail>();
@@ -108,12 +108,18 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
                 }
             }
         }
-        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupFilter);
         List<Group> groups = new ArrayList<>();
         for(var item : exercise.getPublicGroupIds()){
             groups.add(this.groupService.getById(item));
         }
-        return new AllSubmissionResponse<CodeSubmissionDetail>(exercise,listSubmissions, report, groups);
+        List<String> groupIds = new ArrayList<>();
+        if (!exercise.isShowAll()) {
+            for (var group : groups) {
+                groupIds.add(group.getGroupId());
+            }
+        }
+        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupIds);
+        return new AllSubmissionResponse<CodeSubmissionDetail>(exercise,listSubmissions, report, exercise.isShowAll() ? null : groups);
     }
 
     @Override
