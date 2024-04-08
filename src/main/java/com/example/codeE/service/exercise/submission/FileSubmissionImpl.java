@@ -4,6 +4,7 @@ import com.example.codeE.helper.CloudStorageHelper;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.FileSubmission;
+import com.example.codeE.model.group.Group;
 import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.FileSubmissionRepository;
 import com.example.codeE.repository.TopicRepository;
@@ -13,6 +14,7 @@ import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.file.CreateFileSubmissionRequest;
 import com.example.codeE.request.exercise.file.response.FileSubmissionsResponse;
 import com.example.codeE.request.report.OverviewScoreReport;
+import com.example.codeE.service.group.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +35,8 @@ public class FileSubmissionImpl implements FileSubmissionService {
     private ExerciseRepository exerciseRepository;
     @Autowired
     private CloudStorageHelper cloudStorageHelper;
+    @Autowired
+    private GroupService groupService;
     @Override
     public FileSubmission createSubmission(CreateFileSubmissionRequest createRequest, MultipartFile file) {
         this.userRepository.findById(createRequest.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + createRequest.getStudentId()));
@@ -63,7 +67,11 @@ public class FileSubmissionImpl implements FileSubmissionService {
             }
         }
         var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupFilter);
-        return new AllSubmissionResponse(exercise,listSubmissions, report);
+        List<Group> groups = new ArrayList<>();
+        for (var item : exercise.getPublicGroupIds()) {
+            groups.add(this.groupService.getById(item));
+        }
+        return new AllSubmissionResponse(exercise, listSubmissions, report, groups);
     }
 
     @Override

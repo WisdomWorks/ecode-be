@@ -2,11 +2,13 @@ package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.Exercise;
+import com.example.codeE.model.group.Group;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.AllSubmissionResponse;
 import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.code.CodeSubmissionsResponse;
 import com.example.codeE.request.report.OverviewScoreReport;
+import com.example.codeE.service.group.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,8 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     private CourseStudentRepository courseStudentRepository;
     @Autowired
     private GroupStudentRepository groupStudentRepository;
+    @Autowired
+    private GroupService groupService;
     @Override
     public CodeSubmission checkStatusAndUpdate(CodeSubmission codeSubmission) {
         CodeSubmission submission = codeSubmissionRepository.findById(codeSubmission.getSubmissionId()).get();
@@ -97,7 +101,11 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
             }
         }
         var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupFilter);
-        return new AllSubmissionResponse(exercise,listSubmissions, report);
+        List<Group> groups = new ArrayList<>();
+        for(var item : exercise.getPublicGroupIds()){
+            groups.add(this.groupService.getById(item));
+        }
+        return new AllSubmissionResponse(exercise,listSubmissions, report, groups);
     }
 
     @Override
