@@ -63,7 +63,7 @@ public class QuizSubmissionImpl implements QuizSubmissionService {
     }
 
     @Override
-    public AllSubmissionResponse getQuizSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+    public AllSubmissionResponse<SubmissionDetail> getQuizSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
         var listSubmissions = new ArrayList<SubmissionDetail>();
@@ -78,7 +78,7 @@ public class QuizSubmissionImpl implements QuizSubmissionService {
         for (var item : exercise.getPublicGroupIds()) {
             groups.add(this.groupService.getById(item));
         }
-        return new AllSubmissionResponse(exercise, listSubmissions, report,groups);
+        return new AllSubmissionResponse<SubmissionDetail>(exercise, listSubmissions, report,groups);
     }
 
     @Override

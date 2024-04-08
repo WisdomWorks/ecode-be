@@ -2,12 +2,15 @@ package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.Exercise;
+import com.example.codeE.model.exercise.common.SubmissionTestCase;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.AllSubmissionResponse;
+import com.example.codeE.request.exercise.CodeSubmissionDetail;
 import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.code.CodeSubmissionsResponse;
 import com.example.codeE.request.report.OverviewScoreReport;
+import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.group.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,9 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     private GroupStudentRepository groupStudentRepository;
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private SubmissionTestCaseService submissionTestCaseService;
     @Override
     public CodeSubmission checkStatusAndUpdate(CodeSubmission codeSubmission) {
         CodeSubmission submission = codeSubmissionRepository.findById(codeSubmission.getSubmissionId()).get();
@@ -88,15 +94,18 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     }
 
     @Override
-    public AllSubmissionResponse getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+    public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
-        List<CodeSubmission> submissions = codeSubmissionRepository.findAll();
-        var listSubmissions = new ArrayList<SubmissionDetail>();
+//        List<CodeSubmission> submissions = codeSubmissionRepository.findAll();
+        List<CodeSubmission> submissions = codeSubmissionRepository.getCodeSubmissionByExerciseId(exerciseId);
+        var listSubmissions = new ArrayList<CodeSubmissionDetail>();
         for (var item : submissions) {
             if (!item.getSubmissionId().equals("code_submission")){
-                if (item.getExerciseId().equals(exerciseId) && !item.isPretested()) {
+//                if (item.getExerciseId().equals(exerciseId) && !item.isPretested()) {
+                if (!item.isPretested()) {
                     var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                    listSubmissions.add(new SubmissionDetail(student, item));
+                    List<SubmissionTestCase> testCases = this.submissionTestCaseService.getAllTcBySubmissionId(item.getSubmissionId());
+                    listSubmissions.add(new CodeSubmissionDetail(student, item, testCases));
                 }
             }
         }
@@ -105,7 +114,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         for(var item : exercise.getPublicGroupIds()){
             groups.add(this.groupService.getById(item));
         }
-        return new AllSubmissionResponse(exercise,listSubmissions, report, groups);
+        return new AllSubmissionResponse<CodeSubmissionDetail>(exercise,listSubmissions, report, groups);
     }
 
     @Override
@@ -154,7 +163,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
             int AScoreCount = 0, BScoreCount = 0, CScoreCount = 0, NumberSubmission = 0;
             result.setNumberStudent(courseStudents.size());
             for (var item : courseStudents) {
-                float score = getScoreStudent(item.getStudentId(), exercise);
+                Double score = getScoreStudent(item.getStudentId(), exercise);
                 if (score != -1) {
                     NumberSubmission++;
                     if (score < 5)
@@ -175,7 +184,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
                 if (groupId.contains(gId)) {
                     var groupStudents = groupStudentRepository.getStudentInGroup(gId);
                     for (var item : groupStudents) {
-                        float score = getScoreStudent(item.getUserId(), exercise);
+                        Double score = getScoreStudent(item.getUserId(), exercise);
                         if (score != -1) {
                             NumberSubmission++;
                             if (score < 5)
@@ -197,11 +206,11 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         return result;
     }
 
-    private float getScoreStudent(String studentId, Exercise exercise) {
-        var quiz = this.getLastCodeSubmissionByUserId(exercise.getExerciseId(), studentId);
-        if (quiz != null)
-            return quiz.getScore();
-        else return -1;
+    private Double getScoreStudent(String studentId, Exercise exercise) {
+        var codeSubmission = this.getLastCodeSubmissionByUserId(exercise.getExerciseId(), studentId);
+        if (codeSubmission != null)
+            return codeSubmission.getCasePoints();
+        else return -1.0;
 
     }
 }

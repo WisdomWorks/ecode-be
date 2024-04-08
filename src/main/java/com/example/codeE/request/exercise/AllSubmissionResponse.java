@@ -15,13 +15,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AllSubmissionResponse {
-    private List<SubmissionDetail> allSubmission;
+public class AllSubmissionResponse<T> {
+    private List<T> allSubmission;
     private String exerciseId;
     private List<Group> groups;
     private OverviewScoreReport report;
 
-    public AllSubmissionResponse(Exercise exercise, List<SubmissionDetail> allSubmission, OverviewScoreReport report, List<Group> groups){
+    public AllSubmissionResponse(Exercise exercise, List<T> allSubmission, OverviewScoreReport report, List<Group> groups){
         this.allSubmission = allSubmission;
         this.exerciseId = exercise.getExerciseId();
         this.groups = groups;
