@@ -1,6 +1,7 @@
 package com.example.codeE.request.exercise;
 
 import com.example.codeE.model.exercise.*;
+import com.example.codeE.model.group.Group;
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.report.OverviewScoreReport;
 import lombok.AllArgsConstructor;
@@ -17,13 +18,13 @@ import java.util.List;
 public class AllSubmissionResponse {
     private List<SubmissionDetail> allSubmission;
     private String exerciseId;
-    private List<String> publicGroupIds;
+    private List<Group> groups;
     private OverviewScoreReport report;
 
-    public AllSubmissionResponse(Exercise exercise, List<SubmissionDetail> allSubmission, OverviewScoreReport report){
+    public AllSubmissionResponse(Exercise exercise, List<SubmissionDetail> allSubmission, OverviewScoreReport report, List<Group> groups){
         this.allSubmission = allSubmission;
         this.exerciseId = exercise.getExerciseId();
-        this.publicGroupIds = exercise.getPublicGroupIds();
+        this.groups = groups;
         this.report = report;
     }
 }

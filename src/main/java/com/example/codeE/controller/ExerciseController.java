@@ -356,7 +356,7 @@ public class ExerciseController {
 
     @GetMapping
     @RequestMapping(value = "{exerciseId}/all-submission", method = RequestMethod.GET)
-    public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type,@RequestParam List<String> groupFilter) {
+    public ResponseEntity<?> getAllSubmissionByExerciseId(@PathVariable String exerciseId, @RequestParam String type,@RequestParam(required = false) List<String> groupFilter) {
         try{
             return switch (type) {
                 case "quiz" ->
