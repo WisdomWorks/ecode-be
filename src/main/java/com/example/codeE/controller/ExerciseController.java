@@ -40,6 +40,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/exercises")
@@ -277,6 +278,10 @@ public class ExerciseController {
     @GetMapping
     @RequestMapping(value = "preview/{exerciseId}", method = RequestMethod.GET)
     public ResponseEntity<?> getPreviewExercise(@PathVariable String exerciseId, @RequestParam String studentId){
+        Exercise exercise = this.exerciseService.getExerciseById(exerciseId);
+        if (Objects.equals(exercise.getType(), "file")){
+            return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getFilePreviewExercise(exerciseId, studentId));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(this.exerciseService.getPreviewExercise(exerciseId, studentId));
     }
 
