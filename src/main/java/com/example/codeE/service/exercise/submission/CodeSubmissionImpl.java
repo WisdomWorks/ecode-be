@@ -96,7 +96,6 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     @Override
     public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
-//        List<CodeSubmission> submissions = codeSubmissionRepository.findAll();
         List<CodeSubmission> submissions = codeSubmissionRepository.getCodeSubmissionByExerciseId(exerciseId);
         var listSubmissions = new ArrayList<CodeSubmissionDetail>();
         for (var item : submissions) {
@@ -153,6 +152,18 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         else
             return null;
     }
+
+    @Override
+    public CodeSubmission GradeCodeSubmission(String submissionId, float score, String comment) {
+        if (score < 0 || score > 10) {
+            throw new IllegalArgumentException("Score must be between 0 and 10");
+        }
+        var submission = this.getCodeSubmissionById(submissionId);
+        submission.setCasePoints(score * 1.0);
+        submission.setTeacherComment(comment);
+        return this.codeSubmissionRepository.save(submission);
+    }
+
     public OverviewScoreReport getOverviewScoreReportByExerciseId(String exerciseId, List<String> groupId) {
         OverviewScoreReport result = new OverviewScoreReport();
         var exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
