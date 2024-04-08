@@ -42,8 +42,7 @@ public class FileSubmissionImpl implements FileSubmissionService {
             String courseId = this.topicRepository.findById(exercise.getTopicId()).get().getCourseId();
             String store = "file-submissions/" + courseId + "/" + exercise.getTopicId() + "/";
             String url = cloudStorageHelper.uploadFile(file, true, store);
-            createRequest.setUrl(url);
-            var fileSubmission = new FileSubmission(createRequest, -1);
+            var fileSubmission = new FileSubmission(createRequest, url, -1);
             return this.fileSubmissionRepository.save(fileSubmission);
         } catch (Exception e) {
             LoggerHelper.logError(e.getMessage());
