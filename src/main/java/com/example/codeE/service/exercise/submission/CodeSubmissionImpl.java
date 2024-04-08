@@ -2,10 +2,11 @@ package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.repository.CodeSubmissionRepository;
-import com.example.codeE.repository.ExerciseRepository;
-import com.example.codeE.repository.UserRepository;
+import com.example.codeE.repository.*;
+import com.example.codeE.request.exercise.AllSubmissionResponse;
+import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.code.CodeSubmissionsResponse;
+import com.example.codeE.request.report.OverviewScoreReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +17,19 @@ import java.util.NoSuchElementException;
 
 @Service
 public class CodeSubmissionImpl implements CodeSubmissionService{
+
     @Autowired
     private CodeSubmissionRepository codeSubmissionRepository;
     @Autowired
     private ExerciseRepository exerciseRepository;
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private TopicRepository topicRepository;
+    @Autowired
+    private CourseStudentRepository courseStudentRepository;
+    @Autowired
+    private GroupStudentRepository groupStudentRepository;
     @Override
     public CodeSubmission checkStatusAndUpdate(CodeSubmission codeSubmission) {
         CodeSubmission submission = codeSubmissionRepository.findById(codeSubmission.getSubmissionId()).get();
@@ -77,18 +84,20 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     }
 
     @Override
-    public List<CodeSubmissionsResponse> getCodeSubmissionsByExerciseId(String exerciseId) {
+    public AllSubmissionResponse getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<CodeSubmission> submissions = codeSubmissionRepository.findAll();
-        var result = new ArrayList<CodeSubmissionsResponse>();
+        var listSubmissions = new ArrayList<SubmissionDetail>();
         for (var item : submissions) {
             if (!item.getSubmissionId().equals("code_submission")){
                 if (item.getExerciseId().equals(exerciseId) && !item.isPretested()) {
                     var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                    result.add(new CodeSubmissionsResponse(item, student, new Exercise()));
+                    listSubmissions.add(new SubmissionDetail(student, item));
                 }
             }
         }
-        return result;
+        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupFilter);
+        return new AllSubmissionResponse(exercise,listSubmissions, report);
     }
 
     @Override
@@ -126,5 +135,65 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         return result.get(result.size()-1);
         else
             return null;
+    }
+    public OverviewScoreReport getOverviewScoreReportByExerciseId(String exerciseId, List<String> groupId) {
+        OverviewScoreReport result = new OverviewScoreReport();
+        var exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
+        ;
+        if (exercise.isShowAll()) {
+            String courseId = topicRepository.findById(exercise.getTopicId()).orElseThrow(() -> new NoSuchElementException("No topic found")).getCourseId();
+            var courseStudents = courseStudentRepository.getAllStudentsInCourse(courseId);
+            int AScoreCount = 0, BScoreCount = 0, CScoreCount = 0, NumberSubmission = 0;
+            result.setNumberStudent(courseStudents.size());
+            for (var item : courseStudents) {
+                float score = getScoreStudent(item.getStudentId(), exercise);
+                if (score != -1) {
+                    NumberSubmission++;
+                    if (score < 5)
+                        CScoreCount++;
+                    else if (score < 8)
+                        BScoreCount++;
+                    else
+                        AScoreCount++;
+                }
+            }
+            result.setAScore(AScoreCount);
+            result.setBScore(BScoreCount);
+            result.setCScore(CScoreCount);
+            result.setNumberSubmission(NumberSubmission);
+        } else {
+            int AScoreCount = 0, BScoreCount = 0, CScoreCount = 0, NumberSubmission = 0;
+            for (String gId : exercise.getPublicGroupIds()) {
+                if (groupId.contains(gId)) {
+                    var groupStudents = groupStudentRepository.getStudentInGroup(gId);
+                    for (var item : groupStudents) {
+                        float score = getScoreStudent(item.getUserId(), exercise);
+                        if (score != -1) {
+                            NumberSubmission++;
+                            if (score < 5)
+                                CScoreCount++;
+                            else if (score < 8)
+                                BScoreCount++;
+                            else
+                                AScoreCount++;
+                        }
+                    }
+                    result.setNumberStudent(result.getNumberStudent() + groupStudents.size());
+                }
+            }
+            result.setAScore(AScoreCount);
+            result.setBScore(BScoreCount);
+            result.setCScore(CScoreCount);
+            result.setNumberSubmission(NumberSubmission);
+        }
+        return result;
+    }
+
+    private float getScoreStudent(String studentId, Exercise exercise) {
+        var quiz = this.getLastCodeSubmissionByUserId(exercise.getExerciseId(), studentId);
+        if (quiz != null)
+            return quiz.getScore();
+        else return -1;
+
     }
 }

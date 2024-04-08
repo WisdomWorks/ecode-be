@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,6 +30,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
     @Autowired
+    private Environment environment;
+    @Autowired
     private UserImpl userService;
     @Autowired
     private JWTAuthFilter filter;
@@ -39,17 +42,22 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**", "/public/**").permitAll()
+                        .requestMatchers("/ping").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**",
                                 "/swagger-resources/**", "/webjars/**")
                         .permitAll()
-                         .requestMatchers("/users/**").hasAnyAuthority( "teacher","admin")
-//                        .requestMatchers("/users/**").permitAll()
-                        .requestMatchers("/topics/**").hasAnyAuthority("student", "teacher")
-                        .requestMatchers("/exercises/**").hasAnyAuthority("student", "teacher")
-                        .requestMatchers("/materials/**").hasAnyAuthority("student", "teacher")
+//                         .requestMatchers("/users/**").hasAnyAuthority( "teacher","admin")
+//                        .requestMatchers("/topics/**").hasAnyAuthority("student", "teacher")
+//                        .requestMatchers("/exercises/**").hasAnyAuthority("student", "teacher")
+//                        .requestMatchers("/materials/**").hasAnyAuthority("student", "teacher")
 //                        .requestMatchers("/courses/**").hasAnyAuthority("teacher", "admin", "student")
+//                        .requestMatchers("/groups/**").hasAnyAuthority("teacher")
                         .requestMatchers("/courses/**").permitAll()
-                        .requestMatchers("/groups/**").hasAnyAuthority("teacher")
+                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/topics/**").permitAll()
+                        .requestMatchers("/exercises/**").permitAll()
+                        .requestMatchers("/materials/**").permitAll()
+                        .requestMatchers("/groups/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
@@ -68,10 +76,11 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://localhost:4000");
         config.addAllowedOrigin("http://localhost:4001");
+//        config.addAllowedOrigin(environment.getProperty("url.admin.ui"));
+//        config.addAllowedOrigin(environment.getProperty("url.user.ui"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -2,11 +2,12 @@ package com.example.codeE.service.exercise.submission;
 
 import com.example.codeE.model.exercise.EssaySubmission;
 import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.repository.EssaySubmissionRepository;
-import com.example.codeE.repository.ExerciseRepository;
-import com.example.codeE.repository.UserRepository;
+import com.example.codeE.repository.*;
+import com.example.codeE.request.exercise.AllSubmissionResponse;
+import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import com.example.codeE.request.exercise.essay.EssaySubmissionsResponse;
+import com.example.codeE.request.report.OverviewScoreReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,12 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     private UserRepository userRepository;
     @Autowired
     private ExerciseRepository exerciseRepository;
+    @Autowired
+    private TopicRepository topicRepository;
+    @Autowired
+    private CourseStudentRepository courseStudentRepository;
+    @Autowired
+    private GroupStudentRepository groupStudentRepository;
     @Override
     public EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission) {
         this.userRepository.findById(essaySubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + essaySubmission.getStudentId()));
@@ -44,16 +51,18 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     }
 
     @Override
-    public List<EssaySubmissionsResponse> getEssaySubmissionsByExerciseId(String exerciseId) {
+    public AllSubmissionResponse getEssaySubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+        var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
-        var result = new ArrayList<EssaySubmissionsResponse>();
+        var listSubmissions = new ArrayList<SubmissionDetail>();
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                result.add(new EssaySubmissionsResponse(item,student, new Exercise()));
+                listSubmissions.add(new SubmissionDetail(student, item));
             }
         }
-        return result;
+        var report = this.getOverviewScoreReportByExerciseId(exerciseId, groupFilter);
+        return new AllSubmissionResponse(exercise,listSubmissions, report);
     }
 
     @Override
@@ -104,5 +113,66 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         essaySubmission.setScore(score);
         this.essaySubmissionRepository.save(essaySubmission);
         return essaySubmission;
+    }
+
+    public OverviewScoreReport getOverviewScoreReportByExerciseId(String exerciseId, List<String> groupId) {
+        OverviewScoreReport result = new OverviewScoreReport();
+        var exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
+        ;
+        if (exercise.isShowAll()) {
+            String courseId = topicRepository.findById(exercise.getTopicId()).orElseThrow(() -> new NoSuchElementException("No topic found")).getCourseId();
+            var courseStudents = courseStudentRepository.getAllStudentsInCourse(courseId);
+            int AScoreCount = 0, BScoreCount = 0, CScoreCount = 0, NumberSubmission = 0;
+            result.setNumberStudent(courseStudents.size());
+            for (var item : courseStudents) {
+                float score = getScoreStudent(item.getStudentId(), exercise);
+                if (score != -1) {
+                    NumberSubmission++;
+                    if (score < 5)
+                        CScoreCount++;
+                    else if (score < 8)
+                        BScoreCount++;
+                    else
+                        AScoreCount++;
+                }
+            }
+            result.setAScore(AScoreCount);
+            result.setBScore(BScoreCount);
+            result.setCScore(CScoreCount);
+            result.setNumberSubmission(NumberSubmission);
+        } else {
+            int AScoreCount = 0, BScoreCount = 0, CScoreCount = 0, NumberSubmission = 0;
+            for (String gId : exercise.getPublicGroupIds()) {
+                if (groupId.contains(gId)) {
+                    var groupStudents = groupStudentRepository.getStudentInGroup(gId);
+                    for (var item : groupStudents) {
+                        float score = getScoreStudent(item.getUserId(), exercise);
+                        if (score != -1) {
+                            NumberSubmission++;
+                            if (score < 5)
+                                CScoreCount++;
+                            else if (score < 8)
+                                BScoreCount++;
+                            else
+                                AScoreCount++;
+                        }
+                    }
+                    result.setNumberStudent(result.getNumberStudent() + groupStudents.size());
+                }
+            }
+            result.setAScore(AScoreCount);
+            result.setBScore(BScoreCount);
+            result.setCScore(CScoreCount);
+            result.setNumberSubmission(NumberSubmission);
+        }
+        return result;
+    }
+
+    private float getScoreStudent(String studentId, Exercise exercise) {
+        var quiz = this.getLastEssaySubmissionByUserId(exercise.getExerciseId(), studentId);
+        if (quiz != null)
+            return quiz.getScore();
+        else return -1;
+
     }
 }
