@@ -14,4 +14,6 @@ public interface FileSubmissionService {
     AllSubmissionResponse<SubmissionDetail> getFileSubmissionsByExerciseId(String exerciseId);
     FileSubmissionsResponse getFileSubmissionById(String submissionId);
     List<FileSubmission> getFileSubmissionByUserId(String exerciseId, String userId);
+    FileSubmission getLastFileSubmissionByUserId(String exerciseId, String userId);
+    FileSubmission gradeSubmission(String submissionId, float score, String comment);
 }

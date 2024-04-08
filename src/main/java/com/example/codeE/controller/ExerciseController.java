@@ -296,6 +296,11 @@ public class ExerciseController {
     public ResponseEntity<?> gradeCodeSubmission(@RequestBody GradeSubmission request){
         return ResponseEntity.status(HttpStatus.OK).body(this.codeSubmissionService.GradeCodeSubmission(request.getSubmissionId(), request.getScore(), request.getComment()));
     }
+    @PutMapping
+    @RequestMapping(value = "file/grade", method = RequestMethod.PUT)
+    public ResponseEntity<?> gradeFileSubmission(@RequestBody GradeSubmission request){
+        return ResponseEntity.status(HttpStatus.OK).body(this.fileSubmissionService.gradeSubmission(request.getSubmissionId(), request.getScore(), request.getComment()));
+    }
     @DeleteMapping
     @RequestMapping(value = "{exerciseId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteExerciseById(@Valid @PathVariable String exerciseId, @Valid @RequestParam String type) {
