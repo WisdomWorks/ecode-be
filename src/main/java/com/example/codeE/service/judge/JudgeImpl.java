@@ -140,7 +140,6 @@ public class JudgeImpl implements JudgeService {
         updates.setError(null);
         updates.setDateGrade(rejudge ? DateTimeUtil.format(LocalDateTime.now()) : null);
         updates.setStatus("QU");
-        updates.setPretested(true);
 
         int priority = Constant.DEFAULT_PRIORITY;
 

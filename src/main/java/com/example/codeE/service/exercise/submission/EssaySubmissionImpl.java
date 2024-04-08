@@ -55,7 +55,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     }
 
     @Override
-    public AllSubmissionResponse getEssaySubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
+    public AllSubmissionResponse<SubmissionDetail> getEssaySubmissionsByExerciseId(String exerciseId, List<String> groupFilter) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
         var listSubmissions = new ArrayList<SubmissionDetail>();
@@ -70,7 +70,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         for(var item : exercise.getPublicGroupIds()){
             groups.add(this.groupService.getById(item));
         }
-        return new AllSubmissionResponse(exercise,listSubmissions, report, groups);
+        return new AllSubmissionResponse<SubmissionDetail>(exercise,listSubmissions, report, groups);
     }
 
     @Override
