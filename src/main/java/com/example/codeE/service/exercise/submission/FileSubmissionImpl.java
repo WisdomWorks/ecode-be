@@ -12,8 +12,10 @@ import com.example.codeE.request.exercise.AllSubmissionResponse;
 import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.file.CreateFileSubmissionRequest;
 import com.example.codeE.request.exercise.file.response.FileSubmissionsResponse;
+import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.report.OverviewScoreReport;
 import com.example.codeE.service.group.GroupService;
+import com.example.codeE.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +31,8 @@ public class FileSubmissionImpl implements FileSubmissionService {
     private FileSubmissionRepository fileSubmissionRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
     @Autowired
     private TopicRepository topicRepository;
     @Autowired
@@ -67,7 +71,8 @@ public class FileSubmissionImpl implements FileSubmissionService {
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                listSubmissions.add(new SubmissionDetail(student, item));
+                List<GroupTopicResponse> returnedGroups = this.userService.getAllGroupsByUserId(student.getUserId());
+                listSubmissions.add(new SubmissionDetail(student, item, returnedGroups));
             }
         }
         List<Group> groups = new ArrayList<>();

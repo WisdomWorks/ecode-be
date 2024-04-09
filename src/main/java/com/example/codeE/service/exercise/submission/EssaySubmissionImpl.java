@@ -8,8 +8,10 @@ import com.example.codeE.request.exercise.AllSubmissionResponse;
 import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import com.example.codeE.request.exercise.essay.EssaySubmissionsResponse;
+import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.report.OverviewScoreReport;
 import com.example.codeE.service.group.GroupService;
+import com.example.codeE.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     private EssaySubmissionRepository essaySubmissionRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
     @Autowired
     private ExerciseRepository exerciseRepository;
     @Autowired
@@ -62,7 +66,8 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         for (var item : submissions) {
             if (item.getExerciseId().equals(exerciseId)) {
                 var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
-                listSubmissions.add(new SubmissionDetail(student, item));
+                List<GroupTopicResponse> returnedGroups = this.userService.getAllGroupsByUserId(student.getUserId());
+                listSubmissions.add(new SubmissionDetail(student, item, returnedGroups));
             }
         }
         List<Group> groups = new ArrayList<>();

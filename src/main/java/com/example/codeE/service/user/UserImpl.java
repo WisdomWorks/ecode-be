@@ -5,8 +5,11 @@ import com.example.codeE.helper.EmailHelper;
 import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.user.UserFromExcel;
+import com.example.codeE.model.group.Group;
+import com.example.codeE.model.group.GroupStudent;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.UserRepository;
+import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
@@ -120,6 +123,20 @@ public class UserImpl implements UserService, UserDetailsService {
         }
         user.setPassword(BCryptPassword.passwordEncoder(newPassword));
         return this.userRepository.save(user);
+    }
+
+    @Override
+    public List<GroupTopicResponse> getAllGroupsByUserId(String userId) {
+        List<GroupStudent> groupStudents = this.userRepository.findUserByUserId(userId).getGroupStudents();
+        List<GroupTopicResponse> groupTopicResponses = new ArrayList<>();
+        for(GroupStudent groupStudent: groupStudents){
+            Group group = groupStudent.getGroup();
+            GroupTopicResponse groupTopicRes = new GroupTopicResponse();
+            groupTopicRes.setGroupId(group.getGroupId());
+            groupTopicRes.setGroupName(group.getGroupName());
+            groupTopicResponses.add(groupTopicRes);
+        }
+        return groupTopicResponses;
     }
 
     @Override
