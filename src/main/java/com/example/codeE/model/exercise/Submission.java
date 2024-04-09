@@ -25,7 +25,7 @@ public class Submission {
     @Field
 //    @NotNull(message = "Exercise ID is required")
     private String exerciseId;
-    private Float score;
+    private Float score = -1.0f;
     @Field
     @CreatedDate
     private String dateSubmit;

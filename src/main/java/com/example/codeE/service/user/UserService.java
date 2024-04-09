@@ -23,4 +23,6 @@ public interface UserService extends CommonService<User, CreateUserRequest> {
     User ChangePassword(String userId, String newPassword, String oldPassword);
 
     List<GroupTopicResponse> getAllGroupsByUserId(String userId);
+
+    User getUserByUserId(String userId);
 }
