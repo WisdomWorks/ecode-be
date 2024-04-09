@@ -19,7 +19,6 @@ public class UpdateFileExerciseRequest {
     private String topicId;
     @NotNull(message = "Exercise's name is required")
     private String exerciseName;
-    @NotNull(message = "Exercise's key is required")
     private String key;
     @NotNull(message = "Start time is required")
     private Date startTime;
