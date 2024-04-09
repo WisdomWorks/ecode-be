@@ -29,5 +29,5 @@ public class TestCase {
     private String output;
 
     @Field
-    private int points;
+    private Double points;
 }

@@ -22,7 +22,7 @@ public class Constant {
 
     //file path in docker container
     public static final String INIT_FILE_TEMPLATE = "archive: iozip.zip\n" + "test_cases:";
-    public static final String TESTCASE_TEMPLATE = "\n- {in: io.%s.in, out: io.%s.out, points: %s}";
+    public static final String TESTCASE_TEMPLATE = "\n- {in: io.%s.in, out: io.%s.out, points: %f}";
     public static final List<String> VALID_ROLES = Arrays.asList("student", "teacher", "admin");
 
     //first param: name
