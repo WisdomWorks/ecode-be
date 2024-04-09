@@ -11,7 +11,7 @@ import java.util.List;
 public interface EssaySubmissionService {
     EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission);
     List<EssaySubmission> getEssaySubmissionByExerciseId(String exerciseId);
-    AllSubmissionResponse<SubmissionDetail> getEssaySubmissionsByExerciseId(String exerciseId, List<String> groupFilter);
+    AllSubmissionResponse<SubmissionDetail> getEssaySubmissionsByExerciseId(String exerciseId);
     EssaySubmissionsResponse getEssaySubmission(String submissionId);
     List<EssaySubmission> getEssaySubmissionByUserId(String exerciseId, String userId);
     EssaySubmission gradeSubmission(String essaySubmissionId, float score, String comment);

@@ -16,13 +16,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AllSubmissionResponse<T> {
-    private List<T> allSubmission;
+    private List<T> submissions;
     private String exerciseId;
     private List<Group> groups;
     private OverviewScoreReport report;
 
     public AllSubmissionResponse(Exercise exercise, List<T> allSubmission, OverviewScoreReport report, List<Group> groups){
-        this.allSubmission = allSubmission;
+        this.submissions = allSubmission;
         this.exerciseId = exercise.getExerciseId();
         this.groups = groups;
         this.report = report;

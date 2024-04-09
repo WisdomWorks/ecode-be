@@ -12,7 +12,7 @@ import java.util.List;
 public interface QuizSubmissionService {
     QuizSubmission createSubmission(QuizSubmission quizSubmission);
     List<QuizSubmission> getQuizSubmissionByExerciseId(String exerciseId);
-    AllSubmissionResponse<SubmissionDetail> getQuizSubmissionsByExerciseId(String exerciseId, List<String> groupFilter);
+    AllSubmissionResponse<SubmissionDetail> getQuizSubmissionsByExerciseId(String exerciseId);
     QuizSubmissionsResponse getStudentQuizSubmission(String submissionId);
     List<QuizSubmission> getQuizSubmissionByUserId(String exerciseId, String userId);
     float gradeSubmission(List<QuizAnswers> quizSubmission, List<QuizQuestion> quizExercise);

@@ -15,7 +15,7 @@ public interface CodeSubmissionService {
     CodeSubmissionsResponse getCodeSubmissionResponseById(String id);
     public CodeSubmission updateCodeSubmission(CodeSubmission codeSubmission);
     public CodeSubmission saveCodeSubmission(CodeSubmission codeSubmission);
-    public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId, List<String> groupFilter);
+    public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId);
     public List<CodeSubmission> getCodeSubmissionByUserId(String exerciseId, String userId);
     public CodeSubmission getLastCodeSubmissionByUserId(String exerciseId, String userId);
     public CodeSubmission GradeCodeSubmission (String submissionId, float score, String comment);
