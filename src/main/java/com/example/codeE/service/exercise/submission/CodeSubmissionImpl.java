@@ -9,9 +9,11 @@ import com.example.codeE.request.exercise.AllSubmissionResponse;
 import com.example.codeE.request.exercise.CodeSubmissionDetail;
 import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.code.CodeSubmissionsResponse;
+import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.report.OverviewScoreReport;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.group.GroupService;
+import com.example.codeE.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,8 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     private ExerciseRepository exerciseRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
     @Autowired
     private TopicRepository topicRepository;
     @Autowired
@@ -100,11 +104,11 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         var listSubmissions = new ArrayList<CodeSubmissionDetail>();
         for (var item : submissions) {
             if (!item.getSubmissionId().equals("code_submission")){
-//                if (item.getExerciseId().equals(exerciseId) && !item.isPretested()) {
                 if (!item.isPretested()) {
                     var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
                     List<SubmissionTestCase> testCases = this.submissionTestCaseService.getAllTcBySubmissionId(item.getSubmissionId());
-                    listSubmissions.add(new CodeSubmissionDetail(student, item, testCases));
+                    List<GroupTopicResponse> returnedGroups = this.userService.getAllGroupsByUserId(student.getUserId());
+                    listSubmissions.add(new CodeSubmissionDetail(student, item, returnedGroups, testCases));
                 }
             }
         }
