@@ -160,6 +160,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         }
         var submission = this.getCodeSubmissionById(submissionId);
         submission.setCasePoints(score * 1.0);
+        submission.setScore((float) (score * 1.0));
         submission.setTeacherComment(comment);
         return this.codeSubmissionRepository.save(submission);
     }
