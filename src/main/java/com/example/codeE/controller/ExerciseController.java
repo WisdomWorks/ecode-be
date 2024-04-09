@@ -4,6 +4,7 @@ import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.AutoIncrement;
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.exercise.common.problem.TestCase;
+import com.example.codeE.model.user.User;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
@@ -26,6 +27,7 @@ import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.exercise.submission.FileSubmissionService;
 import com.example.codeE.service.exercise.submission.QuizSubmissionService;
 import com.example.codeE.service.judge.JudgeService;
+import com.example.codeE.service.user.UserService;
 import com.mongodb.client.MongoDatabase;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,9 @@ public class ExerciseController {
 
     @Autowired
     private CodeExerciseTestcaseService codeExerciseTestcaseService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private JudgeService judgeService;
@@ -235,7 +240,7 @@ public class ExerciseController {
 
     @GetMapping
     @RequestMapping(value = "code/run/{submissionId}", method = RequestMethod.GET)
-    public ResponseEntity<?> runCodeExercise(@PathVariable String submissionId){
+    public ResponseEntity<?> runCodeExercise(@PathVariable String submissionId, @RequestParam String userId){
         CodeSubmission submission = this.codeSubmissionService.getCodeSubmissionById(submissionId);
 
         RunCodeExerciseResponse response = new RunCodeExerciseResponse();
@@ -246,7 +251,12 @@ public class ExerciseController {
             response.setTestCases(new ArrayList<>());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
-        response.setTestCases(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        User user = this.userService.getUserByUserId(userId);
+        if (user.getRole().equals("teacher")){
+            response.setTestCases(this.submissionTestCaseService.findBySubmissionId(submissionId));
+        } else {
+            response.setTestCases(this.submissionTestCaseService.getAllTcBySubmissionId(submissionId));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

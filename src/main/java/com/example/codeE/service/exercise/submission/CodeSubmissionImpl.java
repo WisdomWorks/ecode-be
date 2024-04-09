@@ -84,7 +84,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         var code = codeSubmissionRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No Submission found"));
         var user = this.userRepository.findUserByUserId(code.getStudentId());
         var exercise = this.exerciseRepository.findById(code.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No Exercise found"));
-        List<SubmissionTestCase> testCases = this.submissionTestCaseService.getAllTcBySubmissionId(id);
+        List<SubmissionTestCase> testCases = this.submissionTestCaseService.findBySubmissionId(id);
         return new CodeSubmissionsResponse(code, user,exercise, testCases);
     }
 

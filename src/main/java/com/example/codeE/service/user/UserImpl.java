@@ -140,6 +140,11 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public User getUserByUserId(String userId) {
+        return this.userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("User not found with id " + userId));
+    }
+
+    @Override
     public void deleteById(@NotBlank String userId) {
         if (userRepository.existsById(userId)) {
             this.userRepository.deleteById(userId);
