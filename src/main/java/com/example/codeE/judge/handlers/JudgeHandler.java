@@ -414,6 +414,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         total = (double) Math.round(total * 10) / 10;
 
         codeSubmission.setCasePoints(points);
+        codeSubmission.setScore(points.floatValue());
         codeSubmission.setCaseTotal(total);
 
         String problemId = codeSubmission.getExerciseId();
@@ -431,6 +432,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         codeSubmission.setTime(time);
         codeSubmission.setMemory(memory);
         codeSubmission.setCasePoints(points);
+        codeSubmission.setScore(points.floatValue());
         codeSubmission.setResult(statusCodes.get(status));
 
         codeSubmissionService.updateCodeSubmission(codeSubmission);
