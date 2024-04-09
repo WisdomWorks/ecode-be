@@ -139,6 +139,18 @@ public class FileSubmissionImpl implements FileSubmissionService {
         return fileSubmission;
     }
 
+    @Override
+    public List<FileSubmission> getFileSubmissionByExerciseId(String exerciseId) {
+        List<FileSubmission> submissions = this.fileSubmissionRepository.findAll();
+        var result = new ArrayList<FileSubmission>();
+        for (var item : submissions) {
+            if (item.getExerciseId().equals(exerciseId)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
     public OverviewScoreReport getOverviewScoreReportByExerciseId(String exerciseId, List<String> groupId) {
         OverviewScoreReport result = new OverviewScoreReport();
         var exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));

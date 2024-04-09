@@ -24,4 +24,5 @@ public interface ExerciseService {
     List<ExerciseResponse> getExercisesByUserId(String topicId, String userId);
     ExerciseResponse modifiedPermission(CreatePermissionExerciseRequest request);
     List<AllStudentSubmissionResponse> getAllStudentSubmission(String CourseId, String userId);
+    String exportResultExercise(String exerciseId, String type);
 }

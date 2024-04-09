@@ -176,6 +176,20 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
         return this.codeSubmissionRepository.save(submission);
     }
 
+    @Override
+    public List<CodeSubmission> getAllSubmissionByExerciseId(String exerciseId) {
+        List<CodeSubmission> submissions = codeSubmissionRepository.getCodeSubmissionByExerciseId(exerciseId);
+        var result = new ArrayList<CodeSubmission>();
+        for (var item : submissions) {
+            if (!item.getSubmissionId().equals("code_submission")){
+                if (item.getExerciseId().equals(exerciseId) && !item.isPretested()) {
+                    result.add(item);
+                }
+            }
+        }
+        return result;
+    }
+
     public OverviewScoreReport getOverviewScoreReportByExerciseId(String exerciseId, List<String> groupId) {
         OverviewScoreReport result = new OverviewScoreReport();
         var exercise = exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
