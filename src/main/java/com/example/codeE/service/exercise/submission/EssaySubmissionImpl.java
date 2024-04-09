@@ -161,20 +161,24 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
             result.setCScore(CScoreCount);
             result.setNumberSubmission(NumberSubmission);
         } else {
+            List<String> hasGetSubmission = new ArrayList<>();
             int AScoreCount = 0, BScoreCount = 0, CScoreCount = 0, NumberSubmission = 0;
             for (String gId : exercise.getPublicGroupIds()) {
                 if (groupId.contains(gId)) {
                     var groupStudents = groupStudentRepository.getStudentInGroup(gId);
                     for (var item : groupStudents) {
-                        float score = getScoreStudent(item.getUserId(), exercise);
-                        if (score != -1) {
-                            NumberSubmission++;
-                            if (score < 5)
-                                CScoreCount++;
-                            else if (score < 8)
-                                BScoreCount++;
-                            else
-                                AScoreCount++;
+                        if (!hasGetSubmission.contains(item.getUserId())) {
+                            hasGetSubmission.add(item.getUserId());
+                            float score = getScoreStudent(item.getUserId(), exercise);
+                            if (score != -1) {
+                                NumberSubmission++;
+                                if (score < 5)
+                                    CScoreCount++;
+                                else if (score < 8)
+                                    BScoreCount++;
+                                else
+                                    AScoreCount++;
+                            }
                         }
                     }
                     result.setNumberStudent(result.getNumberStudent() + groupStudents.size());
