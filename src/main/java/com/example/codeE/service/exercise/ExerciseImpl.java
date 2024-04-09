@@ -4,10 +4,7 @@ import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.repository.*;
-import com.example.codeE.request.exercise.AllStudentSubmissionResponse;
-import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
-import com.example.codeE.request.exercise.ExerciseResponse;
-import com.example.codeE.request.exercise.ExerciseStudentResponse;
+import com.example.codeE.request.exercise.*;
 import com.example.codeE.request.exercise.file.response.FilePreviewResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
@@ -247,6 +244,43 @@ public class ExerciseImpl implements ExerciseService{
     }
 
     @Override
+    public String exportResultExercise(String exerciseId, String type) {
+        List<ExportResultExcelModel> data = new ArrayList<>();
+        switch (type){
+            case "file" -> {
+                var submissions = this.fileSubmissionService.getFileSubmissionByExerciseId(exerciseId);
+                for (var item : submissions){
+                   var student = this.userRepository.findById(item.getStudentId()).get();
+                   data.add(new ExportResultExcelModel(student.getName(), student.getUsername(), item.getDateSubmit(), item.getDateGrade(), item.getScore().toString()));
+                }
+            }
+            case "code" -> {
+               var submissions = this.codeSubmissionService.getAllSubmissionByExerciseId(exerciseId);
+                for (var item : submissions){
+                    var student = this.userRepository.findById(item.getStudentId()).get();
+                    data.add(new ExportResultExcelModel(student.getName(), student.getUsername(), item.getDateSubmit(), item.getDateGrade(), item.getScore().toString()));
+                }
+            }
+            case "quiz" -> {
+                var submissions = this.quizSubmissionService.getQuizSubmissionByExerciseId(exerciseId);
+                for (var item : submissions){
+                    var student = this.userRepository.findById(item.getStudentId()).get();
+                    data.add(new ExportResultExcelModel(student.getName(), student.getUsername(), item.getDateSubmit(), item.getDateGrade(), item.getScore().toString()));
+                }
+            }
+            case "essay" -> {
+                var submissions= this.essaySubmissionService.getEssaySubmissionByExerciseId(exerciseId);
+                for (var item : submissions){
+                    var student = this.userRepository.findById(item.getStudentId()).get();
+                    data.add(new ExportResultExcelModel(student.getName(), student.getUsername(), item.getDateSubmit(), item.getDateGrade(), item.getScore().toString()));
+                }
+            }
+        }
+
+        return "";
+    }
+
+    @Override
     public List<ExerciseResponse> getExercisesByTopicId(String topicId) {
         try {
             List<Exercise> exercises = this.exerciseRepository.findAll();
@@ -291,6 +325,8 @@ public class ExerciseImpl implements ExerciseService{
             throw new RuntimeException("Something wrong when get exercise in this topic");
         }
     }
+
+
 
     private List<GroupTopicResponse> getGroupResponse(List<String> groupIds) {
         List<GroupTopicResponse> groupTopicResponses = new ArrayList<>();

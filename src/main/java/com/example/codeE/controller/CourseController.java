@@ -131,7 +131,7 @@ public class CourseController {
         };
     }
     @DeleteMapping
-    @RequestMapping(value = "unEnrollment", method = RequestMethod.DELETE)
+    @RequestMapping(value = "unenrollment", method = RequestMethod.DELETE)
     public ResponseEntity<?> unEnrollUserInCourse(@Valid @RequestParam String userId, @RequestParam String courseId){
         this.courseService.unEnrollUserInCourse(userId, courseId);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","UnEnroll successful"));

@@ -60,8 +60,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
             }
         }
         codeExercise.setTestCases(pretestCases);
-        CodeDetailResponse response = new CodeDetailResponse(codeExercise);
-        return response;
+        return new CodeDetailResponse(codeExercise);
     }
 
     @Override
