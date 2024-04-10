@@ -1,7 +1,6 @@
 package com.example.codeE.repository;
 
 import com.example.codeE.model.material.ViewPermissionMaterial;
-import com.example.codeE.model.topic.ViewPermissionTopic;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

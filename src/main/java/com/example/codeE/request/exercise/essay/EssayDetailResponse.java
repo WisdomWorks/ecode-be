@@ -8,13 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.TimeZone;
 
 @Getter
 @Setter
@@ -37,7 +31,6 @@ public class EssayDetailResponse {
     private String question;
 
     public EssayDetailResponse(EssayExercise essayExercise){
-        TimeZone tz = TimeZone.getTimeZone("UTC");
         this.exerciseId = essayExercise.getExerciseId();
         this.exerciseName = essayExercise.getExerciseName();
         this.topicId = essayExercise.getTopicId();

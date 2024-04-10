@@ -2,17 +2,13 @@ package com.example.codeE.request.exercise.code;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.model.exercise.CodeExercise;
-import com.example.codeE.model.exercise.QuizExercise;
-import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.model.exercise.common.problem.TestCase;
-import com.example.codeE.request.exercise.quiz.QuizQuestionResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
