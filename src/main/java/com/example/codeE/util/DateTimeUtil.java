@@ -11,4 +11,7 @@ public class DateTimeUtil {
     public static String format(LocalDateTime dateTime) {
         return dateTime.format(formatter);
     }
+    public static String formatToIso(LocalDateTime dateTime){
+        return dateTime.format( DateTimeFormatter.ofPattern(Constant.DATE_TIME_ISO_FORMAT));
+    }
 }
