@@ -16,6 +16,4 @@ public class UpdateTopicRequest {
     @NotBlank(message = "Topic Name is required")
     private String topicName;
     private String description;
-    @NotBlank(message = "Show all status is required")
-    private boolean isShowAll;
 }
