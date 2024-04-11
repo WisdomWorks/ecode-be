@@ -249,7 +249,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.put("source", source);
             response.put("time-limit", data.time);
             response.put("memory-limit", data.memory);
-            response.put("short-circuit", data.shortCircuit);
+            response.put("short-circuit", false);
 
             ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
             metaNode.put("pretests-only", data.pretests_only);
@@ -280,7 +280,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             String problemId = submission.getExerciseId();
             Double timeLimit = problem.getTimeLimit();
             Integer memoryLimit = problem.getMemoryLimit();
-            Boolean shortCircuit = problem.getShortCircuit();
+            Boolean shortCircuit = false;
             String languageId = submission.getLanguageId();
             Boolean isPretested = submission.isPretested();
 
