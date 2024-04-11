@@ -2,6 +2,7 @@ package com.example.codeE.request.exercise;
 
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.EssaySubmission;
+import com.example.codeE.model.exercise.FileSubmission;
 import com.example.codeE.model.exercise.QuizSubmission;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,5 +52,15 @@ public class AllStudentSubmissionResponse {
         this.dateSubmission = essay.getDateSubmit();
         this.type = "essay";
         this.score = essay.getScore();
+    }
+    public AllStudentSubmissionResponse(FileSubmission file, String title){
+        this.submissionId = file.getSubmissionId();
+        this.exerciseId = file.getExerciseId();
+        this.exerciseTitle = title;
+        this.studentId = file.getStudentId();
+        this.dateGrade = file.getDateGrade();
+        this.dateSubmission = file.getDateSubmit();
+        this.type = "file";
+        this.score = file.getScore();
     }
 }
