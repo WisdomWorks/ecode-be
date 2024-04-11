@@ -10,8 +10,8 @@ import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
-import com.example.codeE.service.exercise.submission.QuizSubmissionService;
 import com.example.codeE.service.exercise.submission.FileSubmissionService;
+import com.example.codeE.service.exercise.submission.QuizSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -193,6 +193,12 @@ public class ExerciseImpl implements ExerciseService{
                     essay.setShowAll(request.isShowAll());
                     essayExerciseRepository.save(essay);
                 }
+                case "file" -> {
+                    var file = this.fileExerciseRepository.findById(exercise.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No file exercise found with ID: " + request.getExerciseId()));
+                    file.setPublicGroupIds(request.getGroupIds());
+                    file.setShowAll(request.isShowAll());
+                    fileExerciseRepository.save(file);
+                }
             }
             var groupResponse = new ArrayList<GroupTopicResponse>();
             for(var item: exercise.getPublicGroupIds()){
@@ -232,6 +238,10 @@ public class ExerciseImpl implements ExerciseService{
                         var quiz = this.quizSubmissionService.getLastQuizSubmissionByUserId(item.getExerciseId(), userId);
                         if (quiz != null)
                             responses.add(new AllStudentSubmissionResponse(quiz, item.getExerciseName()));
+                    }case "file" -> {
+                        var file = this.fileSubmissionService.getLastFileSubmissionByUserId(item.getExerciseId(), userId);
+                        if (file != null)
+                            responses.add(new AllStudentSubmissionResponse(file, item.getExerciseName()));
                     }
                 }
             }

@@ -29,7 +29,7 @@ public class CodeExercise extends Exercise {
     private Integer memoryLimit;
 
     @Field
-    private Boolean shortCircuit = true;
+    private Boolean shortCircuit = false;
 
     @Field
     private boolean partial = true;
