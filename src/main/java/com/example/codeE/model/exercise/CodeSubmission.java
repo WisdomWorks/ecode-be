@@ -1,14 +1,11 @@
 package com.example.codeE.model.exercise;
 
 import com.example.codeE.constant.Constant;
-import com.example.codeE.service.judge.JudgeImpl;
 import com.example.codeE.service.judge.JudgeService;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;

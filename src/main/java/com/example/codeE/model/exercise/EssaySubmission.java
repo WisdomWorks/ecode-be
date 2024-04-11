@@ -1,6 +1,5 @@
 package com.example.codeE.model.exercise;
 
-import com.example.codeE.request.exercise.essay.CreateEssayExerciseRequest;
 import com.example.codeE.request.exercise.essay.CreateEssaySubmissionRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,5 @@
 package com.example.codeE.model.exercise;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +9,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
+import com.example.codeE.constant.Constant;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Getter
 @Setter
@@ -28,9 +30,11 @@ public class Submission {
     private Float score = -1.0f;
     @Field
     @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private String dateSubmit;
     @Field
     @LastModifiedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.DATE_TIME_ISO_FORMAT)
     private String dateGrade;
     @Field
     private String teacherComment;

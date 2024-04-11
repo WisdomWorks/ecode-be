@@ -6,7 +6,6 @@ import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.mongodb.client.MongoDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

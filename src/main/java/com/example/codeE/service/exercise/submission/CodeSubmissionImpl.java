@@ -7,7 +7,6 @@ import com.example.codeE.model.group.Group;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.AllSubmissionResponse;
 import com.example.codeE.request.exercise.CodeSubmissionDetail;
-import com.example.codeE.request.exercise.SubmissionDetail;
 import com.example.codeE.request.exercise.code.CodeSubmissionsResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.report.OverviewScoreReport;

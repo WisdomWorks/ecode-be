@@ -65,7 +65,7 @@ public class UserController {
     @RequestMapping(value = "/import-users",method = RequestMethod.POST)
     public ResponseEntity<?> importUsersByExcel(@Valid @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+            return ResponseEntity.badRequest().body(Map.of("message", "File is empty"));
         }
         return this.userService.saveUserToDatabase(file);
     }
@@ -74,14 +74,14 @@ public class UserController {
     @RequestMapping(value = "{userId}",method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteById(@Valid @PathVariable String userId){
         this.userService.deleteById(userId);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with ID:" + userId);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","Delete user successful!"));
     }
     @GetMapping
     @RequestMapping(value = "get-by-user-name/{username}", method = RequestMethod.GET)
     public  ResponseEntity<?> getUserByUserName (@PathVariable String username,String role){
         var result = this.userService.getUserByUserName(role, username);
         if(result == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No user found with user name:" + username);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message","No user found with user name:" + username));
         }
         return  ResponseEntity.ok(result);
     }

@@ -2,7 +2,6 @@ package com.example.codeE.request.exercise;
 
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.group.Group;
-import com.example.codeE.model.user.User;
 import com.example.codeE.request.report.OverviewScoreReport;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,8 +1,6 @@
 package com.example.codeE.model.material;
 
 import com.example.codeE.model.group.Group;
-import com.example.codeE.model.topic.Topic;
-import com.example.codeE.model.topic.ViewPermissionTopic;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
