@@ -112,7 +112,7 @@ public class FileSubmissionImpl implements FileSubmissionService {
         List<FileSubmission> submissions = this.fileSubmissionRepository.findAll();
         var result = new ArrayList<FileSubmission>();
         for (var item : submissions) {
-            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
+            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId) && item.getScore() != -1){
                 result.add(item);
             }
         }
