@@ -1,6 +1,4 @@
 FROM --platform=amd64 openjdk:17
-COPY ../ /workspace
-WORKDIR /workspace
-RUN chmod +x ./mvnw
-# Run the application using maven
-CMD ["./mvnw", "spring-boot:run", "-DskipTests"]
+WORKDIR /app
+COPY target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
