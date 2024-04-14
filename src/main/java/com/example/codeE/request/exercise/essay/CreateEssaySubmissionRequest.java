@@ -16,5 +16,4 @@ public class CreateEssaySubmissionRequest {
     @NotNull(message = "Exercise Id is required")
     private String exerciseId;
     private String submission;
-    private boolean isUsingAiGrading = false;
 }

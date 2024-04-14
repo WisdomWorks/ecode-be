@@ -24,6 +24,9 @@ public class EssayExercise extends Exercise{
     @NotNull(message = "Exercise's question is required")
     private String question;
 
+    @Field
+    private boolean isUsingAiGrading = false;
+
     public EssayExercise(String topicId, String exerciseName, String key, Date startTime, Date endTime, String type, List<String> publicGroupIds, String question) {
         super(topicId, exerciseName, key, startTime, endTime, type, publicGroupIds);
         this.question = question;
