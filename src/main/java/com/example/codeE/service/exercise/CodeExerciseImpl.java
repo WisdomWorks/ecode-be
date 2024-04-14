@@ -93,6 +93,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
         codeExercise.setType("code");
         codeExercise.setPublicGroupIds(codeExercise.getPublicGroupIds());
         codeExercise.setTestCases(updateCodeExerciseRequest.getTestCases());
+        codeExercise.setUsingAiGrading(updateCodeExerciseRequest.isUsingAiGrading());
         this.exerciseRepository.save(codeExercise);
         return codeExerciseRepository.save(codeExercise);
     }
