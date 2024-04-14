@@ -53,7 +53,6 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 100))
     public EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission) {
         this.userRepository.findById(essaySubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + essaySubmission.getStudentId()));
-//        Exercise exercise = this.exerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
         EssayExercise exercise = this.essayExerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
         EssaySubmission submission;
         if (essaySubmission.isUsingAiGrading()){

@@ -227,10 +227,6 @@ public class ExerciseController {
             CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
             savedSubmission.judge(false, false);
 
-//            if (codeExercise){
-//                Thread.sleep(1000);
-//                codeSubmissionService.overriedByAiGrader(savedSubmission.getSubmissionId(), savedSubmission.getExerciseId());
-//            }
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
