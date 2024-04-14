@@ -1,4 +1,4 @@
-package com.example.codeE.request.exercise.file.response;
+package com.example.codeE.request.exercise.quiz;
 
 import com.example.codeE.model.exercise.common.QuizQuestion;
 import lombok.AllArgsConstructor;
