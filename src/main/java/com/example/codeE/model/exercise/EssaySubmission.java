@@ -32,6 +32,11 @@ public class EssaySubmission extends Submission {
         super(request.getStudentId(), request.getExerciseId(), score, true, "");
         this.submission = request.getSubmission();
     }
+
+    public EssaySubmission(CreateEssaySubmissionRequest request, float score, String comment){
+        super(request.getStudentId(), request.getExerciseId(), score, true, comment);
+        this.submission = request.getSubmission();
+    }
     @Override
     public String toString() {
         return "EssaySubmission{" +

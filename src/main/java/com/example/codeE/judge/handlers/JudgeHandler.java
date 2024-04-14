@@ -436,6 +436,9 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         codeSubmission.setResult(statusCodes.get(status));
 
         codeSubmissionService.updateCodeSubmission(codeSubmission);
+        if (problem.isUsingAiGrading() && !codeSubmission.isPretested()){
+            codeSubmissionService.overriedByAiGrader(codeSubmission.getSubmissionId(), codeSubmission.getExerciseId());
+        }
         return null;
     }
 

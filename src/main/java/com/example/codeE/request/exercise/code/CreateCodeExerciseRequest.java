@@ -58,4 +58,6 @@ public class CreateCodeExerciseRequest {
     private List<TestCase> testCases;
 
     private String template;
+
+    private boolean isUsingAiGrading = false;
 }

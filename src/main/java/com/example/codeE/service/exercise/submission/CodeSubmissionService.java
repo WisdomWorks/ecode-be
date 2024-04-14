@@ -20,4 +20,5 @@ public interface CodeSubmissionService {
     public CodeSubmission getLastCodeSubmissionByUserId(String exerciseId, String userId);
     public CodeSubmission GradeCodeSubmission (String submissionId, float score, String comment);
     public List<CodeSubmission> getAllSubmissionByExerciseId(String exerciseId);
+    public void overriedByAiGrader(String submissionId, String exerciseId);
 }

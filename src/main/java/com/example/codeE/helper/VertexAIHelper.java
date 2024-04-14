@@ -1,6 +1,9 @@
 package com.example.codeE.helper;
 
-import com.fasterxml.classmate.AnnotationOverrides;
+import com.example.codeE.model.exercise.vertexAi.GradingResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.api.GenerationConfig;
@@ -22,6 +25,8 @@ public class VertexAIHelper {
     private Environment environment;
     private GenerativeModel generativeModel;
 
+    private ObjectMapper mapper = new ObjectMapper();
+
     public VertexAIHelper() {
         // Empty constructor - initialization moved to @PostConstruct method
     }
@@ -36,8 +41,8 @@ public class VertexAIHelper {
             GenerationConfig generationConfig =
                     GenerationConfig.newBuilder()
                             .setMaxOutputTokens(8192)
-                            .setTemperature(0.5F)
-                            .setTopP(1F)
+                            .setTemperature(0F)
+                            .setTopP(0F)
                             .build();
             List<SafetySetting> safetySettings = Arrays.asList(
                     SafetySetting.newBuilder()
@@ -76,7 +81,26 @@ public class VertexAIHelper {
         }
     }
 
-    // Essay Response Generation
+    public GradingResponse parseJson(String textResponse) throws JsonProcessingException {
+        JsonNode actualObj = mapper.readTree("{" + textResponse);
+        String score = actualObj.get("score").asText();
+        String comment = actualObj.get("comment").asText();
+        return new GradingResponse(Float.parseFloat(score), comment);
+    }
 
-    // Code Exercise Response Generation
+    public static String getSingleTestCaseString(int caseNum, String input, String studentOutput, Double casePoint) {
+        String promptTemplate = """
+                <CASE-%d>
+                <INPUT>
+                %s\
+                
+                </INPUT>
+                <STUDENT-OUTPUT>
+                %s\
+                
+                </STUDENT-OUTPUT>
+                <CASE-POINT>%f</CASE-POINT>
+                </CASE-%d>\n""";
+        return String.format(promptTemplate, caseNum, input, studentOutput, casePoint, caseNum);
+    }
 }
