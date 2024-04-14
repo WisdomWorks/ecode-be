@@ -12,9 +12,7 @@ import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.topic.CreateTopicRequest;
 import com.example.codeE.request.topic.TopicGetResponse;
 import com.example.codeE.request.topic.UpdateTopicRequest;
-import com.example.codeE.service.exercise.EssayExerciseService;
-import com.example.codeE.service.exercise.ExerciseService;
-import com.example.codeE.service.exercise.QuizExerciseService;
+import com.example.codeE.service.exercise.*;
 import com.example.codeE.service.material.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +37,10 @@ public class TopicImpl implements TopicService {
     private EssayExerciseService essayExerciseService;
     @Autowired
     private QuizExerciseService quizExerciseService;
+    @Autowired
+    private CodeExerciseService codeExerciseService;
+    @Autowired
+    private FileExerciseService fileExerciseService;
 
     @Override
     public List<TopicGetResponse> getAllTopicsByCourseId(String courseId) {
@@ -187,11 +189,13 @@ public class TopicImpl implements TopicService {
     public void deleteById(String id) {
         this.topicRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No topic found with ID: " + id));
         var exercise = this.exerciseService.getExercisesByTopicId(id);
+        // This is just a temporary fix. Not only just exercise, but also material and submission should be deleted
         for(var item: exercise){
             switch (item.getType()) {
                 case "essay" -> this.essayExerciseService.deleteEssayExerciseById(item.getExerciseId());
                 case "quiz" -> this.quizExerciseService.deleteQuizExerciseById(item.getExerciseId());
-//                case "code" -> this.codeExerciseService.deleteCodeExerciseById(item.getExerciseId());
+                case "code" -> this.codeExerciseService.deleteCodeExercise(item.getExerciseId());
+                case "file" -> this.fileExerciseService.deleteFileExerciseById(item.getExerciseId());
             }
             this.exerciseService.deleteExerciseById(item.getExerciseId());
         }
