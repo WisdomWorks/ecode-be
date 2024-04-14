@@ -1,6 +1,7 @@
 package com.example.codeE.service.course;
 
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.user.User;
 import com.example.codeE.request.course.*;
 import com.example.codeE.service.common.CommonService;
 import org.springframework.http.ResponseEntity;
@@ -18,4 +19,5 @@ public interface CourseService extends CommonService<CourseResponse, CreateCours
     List<Course> getCourseByUserId(String userId);
     List<Course> getCourseByStudentId(String userId);
     List<Course> getCourseByTeacherId(String userId);
+    List<User> getStudentsByCourseId(String courseId);
 }

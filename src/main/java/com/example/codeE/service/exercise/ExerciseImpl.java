@@ -3,6 +3,7 @@ package com.example.codeE.service.exercise;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.topic.Topic;
+import com.example.codeE.model.user.User;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.*;
 import com.example.codeE.request.exercise.file.response.FilePreviewResponse;
@@ -12,10 +13,16 @@ import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.exercise.submission.FileSubmissionService;
 import com.example.codeE.service.exercise.submission.QuizSubmissionService;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -336,8 +343,6 @@ public class ExerciseImpl implements ExerciseService{
         }
     }
 
-
-
     private List<GroupTopicResponse> getGroupResponse(List<String> groupIds) {
         List<GroupTopicResponse> groupTopicResponses = new ArrayList<>();
         for (String g : groupIds) {
@@ -347,4 +352,68 @@ public class ExerciseImpl implements ExerciseService{
         return groupTopicResponses;
     }
 
+    @Override
+    public List<Exercise> getAllExerciseInCourse(String courseId) {
+        return this.exerciseRepository.findAll();
+    }
+
+    @Override
+    public void exportStudentScores(List<Exercise> exercises, List<User> students, HttpServletResponse response) throws IOException {
+        // Create a new workbook and sheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Student Scores");
+
+        // Create the header row
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Username");
+        for (int i = 0; i < exercises.size(); i++) {
+            headerRow.createCell(i + 1).setCellValue(exercises.get(i).getExerciseName());
+        }
+
+        // Populate the student scores
+        int rowNum = 1;
+        for (User student : students) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(student.getUsername());
+
+            // Get the student's latest submission score for each exercise
+            for (int i = 0; i < exercises.size(); i++) {
+                Exercise exercise = exercises.get(i);
+                Float score = getLatestScoreByStudentAndExercise(student.getUserId(), exercise.getExerciseId(), exercise.getType());
+                if (score != null) {
+                    row.createCell(i + 1).setCellValue(score);
+                } else {
+                    row.createCell(i + 1).setCellValue("");
+                }
+            }
+        }
+
+        // Set the response headers for Excel file download
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=student_scores.xlsx");
+
+        // Write the workbook to the response output stream
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+    @Override
+    public Float getLatestScoreByStudentAndExercise(String studentId, String exerciseId, String exerciseType) {
+        switch (exerciseType) {
+            case "code":
+                CodeSubmission codeSubmission = codeSubmissionService.getLastCodeSubmissionByUserId(exerciseId, studentId);
+                return codeSubmission != null ? codeSubmission.getScore() : null;
+            case "essay":
+                EssaySubmission essaySubmission = essaySubmissionService.getLastEssaySubmissionByUserId(exerciseId, studentId);
+                return essaySubmission != null ? essaySubmission.getScore() : null;
+            case "quiz":
+                QuizSubmission quizSubmission = quizSubmissionService.getLastQuizSubmissionByUserId(exerciseId, studentId);
+                return quizSubmission != null ? quizSubmission.getScore() : null;
+            case "file":
+                FileSubmission fileSubmission = fileSubmissionService.getLastFileSubmissionByUserId(exerciseId, studentId);
+                return fileSubmission != null ? fileSubmission.getScore() : null;
+            default:
+                return null;
+        }
+    }
 }

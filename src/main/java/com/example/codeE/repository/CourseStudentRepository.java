@@ -15,6 +15,7 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudent, St
     String checkExistingStudentIdAndCourseIdSql = "SELECT COUNT(*) FROM course_student cs WHERE cs.student_id = ?1 AND cs.course_id = ?2";
     String deleteAllStudentsByCourseIdSql = "DELETE FROM course_student cs WHERE cs.course_id = ?1";
     String getAllStudentsInCourseSql = "SELECT * FROM course_student cs WHERE cs.course_id = ?1";
+    String findByCourseIdSql = "SELECT * FROM course_student cs WHERE cs.course_id = ?1";
 
     @Query(value = getAllStudentsInCourseSql, nativeQuery = true)
     List<CourseStudent> getAllStudentsInCourse(String courseId);
@@ -30,4 +31,7 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudent, St
     @Query(value = deleteByStudentIdAndCourseIdSql, nativeQuery = true)
     void deleteByStudentIdAndCourseId(String studentId, String courseId);
     //new u.user_id, u.username, u.name, u.email, u.password, u.role, u.created_date, u.updated_date
+
+    @Query(value = findByCourseIdSql, nativeQuery = true)
+    List<CourseStudent> findByCourseId(String courseId);
 }
