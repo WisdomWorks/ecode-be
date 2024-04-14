@@ -19,6 +19,7 @@ import com.example.codeE.request.exercise.file.CreateFileExerciseRequest;
 import com.example.codeE.request.exercise.file.CreateFileSubmissionRequest;
 import com.example.codeE.request.exercise.file.UpdateFileExerciseRequest;
 import com.example.codeE.request.exercise.quiz.*;
+import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.exercise.*;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
@@ -29,6 +30,7 @@ import com.example.codeE.service.exercise.submission.QuizSubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.example.codeE.service.user.UserService;
 import com.mongodb.client.MongoDatabase;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -39,6 +41,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -80,6 +83,9 @@ public class ExerciseController {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private CourseService courseService;
 
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
@@ -459,5 +465,16 @@ public class ExerciseController {
         };
     }
 
+    @GetMapping
+    @RequestMapping(value = "export-scores", method = RequestMethod.GET)
+    public void exportScores(@Valid @RequestParam String courseId, HttpServletResponse response) throws IOException {
+        // Get the list of exercises for the specified course
+        List<Exercise> exercises = exerciseService.getAllExerciseInCourse(courseId);
 
+        // Get all students in the course
+        List<User> students = courseService.getStudentsByCourseId(courseId);
+
+        // Call the ExcelHelper to export the student scores
+        exerciseService.exportStudentScores(exercises, students, response);
+    }
 }

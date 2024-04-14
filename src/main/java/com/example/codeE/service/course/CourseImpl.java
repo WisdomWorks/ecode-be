@@ -4,6 +4,7 @@ import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.mapper.course.CourseFromExcel;
 import com.example.codeE.model.course.Course;
+import com.example.codeE.model.course.CourseStudent;
 import com.example.codeE.model.course.CourseTeacher;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.CourseRepository;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseImpl implements CourseService {
@@ -208,5 +210,15 @@ public class CourseImpl implements CourseService {
     public List<Course> getCourseByTeacherId(String userId) {
         this.userRepository.findById(userId).orElseThrow(() ->new NoSuchElementException("Can not find teacher with ID: " + userId));
         return this.courseRepository.getCourseByTeacherId(userId);
+    }
+
+    @Override
+    public List<User> getStudentsByCourseId(String courseId) {
+        List<CourseStudent> courseStudents = courseStudentRepository.findByCourseId(courseId);
+        List<String> studentIds = courseStudents.stream()
+                .map(CourseStudent::getStudentId)
+                .collect(Collectors.toList());
+
+        return userRepository.findByUserIdInAndRole(studentIds, "student");
     }
 }
