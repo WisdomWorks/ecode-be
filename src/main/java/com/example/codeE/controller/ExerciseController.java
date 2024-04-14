@@ -2,7 +2,9 @@ package com.example.codeE.controller;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.AutoIncrement;
+import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.model.exercise.*;
+import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.model.user.User;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
@@ -16,9 +18,7 @@ import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 import com.example.codeE.request.exercise.file.CreateFileExerciseRequest;
 import com.example.codeE.request.exercise.file.CreateFileSubmissionRequest;
 import com.example.codeE.request.exercise.file.UpdateFileExerciseRequest;
-import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
-import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
-import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
+import com.example.codeE.request.exercise.quiz.*;
 import com.example.codeE.service.exercise.*;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
@@ -40,10 +40,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/exercises")
@@ -129,6 +126,30 @@ public class ExerciseController {
         var quizSave = this.quizExerciseService.createQuizExercise(quizExercise);
         this.exerciseService.saveQuizExercise(quizSave);
         return ResponseEntity.status(HttpStatus.CREATED).body(quizSave);
+    }
+
+    @PostMapping
+    @RequestMapping(value = "quiz/excel", method = RequestMethod.POST)
+    public ResponseEntity<?> createQuizFromExcel(@Valid @ModelAttribute CreateQuizExerciseByExcelRequest request, @RequestParam("file") MultipartFile file) {
+        try {
+
+            ExcelResult excelResult = ExcelHelper.readQuizQuestionsFromExcel(file);
+            List<QuizQuestion> questions = excelResult.getQuestions();
+            List<Integer> failedRows = excelResult.getFailedRows();
+
+            // Save the questions using the quizExerciseService
+            QuizExercise quizExercise = new QuizExercise(request, questions);
+            quizExerciseService.createQuizExercise(quizExercise);
+            exerciseService.saveQuizExercise(quizExercise);
+            // Create the JSON response
+            Map<String, Object> response = new HashMap<>();
+            response.put("createdQuestions", questions);
+            response.put("failedRows", failedRows);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating quiz from Excel file: " + e.getMessage());
+        }
     }
 
     @PostMapping
