@@ -55,7 +55,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         this.userRepository.findById(essaySubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + essaySubmission.getStudentId()));
         EssayExercise exercise = this.essayExerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
         EssaySubmission submission;
-        if (essaySubmission.isUsingAiGrading()){
+        if (exercise.isUsingAiGrading()){
             String prompt = String.format(Constant.PROMPT_ESSAY_TEMPLATE, exercise.getQuestion(), essaySubmission.getSubmission());
             try {
                 GradingResponse response = vertexAIHelper.parseJson(vertexAIHelper.generateContent(prompt));
