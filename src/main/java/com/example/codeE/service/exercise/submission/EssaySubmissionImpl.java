@@ -1,7 +1,11 @@
 package com.example.codeE.service.exercise.submission;
 
+import com.example.codeE.constant.Constant;
+import com.example.codeE.helper.VertexAIHelper;
+import com.example.codeE.model.exercise.EssayExercise;
 import com.example.codeE.model.exercise.EssaySubmission;
 import com.example.codeE.model.exercise.Exercise;
+import com.example.codeE.model.exercise.vertexAi.GradingResponse;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.AllSubmissionResponse;
@@ -12,7 +16,10 @@ import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.report.OverviewScoreReport;
 import com.example.codeE.service.group.GroupService;
 import com.example.codeE.service.user.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,6 +38,8 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     @Autowired
     private ExerciseRepository exerciseRepository;
     @Autowired
+    private EssayExerciseRepository essayExerciseRepository;
+    @Autowired
     private TopicRepository topicRepository;
     @Autowired
     private CourseStudentRepository courseStudentRepository;
@@ -38,11 +47,25 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
     private GroupStudentRepository groupStudentRepository;
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private VertexAIHelper vertexAIHelper;
     @Override
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 100))
     public EssaySubmission createSubmission(CreateEssaySubmissionRequest essaySubmission) {
         this.userRepository.findById(essaySubmission.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + essaySubmission.getStudentId()));
-        this.exerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
-        var submission = new EssaySubmission(essaySubmission, -1);
+        EssayExercise exercise = this.essayExerciseRepository.findById(essaySubmission.getExerciseId()).orElseThrow(() -> new NoSuchElementException("No exercise found by id: " + essaySubmission.getExerciseId()));
+        EssaySubmission submission;
+        if (essaySubmission.isUsingAiGrading()){
+            String prompt = String.format(Constant.PROMPT_ESSAY_TEMPLATE, exercise.getQuestion(), essaySubmission.getSubmission());
+            try {
+                GradingResponse response = vertexAIHelper.parseJson(vertexAIHelper.generateContent(prompt));
+                submission = new EssaySubmission(essaySubmission, response.getScore(), response.getComment());
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            submission = new EssaySubmission(essaySubmission, -1);
+        }
         return this.essaySubmissionRepository.save(submission);
     }
 

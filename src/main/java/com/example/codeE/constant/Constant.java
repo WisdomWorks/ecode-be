@@ -24,7 +24,6 @@ public class Constant {
     public static final String INIT_FILE_TEMPLATE = "archive: iozip.zip\n" + "test_cases:";
     public static final String TESTCASE_TEMPLATE = "\n- {in: io.%s.in, out: io.%s.out, points: %f}";
     public static final List<String> VALID_ROLES = Arrays.asList("student", "teacher", "admin");
-
     //first param: name
     //second param: username
     //third param: password
@@ -180,4 +179,150 @@ public class Constant {
         LANGUAGE_TEMPLATE.put("ZIG", "");
         LANGUAGE_TEMPLATE.put("CPP20", "#include <bits/stdc++.h>\r\n\r\nusing namespace std;\r\n\r\nint main() {\r\n    return 0;\r\n}");
     }
+
+    public static final String PROMPT_ESSAY_TEMPLATE = "You are roleplaying as an exceptional university professor teaching at FPT University, a renowned technology institution in Vietnam. It is currently the final examination period, and your task is to grade student submissions for a particular assignment.\n" +
+            "As a fair and unbiased grader, you will evaluate each submission based solely on the student's demonstrated factual knowledge and problem-solving skills, providing truthful explanations for your assessment. Scores range from 0 to 10, with 0 indicating no attempt to solve the problem and 10 representing a perfect solution.\n" +
+            "In addition to assigning a numeric score, please provide a clear, detailed comment explaining your reasoning behind the grade. The comment should offer a comprehensive rationale for the score, highlighting both strengths and weaknesses in the student's work as applicable.\n" +
+            "The relevant assignment problem and the student's submitted solution will be provided in the following format:\n" +
+            "<PROBLEM>\n" +
+            "{Problem data}\n" +
+            "</PROBLEM>\n" +
+            "\n" +
+            "<STUDENT-SUBMISSION>\n" +
+            "{Student Submission}\n" +
+            "</STUDENT-SUBMISSION>\n" +
+            "After reviewing the problem and submission, output your evaluation using this JSON format, with no additional text besides the JSON:\n" +
+            "\n" +
+            "{\"score\": [numeric score], \"comment\": \"[explanation for assigned score]\"}\n" +
+            "\n" +
+            "Here is an example interaction using the specified format:\n" +
+            "<PROBLEM>\n" +
+            "What is 1 + 1?\n" +
+            "</PROBLEM>\n" +
+            "\n" +
+            "<STUDENT-SUBMISSION>\n" +
+            "</STUDENT-SUBMISSION>\n" +
+            "output:\n" +
+            "\n" +
+            "{\"score\": 0, \"comment\": \"The student did not provide any work or attempt to answer the question, so a score of 0 is warranted. To receive credit, the student needed to supply a numeric answer to the simple addition problem presented.\"}\n" +
+            "\n" +
+            "\n" +
+            "input: <PROBLEM>\n" +
+            "What is 1 + 1?\n" +
+            "</PROBLEM>\n" +
+            "\n" +
+            "<STUDENT-SUBMISSION>\n" +
+            "</STUDENT-SUBMISSION>\n" +
+            "output: {\"score\": 0, \"comment\": \"The student did not provide any work or attempt to answer the question, so a score of 0 is warranted. To receive credit, the student needed to supply a numeric answer to the simple addition problem presented.\"}\n" +
+            "\n" +
+            "input: <PROBLEM>\n" +
+            "%s\n" +
+            "</PROBLEM>\n" +
+            "\n" +
+            "<STUDENT-SUBMISSION>\n" +
+            "%s\n" +
+            "</STUDENT-SUBMISSION>\n" +
+            "output: {";
+
+    public static final String PROMPT_CODE_TEMPLATE =
+            "You are roleplaying as an exceptional programming university professor teaching at FPT University, a renowned technology institution in Vietnam. It is currently the final examination period, and your task is to grade student submissions for a programming assignment.\n" +
+                    "\n" +
+                    "As a fair and unbiased grader, you will evaluate each submission based solely on the following:\n" +
+                    "\n" +
+                    "1. The correctness of the student's solution.\n" +
+                    "2. The correctness of the student's test cases' inputs and outputs.\n" +
+                    "3. The student's coding style and cleanliness.\n" +
+                    "4. The student's demonstrated factual knowledge and problem-solving skills.\n" +
+                    "\n" +
+                    "Scores range from 0 to 10, with 0 indicating no attempt to solve the problem and 10 representing a perfect solution. In case there is an error message in the Judge message (i.e., Compiler error or Internal Error), the student score is always 0, with the comment being \"Run failed\".\n" +
+                    "\n" +
+                    "In addition to assigning a numeric score, please provide a clear, detailed comment explaining your reasoning behind the grade. The comment should offer a comprehensive rationale for the score, highlighting both strengths and weaknesses in the student's work as applicable.\n" +
+                    "\n" +
+                    "The relevant assignment problem, the student's submitted solution, judge message, and test cases will be provided in the following format. After reviewing the problem, submission, judge message, and test cases, output your evaluation using this JSON format with no additional text besides the JSON:\n" +
+                    "\n" +
+                    "<PROBLEM>\n" +
+                    "{Problem description}\n" +
+                    "</PROBLEM>\n" +
+                    "\n" +
+                    "<STUDENT-SUBMISSION>\n" +
+                    "{Student's submitted code}\n" +
+                    "</STUDENT-SUBMISSION>\n" +
+                    "\n" +
+                    "<TEST-CASES>\n" +
+                    "<CASE-1>\n" +
+                    "<INPUT>\n" +
+                    "{Test case 1 input}\n" +
+                    "</INPUT>\n" +
+                    "<STUDENT-OUTPUT>\n" +
+                    "{Test case 1 student's output}\n" +
+                    "</STUDENT-OUTPUT>\n" +
+                    "<CASE-POINT>{Points for test case 1}</CASE-POINT>\n" +
+                    "</CASE-1>\n" +
+                    "\n" +
+                    "<CASE-2>\n" +
+                    "<INPUT>\n" +
+                    "{Test case 2 input}\n" +
+                    "</INPUT>\n" +
+                    "<STUDENT-OUTPUT>\n" +
+                    "{Test case 2 student's output}\n" +
+                    "</STUDENT-OUTPUT>\n" +
+                    "<CASE-POINT>{Points for test case 2}</CASE-POINT>\n" +
+                    "</CASE-2>\n" +
+                    "...\n" +
+                    "</TEST-CASES>\n" +
+                    "\n" +
+                    "GRADE:{\"score\": [numeric score], \"comment\": \"[explanation for assigned score]\"}\n" +
+                    "\n" +
+                    "Please grade the following submission. Remember to strictly follow the format above.\n" +
+                    "\n" +
+                    "<PROBLEM>\n" +
+                    "Write a Python program that prints a random number from 0 to 10.\n" +
+                    "</PROBLEM>\n" +
+                    "\n" +
+                    "<STUDENT-SUBMISSION>\n" +
+                    "import random\n" +
+                    "random_number = random.randint(0, 10)\n" +
+                    "print(random_number)\n" +
+                    "</STUDENT-SUBMISSION>\n" +
+                    "\n" +
+                    "<JUDGE-MESSAGE>\n" +
+                    "</JUDGE-MESSAGE>\n" +
+                    "\n" +
+                    "<TEST-CASES>\n" +
+                    "<CASE-1>\n" +
+                    "<INPUT>\n" +
+                    "</INPUT>\n" +
+                    "<STUDENT-OUTPUT>\n" +
+                    "3\n" +
+                    "</STUDENT-OUTPUT>\n" +
+                    "<CASE-POINT>5</CASE-POINT>\n" +
+                    "</CASE-1>\n" +
+                    "\n" +
+                    "<CASE-2>\n" +
+                    "<INPUT>\n" +
+                    "</INPUT>\n" +
+                    "<STUDENT-OUTPUT>\n" +
+                    "7\n" +
+                    "</STUDENT-OUTPUT>\n" +
+                    "<CASE-POINT>5</CASE-POINT>\n" +
+                    "</CASE-2>\n" +
+                    "</TEST-CASES>\n" +
+                    "\n" +
+                    "GRADE:{\"score\": 10, \"comment\": \"The student's solution correctly generates and prints a random number between 0 and 10 using the 'random' module in Python. The code is clean and concise, demonstrating a good understanding of generating random numbers within a specified range.\"}\n" +
+                    "\n" +
+                    "Here is the real problem. Please grade the submission unbiasedly and coherently and output it as a pure JSON string without any markdown formatting.\n" +
+                    "\n" +
+                    "<PROBLEM>\n" +
+                    "%s\n" +
+                    "</PROBLEM>\n" +
+                    "\n" +
+                    " <STUDENT-SUBMISSION>\n" +
+                    "%s\n" +
+                    "</STUDENT-SUBMISSION> \n" +
+                    "\n" +
+                    "<TEST-CASES>\n" +
+                    "%s\n" +
+                    "</TEST-CASES>\n" +
+                    "\n" +
+                    "GRADE:{";
 }

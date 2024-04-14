@@ -100,6 +100,7 @@ public class ExerciseController {
         codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
         codeExercise.setPoints(request.getPoints());
         codeExercise.setType("code");
+        codeExercise.setUsingAiGrading(request.isUsingAiGrading());
 
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
@@ -225,6 +226,7 @@ public class ExerciseController {
 
             CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
             savedSubmission.judge(false, false);
+
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
