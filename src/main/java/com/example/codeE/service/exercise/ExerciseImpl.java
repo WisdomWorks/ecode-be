@@ -55,6 +55,8 @@ public class ExerciseImpl implements ExerciseService{
     private TopicRepository topicRepository;
     @Autowired
     private FileSubmissionService fileSubmissionService;
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Override
     public Exercise saveQuizExercise(QuizExercise exercise) {
@@ -354,7 +356,16 @@ public class ExerciseImpl implements ExerciseService{
 
     @Override
     public List<Exercise> getAllExerciseInCourse(String courseId) {
-        return this.exerciseRepository.findAll();
+        this.courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID: " + courseId));
+        List<Topic> topics = topicRepository.findByCourseId(courseId);
+        List<Exercise> exercises = new ArrayList<>();
+
+        for (Topic topic : topics) {
+            List<Exercise> topicExercises = exerciseRepository.getAllExercisesByTopicId(topic.getTopicId());
+            exercises.addAll(topicExercises);
+        }
+
+        return exercises;
     }
 
     @Override
