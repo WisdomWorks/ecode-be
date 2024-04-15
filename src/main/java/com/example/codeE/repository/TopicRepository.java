@@ -18,4 +18,7 @@ public interface TopicRepository extends JpaRepository<Topic, String> {
                     "       WHERE student_id = ?1 ))) " +
                     "AND course_id = ?2 ; ", nativeQuery = true)
     List<Topic> getTopicByUser(String studentId, String courseId);
+
+    String getTopicByCourseId = "SELECT * FROM codee.topic WHERE course_id = ?1";
+    List<Topic> findByCourseId(String courseId);
 }
