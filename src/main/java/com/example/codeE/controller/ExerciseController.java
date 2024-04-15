@@ -467,15 +467,28 @@ public class ExerciseController {
 
     @PostMapping
     @RequestMapping(value = "export-scores", method = RequestMethod.POST)
-    public void exportScores(@Valid @RequestBody ExportScoresRequest request, HttpServletResponse response) throws IOException {
-        String courseId = request.getCourseId();
-        // Get the list of exercises for the specified course
-        List<Exercise> exercises = exerciseService.getAllExerciseInCourse(courseId);
+    public ResponseEntity<Object> exportScores(@Valid @RequestBody ExportScoresRequest request, HttpServletResponse response){
+        try {
+            String courseId = request.getCourseId();
+            // Get the list of exercises for the specified course
+            List<Exercise> exercises = exerciseService.getAllExerciseInCourse(courseId);
 
-        // Get all students in the course
-        List<User> students = courseService.getStudentsByCourseId(courseId);
+            // Get all students in the course
+            List<User> students = courseService.getStudentsByCourseId(courseId);
 
-        // Call the ExcelHelper to export the student scores
-        exerciseService.exportStudentScores(exercises, students, response);
+            // Call the ExcelHelper to export the student scores
+            exerciseService.exportStudentScores(exercises, students, response);
+
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            String errorMessage = "Error occurred while exporting scores: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        } catch (IllegalArgumentException e) {
+            String errorMessage = "Invalid request: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        } catch (Exception e) {
+            String errorMessage = "An unexpected error occurred: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        }
     }
 }
