@@ -3,10 +3,7 @@ package com.example.codeE.service.exercise;
 import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.exercise.common.QuizChoice;
 import com.example.codeE.model.exercise.common.QuizQuestion;
-import com.example.codeE.repository.ExerciseRepository;
-import com.example.codeE.repository.QuizChoiceRepository;
-import com.example.codeE.repository.QuizExerciseRepository;
-import com.example.codeE.repository.QuizQuestionRepository;
+import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.quiz.QuizDetailResponse;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +22,11 @@ public class QuizExerciseImpl implements QuizExerciseService{
     private QuizQuestionRepository quizQuestionRepository;
     @Autowired
     private ExerciseRepository exerciseRepository;
+    @Autowired
+    private TopicRepository topicRepository;
     @Override
     public QuizExercise createQuizExercise(QuizExercise quizExercise) {
+        this.topicRepository.findById(quizExercise.getTopicId()).orElseThrow(() -> new NoSuchElementException("No topic found by Id: "+ quizExercise.getTopicId()));
         if (quizExercise.getReAttempt() <= 0) {
             quizExercise.setReAttempt(1);
         }

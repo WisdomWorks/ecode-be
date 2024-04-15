@@ -399,6 +399,9 @@ public class ExerciseImpl implements ExerciseService{
 
     @Override
     public Float getLatestScoreByStudentAndExercise(String studentId, String exerciseId, String exerciseType) {
+        if (studentId == null || exerciseId == null || exerciseType == null) {
+            return null;
+        }
         switch (exerciseType) {
             case "code":
                 CodeSubmission codeSubmission = codeSubmissionService.getLastCodeSubmissionByUserId(exerciseId, studentId);

@@ -140,7 +140,6 @@ public class ExerciseController {
     @RequestMapping(value = "quiz/excel", method = RequestMethod.POST)
     public ResponseEntity<?> createQuizFromExcel(@Valid @ModelAttribute CreateQuizExerciseByExcelRequest request, @RequestParam("file") MultipartFile file) {
         try {
-
             ExcelResult excelResult = ExcelHelper.readQuizQuestionsFromExcel(file);
             List<QuizQuestion> questions = excelResult.getQuestions();
             List<Integer> failedRows = excelResult.getFailedRows();
@@ -151,7 +150,7 @@ public class ExerciseController {
             exerciseService.saveQuizExercise(quizExercise);
             // Create the JSON response
             Map<String, Object> response = new HashMap<>();
-            response.put("createdQuestions", questions);
+            response.put("quizExercise", quizExercise);
             response.put("failedRows", failedRows);
 
             return ResponseEntity.status(HttpStatus.OK).body(response);
