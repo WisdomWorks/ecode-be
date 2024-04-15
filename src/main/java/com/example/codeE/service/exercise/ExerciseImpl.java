@@ -191,7 +191,7 @@ public class ExerciseImpl implements ExerciseService{
                         }
                         Date now = new Date();
                         if ((long) exercise.getDurationTime() * 1000 * 60 + timeStart.getTime() < now.getTime()) {
-                            this.sessionExerciseService.removeSession(response, request, loginId);
+                            this.sessionExerciseService.removeSession(response, request);
                             LocalDateTime dateNow = LocalDateTime.now();
                             //user Urgent ?
                             session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");

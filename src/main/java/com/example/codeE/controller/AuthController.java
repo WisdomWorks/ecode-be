@@ -203,7 +203,7 @@ public class AuthController {
                     response.addCookie(cookie);
                 }
                 if ("LoginSessionId".equals(cookie.getName())) {
-                    this.SessionExerciseService.removeSession(response, request, cookie.getValue());
+                    this.SessionExerciseService.removeSession(response, request);
                     cookie.setMaxAge(0);
                     cookie.setPath("/");
                     response.addCookie(cookie);

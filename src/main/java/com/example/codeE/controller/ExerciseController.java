@@ -238,7 +238,7 @@ public class ExerciseController {
 
             CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
             savedSubmission.judge(false, false);
-            sessionExerciseService.removeSession(response, request, requestSubmit.getExerciseId());
+            sessionExerciseService.removeSession(response, request);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
@@ -302,7 +302,7 @@ public class ExerciseController {
         float score = this.quizSubmissionService.gradeSubmission(quizSubmission.getSubmission(), quizExercise.getQuestions());
         var submission = new QuizSubmission(quizSubmission, score);
         QuizSubmission responseExercise = this.quizSubmissionService.createSubmission(submission);
-        sessionExerciseService.removeSession(response, request, quizExercise.getExerciseId());
+        sessionExerciseService.removeSession(response, request);
         return ResponseEntity.status(HttpStatus.OK).body(responseExercise);
     }
 
@@ -310,7 +310,7 @@ public class ExerciseController {
     @RequestMapping(value = "essay/submit", method = RequestMethod.POST)
     public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody CreateEssaySubmissionRequest essaySubmission, HttpServletRequest request, HttpServletResponse response) {
         var essayExercise = this.essaySubmissionService.createSubmission(essaySubmission);
-        sessionExerciseService.removeSession(response, request, essayExercise.getExerciseId());
+        sessionExerciseService.removeSession(response, request);
         return ResponseEntity.status(HttpStatus.OK).body(essayExercise);
     }
 
