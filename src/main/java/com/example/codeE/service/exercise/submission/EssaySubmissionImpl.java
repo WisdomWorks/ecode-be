@@ -131,7 +131,7 @@ public class EssaySubmissionImpl implements EssaySubmissionService{
         List<EssaySubmission> submissions = this.essaySubmissionRepository.findAll();
         var result = new ArrayList<EssaySubmission>();
         for (var item : submissions) {
-            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId) && item.getScore() != -1)  {
+            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId))  {
                 result.add(item);
             }
         }

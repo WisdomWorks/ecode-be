@@ -133,7 +133,7 @@ public class QuizSubmissionImpl implements QuizSubmissionService {
         List<QuizSubmission> submissions = this.quizSubmissionRepository.findAll();
         var result = new ArrayList<QuizSubmission>();
         for (var item : submissions) {
-            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId) && item.getScore() != -1) {
+            if (item.getExerciseId().equals(exerciseId) && item.getStudentId().equals(userId)) {
                 result.add(item);
             }
         }
