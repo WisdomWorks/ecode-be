@@ -33,6 +33,7 @@ public class CodeDetailResponse {
     private String description;
     private List<TestCase> testCases;
     private HashMap<String, String> languageTemplate;
+    private boolean isUsingAiGrading = false;
 
     public CodeDetailResponse(CodeExercise codeExercise) {
         this.exerciseId = codeExercise.getExerciseId();
@@ -47,6 +48,7 @@ public class CodeDetailResponse {
         this.description = codeExercise.getDescription();
         this.testCases = codeExercise.getTestCases();
         this.languageTemplate = getTemplateMap(codeExercise.getAllowedLanguageIds());
+        this.isUsingAiGrading = codeExercise.isUsingAiGrading();
     }
 
     private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
