@@ -7,6 +7,7 @@ import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.request.user.forgetPasswordRequest;
 import com.example.codeE.service.authentication.AuthenService;
+import com.example.codeE.service.exercise.common.SessionExerciseService;
 import com.example.codeE.service.user.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,9 @@ public class AuthController {
     private JWTUtils jwtHelper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private SessionExerciseService SessionExerciseService;
+
 
     @PostMapping
     @RequestMapping(value = "/login/user", method = RequestMethod.POST)
@@ -194,6 +198,12 @@ public class AuthController {
                     response.addCookie(cookie);
                 }
                 if ("accessTokenAdmin".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+                if ("LoginSessionId".equals(cookie.getName())) {
+                    this.SessionExerciseService.removeSession(response, request, cookie.getValue());
                     cookie.setMaxAge(0);
                     cookie.setPath("/");
                     response.addCookie(cookie);

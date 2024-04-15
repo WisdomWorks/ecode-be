@@ -10,6 +10,7 @@ import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.service.course.CourseService;
+import com.example.codeE.service.exercise.common.SessionExerciseService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class AuthenImpl implements  AuthenService{
@@ -56,7 +58,14 @@ public class AuthenImpl implements  AuthenService{
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .maxAge(3600)
+                    .maxAge(3600 * 4)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            cookie = ResponseCookie.from("LoginSessionId", UUID.randomUUID().toString())
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(3600 * 4)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
@@ -131,7 +140,6 @@ public class AuthenImpl implements  AuthenService{
 
     @Override
     public void SendForgetPasswordOTP(String userName, HttpServletResponse response) throws NoSuchMethodException {
-//        System.out.println(AuthenImpl.class.getResourceAsStream("/credential_gmail_api.json"));
         var user = this.userRepository.findUserByUserName(userName);
         System.out.println(user.getEmail());
         if (user == null) throw new NoSuchMethodException("No user found by: " + userName);

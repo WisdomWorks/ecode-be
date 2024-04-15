@@ -33,7 +33,7 @@ public class QuizDetailResponse {
     private String exerciseDescription;
     private List<QuizQuestionResponse> questions;
 
-    public QuizDetailResponse(QuizExercise quizExercise) {
+    public QuizDetailResponse(QuizExercise quizExercise, Date timeDoExercise) {
         this.exerciseId = quizExercise.getExerciseId();
         this.exerciseName = quizExercise.getExerciseName();
         this.topicId = quizExercise.getTopicId();
@@ -42,16 +42,16 @@ public class QuizDetailResponse {
         this.durationTime = quizExercise.getDurationTime();
         this.reAttempt = quizExercise.getReAttempt();
         this.type = quizExercise.getType();
-        this.timeLess = GetTimeLess(quizExercise.getStartTime(), quizExercise.getEndTime(), quizExercise.getDurationTime());
+        this.timeLess = GetTimeLess(quizExercise.getStartTime(), quizExercise.getEndTime(), quizExercise.getDurationTime(), timeDoExercise);
         this.exerciseDescription = quizExercise.getExerciseDescription();
         this.questions = convertQuestion(quizExercise.getQuestions());
     }
 
-    private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
+    private Date GetTimeLess(Date startTime, Date endTime, int durationTime, Date timeDoExercise) {
         if(startTime == endTime){
             return new Date(0);
         }
-        var current = new Date().getTime();
+        var current = timeDoExercise.getTime();
         if(current > endTime.getTime()){
             return new Date(0);
         }

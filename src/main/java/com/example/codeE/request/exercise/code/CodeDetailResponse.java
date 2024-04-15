@@ -35,7 +35,7 @@ public class CodeDetailResponse {
     private HashMap<String, String> languageTemplate;
     private boolean isUsingAiGrading = false;
 
-    public CodeDetailResponse(CodeExercise codeExercise) {
+    public CodeDetailResponse(CodeExercise codeExercise, Date timeDoExercise) {
         this.exerciseId = codeExercise.getExerciseId();
         this.exerciseName = codeExercise.getExerciseName();
         this.topicId = codeExercise.getTopicId();
@@ -44,18 +44,18 @@ public class CodeDetailResponse {
         this.durationTime = codeExercise.getDurationTime();
         this.reAttempt = codeExercise.getReAttempt();
         this.type = codeExercise.getType();
-        this.timeLess = GetTimeLess(codeExercise.getStartTime(), codeExercise.getEndTime(), codeExercise.getDurationTime());
+        this.timeLess = GetTimeLess(codeExercise.getStartTime(), codeExercise.getEndTime(), codeExercise.getDurationTime(),timeDoExercise);
         this.description = codeExercise.getDescription();
         this.testCases = codeExercise.getTestCases();
         this.languageTemplate = getTemplateMap(codeExercise.getAllowedLanguageIds());
         this.isUsingAiGrading = codeExercise.isUsingAiGrading();
     }
 
-    private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
+    private Date GetTimeLess(Date startTime, Date endTime, int durationTime, Date timeDoExercise) {
         if(startTime == endTime){
             return new Date(0);
         }
-        var current = new Date().getTime();
+        var current = timeDoExercise.getTime();
         if(current > endTime.getTime()){
             return new Date(0);
         }
