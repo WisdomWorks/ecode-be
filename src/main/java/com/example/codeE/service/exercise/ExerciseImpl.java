@@ -1,7 +1,9 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.*;
+import com.example.codeE.model.exercise.common.SessionExercise;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.model.user.User;
 import com.example.codeE.repository.*;
@@ -9,6 +11,7 @@ import com.example.codeE.request.exercise.*;
 import com.example.codeE.request.exercise.file.response.FilePreviewResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
+import com.example.codeE.service.exercise.common.SessionExerciseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.exercise.submission.FileSubmissionService;
@@ -18,12 +21,20 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.example.codeE.util.DateTimeUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -55,6 +66,10 @@ public class ExerciseImpl implements ExerciseService{
     private TopicRepository topicRepository;
     @Autowired
     private FileSubmissionService fileSubmissionService;
+    @Autowired
+    private SessionExerciseRepository sessionExerciseRepository;
+    @Autowired
+    private SessionExerciseService sessionExerciseService;
     @Autowired
     private CourseRepository courseRepository;
 
@@ -135,14 +150,64 @@ public class ExerciseImpl implements ExerciseService{
     }
 
     @Override
-    public Exercise getDetailExercise(String exerciseId, String key, String studentId) {
+    public Exercise getDetailExercise(String exerciseId, String key, String studentId, String userUrgent, HttpServletRequest request, HttpServletResponse response) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
         if (!exercise.getKey().equals(key))
             throw new IllegalArgumentException("Invalid enrollment key. Please double-check and try again.");
         else if (!isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
             throw new DataIntegrityViolationException("You have already submitted the exercise the maximum number of times allowed.");
-        else if (exercise.getKey().equals(key) && isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
-            return exercise;
+        else if (exercise.getKey().equals(key) && isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt())) {
+            // login id from cookie
+            String loginId = "";
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("LoginSessionId".equals(cookie.getName())) {
+                        loginId = cookie.getValue();
+                    }
+                }
+            }
+            //check session exercise
+            var sessionExercises = this.sessionExerciseRepository.findByStudentIdAndLoginId(studentId, loginId);
+            if (sessionExercises.isEmpty()) {
+                // if it does not have any session has been saved create new one.
+                // get time now
+                LocalDateTime dateNow = LocalDateTime.now();
+                //user Urgent ?
+                var session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
+                sessionExerciseRepository.save(session);
+                return exercise;
+            } else {
+                var session = sessionExercises.get(0);
+                if (session.getLoginId().equals(loginId) && session.getStudentId().equals(studentId)) {
+                    if (session.getExerciseId().equals(exerciseId)) {
+                        Date timeStart = new Date();
+                        try {
+                            var timeString = session.getTimeStart();
+                            SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
+                            timeStart = sdf.parse(timeString);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Date now = new Date();
+                        if ((long) exercise.getDurationTime() * 1000 * 60 + timeStart.getTime() < now.getTime()) {
+                            this.sessionExerciseService.removeSession(response, request, loginId);
+                            LocalDateTime dateNow = LocalDateTime.now();
+                            //user Urgent ?
+                            session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
+                            sessionExerciseRepository.save(session);
+                        }
+                        return exercise;
+                        //after return, system need to calculate a time left
+                    } else {
+                        //student has joined another exercise
+                        throw new IllegalArgumentException("Student need to complete another current exercise before participating in a new one.");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Failed to retrieve exercise information.");
+                }
+            }
+        }
         else
             throw new IllegalArgumentException("Failed to retrieve exercise information.");
     }

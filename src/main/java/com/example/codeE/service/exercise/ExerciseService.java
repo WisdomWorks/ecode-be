@@ -7,6 +7,7 @@ import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.ExerciseStudentResponse;
 import com.example.codeE.request.exercise.file.response.FilePreviewResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ public interface ExerciseService {
     FilePreviewResponse getFilePreviewExercise(String exerciseId, String studentId);
     List<ExerciseResponse> getExercisesByCourseId(String courseId);
     Exercise getExerciseById(String exerciseId);
-    Exercise getDetailExercise(String exerciseId, String key, String studentId);
+    Exercise getDetailExercise(String exerciseId, String key, String studentId, String userUrgent, HttpServletRequest request, HttpServletResponse response);
     void deleteExerciseById(String exerciseId);
     List<ExerciseResponse> getExercisesByTopicId(String topicId);
     List<ExerciseResponse> getExercisesByUserId(String topicId, String userId);

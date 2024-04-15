@@ -3,11 +3,15 @@ package com.example.codeE.service.exercise;
 import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.FileHelper;
 import com.example.codeE.model.exercise.CodeExercise;
+import com.example.codeE.model.exercise.common.SessionExercise;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.repository.CodeExerciseRepository;
 import com.example.codeE.repository.ExerciseRepository;
+import com.example.codeE.repository.SessionExerciseRepository;
 import com.example.codeE.request.exercise.code.CodeDetailResponse;
 import com.example.codeE.request.exercise.code.UpdateCodeExerciseRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +22,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -28,7 +35,8 @@ public class CodeExerciseImpl implements CodeExerciseService{
 
     @Autowired
     private ExerciseRepository exerciseRepository;
-
+    @Autowired
+    private SessionExerciseRepository sessionExerciseRepository;
     @Override
     public List<String> getProblemIds(List<CodeExercise> problems) {
         List<String> result = new ArrayList<>();
@@ -49,7 +57,7 @@ public class CodeExerciseImpl implements CodeExerciseService{
     }
 
     @Override
-    public CodeDetailResponse getCodeExerciseDetail(String exerciseId) {
+    public CodeDetailResponse getCodeExerciseDetail(String exerciseId, HttpServletRequest request) {
         CodeExercise codeExercise = codeExerciseRepository.findById(exerciseId).get();
         // Get only TestCase with 0 points
         List<TestCase> testCases = codeExercise.getTestCases();
@@ -60,9 +68,36 @@ public class CodeExerciseImpl implements CodeExerciseService{
             }
         }
         codeExercise.setTestCases(pretestCases);
-        return new CodeDetailResponse(codeExercise);
+        var sessionlist = this.sessionExerciseRepository.findAll();
+        SessionExercise session = getSessionExercise(request, sessionlist);
+        Date timeStart = new Date();
+        try {
+            var timeString = session.getTimeStart();
+            SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
+            timeStart = sdf.parse(timeString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new CodeDetailResponse(codeExercise, timeStart);
     }
-
+    private static SessionExercise getSessionExercise(HttpServletRequest request, List<SessionExercise> sessionlist) {
+        SessionExercise session = new SessionExercise();
+        String loginId = "";
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("LoginSessionId".equals(cookie.getName())) {
+                    loginId = cookie.getValue();
+                }
+            }
+        }
+        for (var item : sessionlist) {
+            if (item.getLoginId().equals(loginId)) {
+                session = item;
+            }
+        }
+        return session;
+    }
     @Override
     public CodeExercise createCodeExercise(CodeExercise codeExercise) {
         return codeExerciseRepository.save(codeExercise);

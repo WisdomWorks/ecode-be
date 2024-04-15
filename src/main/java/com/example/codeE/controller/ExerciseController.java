@@ -22,6 +22,7 @@ import com.example.codeE.request.exercise.file.UpdateFileExerciseRequest;
 import com.example.codeE.request.exercise.quiz.*;
 import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.exercise.*;
+import com.example.codeE.service.exercise.common.SessionExerciseService;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
@@ -31,6 +32,7 @@ import com.example.codeE.service.exercise.submission.QuizSubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.example.codeE.service.user.UserService;
 import com.mongodb.client.MongoDatabase;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +89,8 @@ public class ExerciseController {
 
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private SessionExerciseService sessionExerciseService;
 
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
@@ -193,18 +197,20 @@ public class ExerciseController {
 
     @PostMapping
     @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest request){
-        Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
+    public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest requestGetDetail, HttpServletRequest request, HttpServletResponse response) {
+        Exercise exercise = this.exerciseService.getDetailExercise(requestGetDetail.getExerciseId(), requestGetDetail.getKey(), requestGetDetail.getStudentId(), requestGetDetail.getUserUrgent(), request, response);
+        if (exercise == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Student can not enroll exercise now."));
+        }
         switch (exercise.getType()){
             case "code" :
-                CodeDetailResponse response = this.codeExerciseService.getCodeExerciseDetail(request.getExerciseId());
-                return ResponseEntity.status(HttpStatus.OK).body(response);
+                return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseDetail(requestGetDetail.getExerciseId(), request));
             case "quiz":
-                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
+                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(requestGetDetail.getExerciseId(), request));
             case "essay":
-                return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(request.getExerciseId() ));
+                return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(requestGetDetail.getExerciseId(), request));
             case "file":
-                return ResponseEntity.status(HttpStatus.OK).body(this.fileExerciseService.getFileExerciseDetail(request.getExerciseId()));
+                return ResponseEntity.status(HttpStatus.OK).body(this.fileExerciseService.getFileExerciseDetail(requestGetDetail.getExerciseId()));
             default:
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         }
@@ -212,27 +218,27 @@ public class ExerciseController {
 
     @PostMapping
     @RequestMapping(value = "code/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitCodeExercise(@Valid @RequestBody SubmitCodeExerciseRequest request){
+    public ResponseEntity<?> submitCodeExercise(@Valid @RequestBody SubmitCodeExerciseRequest requestSubmit, HttpServletRequest request, HttpServletResponse response) {
         MongoDatabase database = mongoTemplate.getDb();
         AutoIncrement autoIncrement = new AutoIncrement(database);
 
         try{
             CodeSubmission submission = new CodeSubmission(judgeService);
             submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
-            submission.setExerciseId(request.getExerciseId());
-            submission.setLanguageId(request.getLanguageId());
-            submission.setSource(request.getSource());
-            submission.setStudentId(request.getStudentId());
+            submission.setExerciseId(requestSubmit.getExerciseId());
+            submission.setLanguageId(requestSubmit.getLanguageId());
+            submission.setSource(requestSubmit.getSource());
+            submission.setStudentId(requestSubmit.getStudentId());
             submission.setPretested(false);
 
-            CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
+            CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(requestSubmit.getExerciseId());
             submission.setTime(codeExercise.getTimeLimit());
             submission.setMemory(codeExercise.getMemoryLimit());
             submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
             CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
             savedSubmission.judge(false, false);
-
+            sessionExerciseService.removeSession(response, request, requestSubmit.getExerciseId());
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
@@ -291,18 +297,21 @@ public class ExerciseController {
 
     @PostMapping
     @RequestMapping(value = "quiz/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody CreateQuizSubmissionRequest quizSubmission){
+    public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody CreateQuizSubmissionRequest quizSubmission, HttpServletRequest request, HttpServletResponse response) {
         QuizExercise quizExercise = this.quizExerciseService.getQuizExerciseById(quizSubmission.getExerciseId());
         float score = this.quizSubmissionService.gradeSubmission(quizSubmission.getSubmission(), quizExercise.getQuestions());
         var submission = new QuizSubmission(quizSubmission, score);
-        QuizSubmission response = this.quizSubmissionService.createSubmission(submission);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        QuizSubmission responseExercise = this.quizSubmissionService.createSubmission(submission);
+        sessionExerciseService.removeSession(response, request, quizExercise.getExerciseId());
+        return ResponseEntity.status(HttpStatus.OK).body(responseExercise);
     }
 
     @PostMapping
     @RequestMapping(value = "essay/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody CreateEssaySubmissionRequest essaySubmission){
-        return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.createSubmission(essaySubmission));
+    public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody CreateEssaySubmissionRequest essaySubmission, HttpServletRequest request, HttpServletResponse response) {
+        var essayExercise = this.essaySubmissionService.createSubmission(essaySubmission);
+        sessionExerciseService.removeSession(response, request, essayExercise.getExerciseId());
+        return ResponseEntity.status(HttpStatus.OK).body(essayExercise);
     }
 
     @PostMapping
