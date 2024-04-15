@@ -29,6 +29,7 @@ public class EssayDetailResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.TIME_FORMAT)
     private Date timeLess;
     private String question;
+    private boolean isUsingAiGrading = false;
 
     public EssayDetailResponse(EssayExercise essayExercise){
         this.exerciseId = essayExercise.getExerciseId();
@@ -42,6 +43,7 @@ public class EssayDetailResponse {
         this.exerciseDescription = essayExercise.getExerciseDescription();
         this.timeLess = GetTimeLess(essayExercise.getStartTime(), essayExercise.getEndTime(), essayExercise.getDurationTime());
         this.question = essayExercise.getQuestion();
+        this.isUsingAiGrading = essayExercise.isUsingAiGrading();
     }
     private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
         if(startTime == endTime){
