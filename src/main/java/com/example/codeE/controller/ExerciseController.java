@@ -7,6 +7,7 @@ import com.example.codeE.model.exercise.*;
 import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.course.ExportScoresRequest;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
@@ -465,9 +466,10 @@ public class ExerciseController {
         };
     }
 
-    @GetMapping
-    @RequestMapping(value = "export-scores", method = RequestMethod.GET)
-    public void exportScores(@Valid @RequestParam String courseId, HttpServletResponse response) throws IOException {
+    @PostMapping
+    @RequestMapping(value = "export-scores", method = RequestMethod.POST)
+    public void exportScores(@Valid @RequestBody ExportScoresRequest request, HttpServletResponse response) throws IOException {
+        String courseId = request.getCourseId();
         // Get the list of exercises for the specified course
         List<Exercise> exercises = exerciseService.getAllExerciseInCourse(courseId);
 
