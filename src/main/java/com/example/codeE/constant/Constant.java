@@ -244,6 +244,10 @@ public class Constant {
                     "{Problem description}\n" +
                     "</PROBLEM>\n" +
                     "\n" +
+                    "<PROGRAMMING-LANGUAGE>\n" +
+                    "{Submission Language}\n" +
+                    "</PROGRAMMING-LANGUAGE>\n" +
+                    "\n" +
                     "<STUDENT-SUBMISSION>\n" +
                     "{Student's submitted code}\n" +
                     "</STUDENT-SUBMISSION>\n" +
@@ -278,6 +282,10 @@ public class Constant {
                     "<PROBLEM>\n" +
                     "Write a Python program that prints a random number from 0 to 10.\n" +
                     "</PROBLEM>\n" +
+                    "\n" +
+                    "<PROGRAMMING-LANGUAGE>\n" +
+                    "PY3\n" +
+                    "</PROGRAMMING-LANGUAGE>\n" +
                     "\n" +
                     "<STUDENT-SUBMISSION>\n" +
                     "import random\n" +
@@ -315,6 +323,10 @@ public class Constant {
                     "<PROBLEM>\n" +
                     "%s\n" +
                     "</PROBLEM>\n" +
+                    "\n" +
+                    "<PROGRAMMING-LANGUAGE>\n" +
+                    "%s\n" +
+                    "</PROGRAMMING-LANGUAGE>\n" +
                     "\n" +
                     " <STUDENT-SUBMISSION>\n" +
                     "%s\n" +
