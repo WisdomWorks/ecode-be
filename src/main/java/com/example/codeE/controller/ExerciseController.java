@@ -141,7 +141,7 @@ public class ExerciseController {
     }
 
     @PostMapping
-    @RequestMapping(value = "quiz/excel", method = RequestMethod.POST)
+    @RequestMapping(value = "quiz/excel", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> createQuizFromExcel(@Valid @ModelAttribute CreateQuizExerciseByExcelRequest request, @RequestParam("file") MultipartFile file) {
         try {
             ExcelResult excelResult = ExcelHelper.readQuizQuestionsFromExcel(file);
