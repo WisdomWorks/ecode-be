@@ -218,7 +218,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
                 testCases += VertexAIHelper.getSingleTestCaseString(i+1, input, output, casePoint);
             }
 
-            String prompt = String.format(Constant.PROMPT_CODE_TEMPLATE, exercise.getDescription(), submission.getSource(), testCases);
+            String prompt = String.format(Constant.PROMPT_CODE_TEMPLATE, exercise.getDescription(), submission.getLanguageId(), submission.getSource(), testCases);
 
             GradingResponse response = vertexAIHelper.parseJson(vertexAIHelper.generateContent(prompt));
 
