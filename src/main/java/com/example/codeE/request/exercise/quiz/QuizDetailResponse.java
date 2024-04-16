@@ -47,18 +47,20 @@ public class QuizDetailResponse {
         this.questions = convertQuestion(quizExercise.getQuestions());
     }
 
-    private Date GetTimeLess(Date startTime, Date endTime, int durationTime, Date timeDoExercise) {
+    private Date GetTimeLess(Date startTime, Date endTime, int durationTime,Date timeDoExercise) {
         if(startTime == endTime){
             return new Date(0);
         }
-        var current = timeDoExercise.getTime();
-        if(current > endTime.getTime()){
+        var currentStart = timeDoExercise.getTime();
+        var timeNow = new Date().getTime();
+        if(timeNow > endTime.getTime()){
             return new Date(0);
         }
-        if (current + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
-            return new Date((long) durationTime * 60 * 1000);
+        if (currentStart + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
+            var a = currentStart + ((long) durationTime * 60 * 1000);
+            return new Date((long) a - timeNow);
         } else {
-            return new Date((long) endTime.getTime() - current);
+            return new Date((long) endTime.getTime() - timeNow);
         }
     }
     private List<QuizQuestionResponse> convertQuestion(List<QuizQuestion> questions){
