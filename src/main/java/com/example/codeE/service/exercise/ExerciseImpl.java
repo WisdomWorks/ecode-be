@@ -168,7 +168,7 @@ public class ExerciseImpl implements ExerciseService{
                 }
             }
             //check session exercise
-            var sessionExercises = this.sessionExerciseRepository.findByStudentIdAndLoginId(studentId, loginId);
+            var sessionExercises = this.sessionExerciseRepository.findByStudentId(studentId);
             if (sessionExercises.isEmpty()) {
                 // if it does not have any session has been saved create new one.
                 // get time now
@@ -204,7 +204,7 @@ public class ExerciseImpl implements ExerciseService{
                         throw new IllegalArgumentException("Student need to complete another current exercise before participating in a new one.");
                     }
                 } else {
-                    throw new IllegalArgumentException("Failed to retrieve exercise information.");
+                    throw new IllegalArgumentException("Student is using another browser to take an exercise.");
                 }
             }
         }
