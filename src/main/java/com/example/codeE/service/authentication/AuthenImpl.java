@@ -10,7 +10,6 @@ import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
 import com.example.codeE.security.BCryptPassword;
 import com.example.codeE.service.course.CourseService;
-import com.example.codeE.service.exercise.common.SessionExerciseService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

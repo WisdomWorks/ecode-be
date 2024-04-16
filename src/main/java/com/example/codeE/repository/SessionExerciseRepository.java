@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface SessionExerciseRepository extends MongoRepository<SessionExercise, String> {
     List<SessionExercise> findByStudentIdAndLoginId(String studentId, String loginId);
+    List<SessionExercise> findByStudentId(String studentId);
 }
