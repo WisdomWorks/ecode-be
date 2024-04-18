@@ -54,4 +54,5 @@ public class UpdateCodeExerciseRequest {
     private String template;
 
     private List<TestCase> testCases;
+    private boolean isUsingAiGrading = false;
 }

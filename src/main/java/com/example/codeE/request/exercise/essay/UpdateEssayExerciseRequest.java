@@ -30,4 +30,5 @@ public class UpdateEssayExerciseRequest {
     private String exerciseDescription;
     @NotNull(message = "Question is required")
     private String question;
+    private boolean isUsingAiGrading = false;
 }

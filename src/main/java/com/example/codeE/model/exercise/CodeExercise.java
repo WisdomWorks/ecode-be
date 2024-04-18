@@ -45,4 +45,7 @@ public class CodeExercise extends Exercise {
 
     @Field
     private List<TestCase> testCases;
+
+    @Field
+    private boolean isUsingAiGrading = false;
 }

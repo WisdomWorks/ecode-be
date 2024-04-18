@@ -1,15 +1,24 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.EssayExercise;
+import com.example.codeE.model.exercise.common.SessionExercise;
 import com.example.codeE.repository.EssayExerciseRepository;
 import com.example.codeE.repository.ExerciseRepository;
 import com.example.codeE.repository.GroupRepository;
+import com.example.codeE.repository.SessionExerciseRepository;
 import com.example.codeE.request.exercise.essay.EssayDetailResponse;
 import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -20,6 +29,8 @@ public class EssayExerciseImpl implements EssayExerciseService{
     private GroupRepository groupRepository;
     @Autowired
     private ExerciseRepository exerciseRepository;
+    @Autowired
+    private SessionExerciseRepository sessionExerciseRepository;
     @Override
     public EssayExercise createEssayExercise(EssayExercise essayExercise) {
         try{
@@ -41,9 +52,19 @@ public class EssayExerciseImpl implements EssayExerciseService{
         return this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: "+ exerciseId));
     }
     @Override
-    public EssayDetailResponse getEssayExerciseDetail(String exerciseId) {
+    public EssayDetailResponse getEssayExerciseDetail(String exerciseId, HttpServletRequest request) {
         var exercise = this.essayExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: "+ exerciseId));
-        return new EssayDetailResponse(exercise);
+        var sessionlist = this.sessionExerciseRepository.findAll();
+        SessionExercise session = getSessionExercise(request, sessionlist);
+        Date timeStart = new Date();
+        try {
+            var timeString = session.getTimeStart();
+            SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
+            timeStart = sdf.parse(timeString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new EssayDetailResponse(exercise, timeStart);
     }
     @Override
     public void deleteEssayExerciseById(String exerciseId) {
@@ -60,5 +81,23 @@ public class EssayExerciseImpl implements EssayExerciseService{
         }catch (RuntimeException e){
             throw new RuntimeException("Something wrong when update essay exercise");
         }
+    }
+    private static SessionExercise getSessionExercise(HttpServletRequest request, List<SessionExercise> sessionlist) {
+        SessionExercise session = new SessionExercise();
+        String loginId = "";
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("LoginSessionId".equals(cookie.getName())) {
+                    loginId = cookie.getValue();
+                }
+            }
+        }
+        for (var item : sessionlist) {
+            if (item.getLoginId().equals(loginId)) {
+                session = item;
+            }
+        }
+        return session;
     }
 }

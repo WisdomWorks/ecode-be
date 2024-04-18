@@ -2,9 +2,12 @@ package com.example.codeE.controller;
 
 import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.AutoIncrement;
+import com.example.codeE.helper.ExcelHelper;
 import com.example.codeE.model.exercise.*;
+import com.example.codeE.model.exercise.common.QuizQuestion;
 import com.example.codeE.model.exercise.common.problem.TestCase;
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.course.ExportScoresRequest;
 import com.example.codeE.request.exercise.CreatePermissionExerciseRequest;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.exercise.GetDetailExerciseRequest;
@@ -16,10 +19,10 @@ import com.example.codeE.request.exercise.essay.UpdateEssayExerciseRequest;
 import com.example.codeE.request.exercise.file.CreateFileExerciseRequest;
 import com.example.codeE.request.exercise.file.CreateFileSubmissionRequest;
 import com.example.codeE.request.exercise.file.UpdateFileExerciseRequest;
-import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
-import com.example.codeE.request.exercise.quiz.CreateQuizSubmissionRequest;
-import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
+import com.example.codeE.request.exercise.quiz.*;
+import com.example.codeE.service.course.CourseService;
 import com.example.codeE.service.exercise.*;
+import com.example.codeE.service.exercise.common.SessionExerciseService;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.exercise.problem.CodeExerciseTestcaseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
@@ -29,6 +32,8 @@ import com.example.codeE.service.exercise.submission.QuizSubmissionService;
 import com.example.codeE.service.judge.JudgeService;
 import com.example.codeE.service.user.UserService;
 import com.mongodb.client.MongoDatabase;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -39,11 +44,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/exercises")
@@ -84,6 +87,11 @@ public class ExerciseController {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private CourseService courseService;
+    @Autowired
+    private SessionExerciseService sessionExerciseService;
+
     @PostMapping
     @RequestMapping(value = "code",method = RequestMethod.POST)
     public ResponseEntity<?> createCodeExercise(@Valid @RequestBody CreateCodeExerciseRequest request){
@@ -103,6 +111,7 @@ public class ExerciseController {
         codeExercise.setAllowedLanguageIds(request.getAllowedLanguageIds());
         codeExercise.setPoints(request.getPoints());
         codeExercise.setType("code");
+        codeExercise.setUsingAiGrading(request.isUsingAiGrading());
 
         CodeExercise savedCodeExercise = codeExerciseService.createCodeExercise(codeExercise);
         this.exerciseService.saveCodeExercise(savedCodeExercise);
@@ -129,6 +138,29 @@ public class ExerciseController {
         var quizSave = this.quizExerciseService.createQuizExercise(quizExercise);
         this.exerciseService.saveQuizExercise(quizSave);
         return ResponseEntity.status(HttpStatus.CREATED).body(quizSave);
+    }
+
+    @PostMapping
+    @RequestMapping(value = "quiz/excel", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> createQuizFromExcel(@Valid @ModelAttribute CreateQuizExerciseByExcelRequest request, @RequestParam("file") MultipartFile file) {
+        try {
+            ExcelResult excelResult = ExcelHelper.readQuizQuestionsFromExcel(file);
+            List<QuizQuestion> questions = excelResult.getQuestions();
+            List<Integer> failedRows = excelResult.getFailedRows();
+
+            // Save the questions using the quizExerciseService
+            QuizExercise quizExercise = new QuizExercise(request, questions);
+            quizExerciseService.createQuizExercise(quizExercise);
+            exerciseService.saveQuizExercise(quizExercise);
+            // Create the JSON response
+            Map<String, Object> response = new HashMap<>();
+            response.put("quizExercise", quizExercise);
+            response.put("failedRows", failedRows);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating quiz from Excel file: " + e.getMessage());
+        }
     }
 
     @PostMapping
@@ -165,18 +197,20 @@ public class ExerciseController {
 
     @PostMapping
     @RequestMapping(value = "detail", method = RequestMethod.POST)
-    public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest request){
-        Exercise exercise = this.exerciseService.getDetailExercise(request.getExerciseId(), request.getKey(), request.getStudentId());
+    public ResponseEntity<?> getExerciseDetail(@RequestBody GetDetailExerciseRequest requestGetDetail, HttpServletRequest request, HttpServletResponse response) {
+        Exercise exercise = this.exerciseService.getDetailExercise(requestGetDetail.getExerciseId(), requestGetDetail.getKey(), requestGetDetail.getStudentId(), requestGetDetail.getUserUrgent(), request, response);
+        if (exercise == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Student can not enroll exercise now."));
+        }
         switch (exercise.getType()){
             case "code" :
-                CodeDetailResponse response = this.codeExerciseService.getCodeExerciseDetail(request.getExerciseId());
-                return ResponseEntity.status(HttpStatus.OK).body(response);
+                return ResponseEntity.status(HttpStatus.OK).body(this.codeExerciseService.getCodeExerciseDetail(requestGetDetail.getExerciseId(), request));
             case "quiz":
-                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(request.getExerciseId()));
+                return ResponseEntity.status(HttpStatus.OK).body(this.quizExerciseService.getQuizExerciseDetail(requestGetDetail.getExerciseId(), request));
             case "essay":
-                return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(request.getExerciseId() ));
+                return ResponseEntity.status(HttpStatus.OK).body(this.essayExerciseService.getEssayExerciseDetail(requestGetDetail.getExerciseId(), request));
             case "file":
-                return ResponseEntity.status(HttpStatus.OK).body(this.fileExerciseService.getFileExerciseDetail(request.getExerciseId()));
+                return ResponseEntity.status(HttpStatus.OK).body(this.fileExerciseService.getFileExerciseDetail(requestGetDetail.getExerciseId()));
             default:
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","Something went wrong, type must be quiz/essay/code"));
         }
@@ -184,26 +218,27 @@ public class ExerciseController {
 
     @PostMapping
     @RequestMapping(value = "code/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitCodeExercise(@Valid @RequestBody SubmitCodeExerciseRequest request){
+    public ResponseEntity<?> submitCodeExercise(@Valid @RequestBody SubmitCodeExerciseRequest requestSubmit, HttpServletRequest request, HttpServletResponse response) {
         MongoDatabase database = mongoTemplate.getDb();
         AutoIncrement autoIncrement = new AutoIncrement(database);
 
         try{
             CodeSubmission submission = new CodeSubmission(judgeService);
             submission.setSubmissionId(String.valueOf(autoIncrement.getNextSequence("code_submission")));
-            submission.setExerciseId(request.getExerciseId());
-            submission.setLanguageId(request.getLanguageId());
-            submission.setSource(request.getSource());
-            submission.setStudentId(request.getStudentId());
+            submission.setExerciseId(requestSubmit.getExerciseId());
+            submission.setLanguageId(requestSubmit.getLanguageId());
+            submission.setSource(requestSubmit.getSource());
+            submission.setStudentId(requestSubmit.getStudentId());
             submission.setPretested(false);
 
-            CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(request.getExerciseId());
+            CodeExercise codeExercise = this.codeExerciseService.getCodeExerciseById(requestSubmit.getExerciseId());
             submission.setTime(codeExercise.getTimeLimit());
             submission.setMemory(codeExercise.getMemoryLimit());
             submission.setLockedAfter(codeExercise.getEndTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
             CodeSubmission savedSubmission = codeSubmissionService.saveCodeSubmission(submission);
             savedSubmission.judge(false, false);
+            sessionExerciseService.removeSession(response, request);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
@@ -262,18 +297,21 @@ public class ExerciseController {
 
     @PostMapping
     @RequestMapping(value = "quiz/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody CreateQuizSubmissionRequest quizSubmission){
+    public ResponseEntity<?> submitQuizExercise(@Valid @RequestBody CreateQuizSubmissionRequest quizSubmission, HttpServletRequest request, HttpServletResponse response) {
         QuizExercise quizExercise = this.quizExerciseService.getQuizExerciseById(quizSubmission.getExerciseId());
         float score = this.quizSubmissionService.gradeSubmission(quizSubmission.getSubmission(), quizExercise.getQuestions());
         var submission = new QuizSubmission(quizSubmission, score);
-        QuizSubmission response = this.quizSubmissionService.createSubmission(submission);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        QuizSubmission responseExercise = this.quizSubmissionService.createSubmission(submission);
+        sessionExerciseService.removeSession(response, request);
+        return ResponseEntity.status(HttpStatus.OK).body(responseExercise);
     }
 
     @PostMapping
     @RequestMapping(value = "essay/submit", method = RequestMethod.POST)
-    public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody CreateEssaySubmissionRequest essaySubmission){
-        return ResponseEntity.status(HttpStatus.OK).body(this.essaySubmissionService.createSubmission(essaySubmission));
+    public ResponseEntity<?> submitEssayExercise(@Valid @RequestBody CreateEssaySubmissionRequest essaySubmission, HttpServletRequest request, HttpServletResponse response) {
+        var essayExercise = this.essaySubmissionService.createSubmission(essaySubmission);
+        sessionExerciseService.removeSession(response, request);
+        return ResponseEntity.status(HttpStatus.OK).body(essayExercise);
     }
 
     @PostMapping
@@ -436,5 +474,30 @@ public class ExerciseController {
         };
     }
 
+    @PostMapping
+    @RequestMapping(value = "export-scores", method = RequestMethod.POST)
+    public ResponseEntity<Object> exportScores(@Valid @RequestBody ExportScoresRequest request, HttpServletResponse response){
+        try {
+            String courseId = request.getCourseId();
+            // Get the list of exercises for the specified course
+            List<Exercise> exercises = exerciseService.getAllExerciseInCourse(courseId);
 
+            // Get all students in the course
+            List<User> students = courseService.getStudentsByCourseId(courseId);
+
+            // Call the ExcelHelper to export the student scores
+            exerciseService.exportStudentScores(exercises, students, response);
+
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            String errorMessage = "Error occurred while exporting scores: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        } catch (IllegalArgumentException e) {
+            String errorMessage = "Invalid request: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        } catch (Exception e) {
+            String errorMessage = "An unexpected error occurred: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        }
+    }
 }

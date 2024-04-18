@@ -1,8 +1,12 @@
 package com.example.codeE.service.exercise.submission;
 
+import com.example.codeE.constant.Constant;
+import com.example.codeE.helper.VertexAIHelper;
+import com.example.codeE.model.exercise.CodeExercise;
 import com.example.codeE.model.exercise.CodeSubmission;
 import com.example.codeE.model.exercise.Exercise;
 import com.example.codeE.model.exercise.common.SubmissionTestCase;
+import com.example.codeE.model.exercise.vertexAi.GradingResponse;
 import com.example.codeE.model.group.Group;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.AllSubmissionResponse;
@@ -13,7 +17,10 @@ import com.example.codeE.request.report.OverviewScoreReport;
 import com.example.codeE.service.exercise.common.SubmissionTestCaseService;
 import com.example.codeE.service.group.GroupService;
 import com.example.codeE.service.user.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +36,8 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     @Autowired
     private ExerciseRepository exerciseRepository;
     @Autowired
+    private CodeExerciseRepository codeExerciseRepository;
+    @Autowired
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
@@ -40,6 +49,9 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     private GroupStudentRepository groupStudentRepository;
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    private VertexAIHelper vertexAIHelper;
 
     @Autowired
     private SubmissionTestCaseService submissionTestCaseService;
@@ -187,6 +199,36 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
             }
         }
         return result;
+    }
+
+    @Override
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 100))
+    public void overriedByAiGrader(String submissionId, String exerciseId) {
+        CodeExercise exercise = codeExerciseRepository.findById(exerciseId).get();
+        CodeSubmission submission = codeSubmissionRepository.findById(submissionId).get();
+        List<SubmissionTestCase> testcasesResult = submissionTestCaseService.findBySubmissionId(submissionId);
+
+        try {
+            String testCases = "";
+
+            for(int i=0; i<exercise.getTestCases().size(); i++){
+                String input = exercise.getTestCases().get(i).getInput();
+                String output = testcasesResult.get(i).getOutput();
+                Double casePoint = exercise.getTestCases().get(i).getPoints();
+                testCases += VertexAIHelper.getSingleTestCaseString(i+1, input, output, casePoint);
+            }
+
+            String prompt = String.format(Constant.PROMPT_CODE_TEMPLATE, exercise.getDescription(), submission.getLanguageId(), submission.getSource(), testCases);
+
+            GradingResponse response = vertexAIHelper.parseJson(vertexAIHelper.generateContent(prompt));
+
+            submission.setCasePoints((double) response.getScore());
+            submission.setScore(response.getScore());
+            submission.setTeacherComment(response.getComment());
+            codeSubmissionRepository.save(submission);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public OverviewScoreReport getOverviewScoreReportByExerciseId(String exerciseId, List<String> groupId) {

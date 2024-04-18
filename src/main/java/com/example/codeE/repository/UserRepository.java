@@ -22,6 +22,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             "FROM user u WHERE u.username = ?1";
     String getUserByUserId = "Select u.user_id, u.username, u.name, u.email, u.password, u.role, u.created_date, u.updated_date " +
             "FROM user u WHERE u.user_id = ?1";
+    String findByUserIdInAndRoleSql = "SELECT * FROM user WHERE user_id IN ?1 AND role = ?2";
     @Query(value = getUsersByRoleAndSearchKeywordSql)
     List<User> findUsersByRoleAndSearchKeywordWithPagination(String role, String searchKeyword, Pageable pageable);
 
@@ -50,4 +51,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     
     @Query(value = getUserByUserId, nativeQuery = true)
     User findUserByUserId(String userId);
+
+    @Query(value = findByUserIdInAndRoleSql, nativeQuery = true)
+    List<User> findByUserIdInAndRole(List<String> userIds, String role);
 }

@@ -1,17 +1,21 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.model.exercise.QuizExercise;
 import com.example.codeE.model.exercise.common.QuizChoice;
 import com.example.codeE.model.exercise.common.QuizQuestion;
-import com.example.codeE.repository.ExerciseRepository;
-import com.example.codeE.repository.QuizChoiceRepository;
-import com.example.codeE.repository.QuizExerciseRepository;
-import com.example.codeE.repository.QuizQuestionRepository;
+import com.example.codeE.model.exercise.common.SessionExercise;
+import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.quiz.QuizDetailResponse;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -25,8 +29,13 @@ public class QuizExerciseImpl implements QuizExerciseService{
     private QuizQuestionRepository quizQuestionRepository;
     @Autowired
     private ExerciseRepository exerciseRepository;
+    @Autowired
+    private SessionExerciseRepository sessionExerciseRepository;
+    @Autowired
+    private TopicRepository topicRepository;
     @Override
     public QuizExercise createQuizExercise(QuizExercise quizExercise) {
+        this.topicRepository.findById(quizExercise.getTopicId()).orElseThrow(() -> new NoSuchElementException("No topic found by Id: "+ quizExercise.getTopicId()));
         if (quizExercise.getReAttempt() <= 0) {
             quizExercise.setReAttempt(1);
         }
@@ -56,10 +65,40 @@ public class QuizExerciseImpl implements QuizExerciseService{
         return quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise quiz found by Id: "+ exerciseId));
     }
     @Override
-    public QuizDetailResponse getQuizExerciseDetail(String exerciseId){
+    public QuizDetailResponse getQuizExerciseDetail(String exerciseId, HttpServletRequest request) {
        var quiz = quizExerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise essay found by Id: "+ exerciseId));
-       return new QuizDetailResponse(quiz);
+        var sessionlist = this.sessionExerciseRepository.findAll();
+        SessionExercise session = getSessionExercise(request, sessionlist);
+        Date timeStart = new Date();
+        try {
+            var timeString = session.getTimeStart();
+            SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
+            timeStart = sdf.parse(timeString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+       return new QuizDetailResponse(quiz, timeStart);
     }
+
+    private static SessionExercise getSessionExercise(HttpServletRequest request, List<SessionExercise> sessionlist) {
+        SessionExercise session = new SessionExercise();
+        String loginId = "";
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("LoginSessionId".equals(cookie.getName())) {
+                    loginId = cookie.getValue();
+                }
+            }
+        }
+        for (var item : sessionlist) {
+            if (item.getLoginId().equals(loginId)) {
+                session = item;
+            }
+        }
+        return session;
+    }
+
     @Override
     public QuizQuestion getQuizQuestionByQuestionId(String questionId) {
         return this.quizQuestionRepository.findById(questionId).get();

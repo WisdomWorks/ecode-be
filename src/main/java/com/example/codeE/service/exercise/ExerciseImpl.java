@@ -1,22 +1,40 @@
 package com.example.codeE.service.exercise;
 
+import com.example.codeE.constant.Constant;
 import com.example.codeE.helper.LoggerHelper;
 import com.example.codeE.model.exercise.*;
+import com.example.codeE.model.exercise.common.SessionExercise;
 import com.example.codeE.model.topic.Topic;
+import com.example.codeE.model.user.User;
 import com.example.codeE.repository.*;
 import com.example.codeE.request.exercise.*;
 import com.example.codeE.request.exercise.file.response.FilePreviewResponse;
 import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.StudentSubmissionInformation;
+import com.example.codeE.service.exercise.common.SessionExerciseService;
 import com.example.codeE.service.exercise.submission.CodeSubmissionService;
 import com.example.codeE.service.exercise.submission.EssaySubmissionService;
 import com.example.codeE.service.exercise.submission.FileSubmissionService;
 import com.example.codeE.service.exercise.submission.QuizSubmissionService;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.example.codeE.util.DateTimeUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -48,6 +66,12 @@ public class ExerciseImpl implements ExerciseService{
     private TopicRepository topicRepository;
     @Autowired
     private FileSubmissionService fileSubmissionService;
+    @Autowired
+    private SessionExerciseRepository sessionExerciseRepository;
+    @Autowired
+    private SessionExerciseService sessionExerciseService;
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Override
     public Exercise saveQuizExercise(QuizExercise exercise) {
@@ -126,14 +150,64 @@ public class ExerciseImpl implements ExerciseService{
     }
 
     @Override
-    public Exercise getDetailExercise(String exerciseId, String key, String studentId) {
+    public Exercise getDetailExercise(String exerciseId, String key, String studentId, String userUrgent, HttpServletRequest request, HttpServletResponse response) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found with ID: " + exerciseId));
         if (!exercise.getKey().equals(key))
             throw new IllegalArgumentException("Invalid enrollment key. Please double-check and try again.");
         else if (!isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
             throw new DataIntegrityViolationException("You have already submitted the exercise the maximum number of times allowed.");
-        else if (exercise.getKey().equals(key) && isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt()))
-            return exercise;
+        else if (exercise.getKey().equals(key) && isReTemp(exercise.getExerciseId(), studentId, exercise.getType(), exercise.getReAttempt())) {
+            // login id from cookie
+            String loginId = "";
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("LoginSessionId".equals(cookie.getName())) {
+                        loginId = cookie.getValue();
+                    }
+                }
+            }
+            //check session exercise
+            var sessionExercises = this.sessionExerciseRepository.findByStudentId(studentId);
+            if (sessionExercises.isEmpty()) {
+                // if it does not have any session has been saved create new one.
+                // get time now
+                LocalDateTime dateNow = LocalDateTime.now();
+                //user Urgent ?
+                var session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
+                sessionExerciseRepository.save(session);
+                return exercise;
+            } else {
+                var session = sessionExercises.get(0);
+                if (session.getLoginId().equals(loginId) && session.getStudentId().equals(studentId)) {
+                    if (session.getExerciseId().equals(exerciseId)) {
+                        Date timeStart = new Date();
+                        try {
+                            var timeString = session.getTimeStart();
+                            SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
+                            timeStart = sdf.parse(timeString);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Date now = new Date();
+                        if ((long) exercise.getDurationTime() * 1000 * 60 + timeStart.getTime() < now.getTime()) {
+                            this.sessionExerciseService.removeSession(response, request);
+                            LocalDateTime dateNow = LocalDateTime.now();
+                            //user Urgent ?
+                            session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
+                            sessionExerciseRepository.save(session);
+                        }
+                        return exercise;
+                        //after return, system need to calculate a time left
+                    } else {
+                        //student has joined another exercise
+                        throw new IllegalArgumentException("Student need to complete another current exercise before participating in a new one.");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Student is using another browser to take an exercise.");
+                }
+            }
+        }
         else
             throw new IllegalArgumentException("Failed to retrieve exercise information.");
     }
@@ -336,8 +410,6 @@ public class ExerciseImpl implements ExerciseService{
         }
     }
 
-
-
     private List<GroupTopicResponse> getGroupResponse(List<String> groupIds) {
         List<GroupTopicResponse> groupTopicResponses = new ArrayList<>();
         for (String g : groupIds) {
@@ -347,4 +419,80 @@ public class ExerciseImpl implements ExerciseService{
         return groupTopicResponses;
     }
 
+    @Override
+    public List<Exercise> getAllExerciseInCourse(String courseId) {
+        this.courseRepository.findById(courseId).orElseThrow(() -> new NoSuchElementException("No course found with ID: " + courseId));
+        List<Topic> topics = topicRepository.findByCourseId(courseId);
+        List<Exercise> exercises = new ArrayList<>();
+
+        for (Topic topic : topics) {
+            List<Exercise> topicExercises = exerciseRepository.getAllExercisesByTopicId(topic.getTopicId());
+            exercises.addAll(topicExercises);
+        }
+
+        return exercises;
+    }
+
+    @Override
+    public void exportStudentScores(List<Exercise> exercises, List<User> students, HttpServletResponse response) throws IOException {
+        // Create a new workbook and sheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Student Scores");
+
+        // Create the header row
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Username");
+        for (int i = 0; i < exercises.size(); i++) {
+            headerRow.createCell(i + 1).setCellValue(exercises.get(i).getExerciseName());
+        }
+
+        // Populate the student scores
+        int rowNum = 1;
+        for (User student : students) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(student.getUsername());
+
+            // Get the student's latest submission score for each exercise
+            for (int i = 0; i < exercises.size(); i++) {
+                Exercise exercise = exercises.get(i);
+                Float score = getLatestScoreByStudentAndExercise(student.getUserId(), exercise.getExerciseId(), exercise.getType());
+                if (score != null) {
+                    row.createCell(i + 1).setCellValue(score);
+                } else {
+                    row.createCell(i + 1).setCellValue("");
+                }
+            }
+        }
+
+        // Set the response headers for Excel file download
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=student_scores.xlsx");
+
+        // Write the workbook to the response output stream
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+    @Override
+    public Float getLatestScoreByStudentAndExercise(String studentId, String exerciseId, String exerciseType) {
+        if (studentId == null || exerciseId == null || exerciseType == null) {
+            return null;
+        }
+        switch (exerciseType) {
+            case "code":
+                CodeSubmission codeSubmission = codeSubmissionService.getLastCodeSubmissionByUserId(exerciseId, studentId);
+                return codeSubmission != null ? codeSubmission.getScore() : null;
+            case "essay":
+                EssaySubmission essaySubmission = essaySubmissionService.getLastEssaySubmissionByUserId(exerciseId, studentId);
+                return essaySubmission != null ? essaySubmission.getScore() : null;
+            case "quiz":
+                QuizSubmission quizSubmission = quizSubmissionService.getLastQuizSubmissionByUserId(exerciseId, studentId);
+                return quizSubmission != null ? quizSubmission.getScore() : null;
+            case "file":
+                FileSubmission fileSubmission = fileSubmissionService.getLastFileSubmissionByUserId(exerciseId, studentId);
+                return fileSubmission != null ? fileSubmission.getScore() : null;
+            default:
+                return null;
+        }
+    }
 }

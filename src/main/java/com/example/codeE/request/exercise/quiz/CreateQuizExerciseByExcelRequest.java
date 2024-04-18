@@ -1,11 +1,11 @@
-package com.example.codeE.request.exercise.essay;
+package com.example.codeE.request.exercise.quiz;
 
-import com.example.codeE.validator.id.ExistingId;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -13,23 +13,21 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ExistingId(targetClasses = {CreateEssayExerciseRequest.class})
-public class CreateEssayExerciseRequest {
+public class CreateQuizExerciseByExcelRequest {
     @NotNull(message = "Topic ID is required")
     private String topicId;
     @NotNull(message = "Exercise's name is required")
     private String exerciseName;
     @NotNull(message = "Exercise's key is required")
     private String key;
-    @NotNull(message = "Start time is required")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @NotNull(message = "Start Time is required")
     private Date startTime;
-    @NotNull(message = "End time is required")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @NotNull(message = "End Time is required")
     private Date endTime;
-    @NotNull(message = "Duration time is required")
+    @NotNull(message = "duration Time is required")
     private int durationTime;
     private int reAttempt;
     private String exerciseDescription;
-    @NotNull(message = "Question is required")
-    private String question;
-    private boolean isUsingAiGrading = false;
 }
