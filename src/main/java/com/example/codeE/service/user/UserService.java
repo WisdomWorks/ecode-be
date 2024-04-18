@@ -1,6 +1,7 @@
 package com.example.codeE.service.user;
 
 import com.example.codeE.model.user.User;
+import com.example.codeE.request.group.GroupTopicResponse;
 import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
@@ -19,4 +20,9 @@ public interface UserService extends CommonService<User, CreateUserRequest> {
     // boolean exportExcel();
     User updateById(String userId, UpdateUserRequest updatedUser);
     User getUserByUserName(String role, String userName);
+    User ChangePassword(String userId, String newPassword, String oldPassword);
+
+    List<GroupTopicResponse> getAllGroupsByUserId(String userId);
+
+    User getUserByUserId(String userId);
 }

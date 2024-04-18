@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jdk.jfr.Description;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -77,7 +76,7 @@ public class Exercise {
     
     @Field
     @NotNull(message = "Exercise type is required")
-    @Pattern(regexp = "^(quiz|essay|code)$", message = "Exercise type should be quiz, essay, or code")
+    @Pattern(regexp = "^(quiz|essay|code|file)$", message = "Exercise type should be quiz, essay, code or file.")
     private String type;
 
     @Field

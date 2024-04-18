@@ -1,9 +1,14 @@
 package com.example.codeE.controller;
 
 import com.example.codeE.helper.JWTUtils;
+import com.example.codeE.request.auth.CheckOTPRequest;
+import com.example.codeE.request.auth.SendOTPRequest;
 import com.example.codeE.request.user.LoginRequest;
 import com.example.codeE.request.user.UserAuthenRequest;
+import com.example.codeE.request.user.forgetPasswordRequest;
 import com.example.codeE.service.authentication.AuthenService;
+import com.example.codeE.service.exercise.common.SessionExerciseService;
+import com.example.codeE.service.user.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -21,6 +28,11 @@ public class AuthController {
     private AuthenService authenService;
     @Autowired
     private JWTUtils jwtHelper;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private SessionExerciseService SessionExerciseService;
+
 
     @PostMapping
     @RequestMapping(value = "/login/user", method = RequestMethod.POST)
@@ -111,6 +123,71 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
         }
     }
+
+    @PostMapping
+    @RequestMapping(value = "send-otp", method = RequestMethod.POST)
+    public ResponseEntity<?> sendOTP(@RequestBody SendOTPRequest otpRequest, HttpServletResponse response) throws NoSuchMethodException {
+        String userName = otpRequest.getUserName();
+        if (userName.isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "User Name can not blank"));
+        this.authenService.SendForgetPasswordOTP(userName, response);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Send OTP success, please check your mail box"));
+    }
+
+    @PostMapping
+    @RequestMapping(value = "check-otp", method = RequestMethod.POST)
+    public ResponseEntity<?> checkOTP(@RequestBody CheckOTPRequest otpRequest, HttpServletRequest request) {
+        String userId = getUserId(request);
+        String OTP = otpRequest.getOtp();
+        if (userId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(Map.of("message","You request has been time out"));
+        }
+        if (this.authenService.CheckOTP(OTP, userId, request)) {
+            var userInfo = this.userService.getById(userId);
+            return ResponseEntity.status(HttpStatus.OK).body(userInfo);
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "OTP does not match"));
+        }
+    }
+    @PutMapping
+    @RequestMapping(value = "change-password", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUserPassword(@RequestBody forgetPasswordRequest changePasswordRequest, HttpServletRequest request, HttpServletResponse response) {
+        if (this.authenService.updatePassword(changePasswordRequest.getUserId(), changePasswordRequest.getPassword())) {
+            this.clearForgetPasswordCookie(request, response, changePasswordRequest.getUserId());
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","Change password successful."));
+        }else
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "some thing wrong, when request change password!"));
+    }
+
+    private String getUserId(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("currentUserRestPassword".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return "";
+    }
+
+    private void clearForgetPasswordCookie(HttpServletRequest request, HttpServletResponse response, String userId) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessTokenUser".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+                if ((userId + "_OTP").equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+            }
+        }
+    }
     private void clearAuthenticationTokens(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -121,6 +198,12 @@ public class AuthController {
                     response.addCookie(cookie);
                 }
                 if ("accessTokenAdmin".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+                if ("LoginSessionId".equals(cookie.getName())) {
+                    this.SessionExerciseService.removeSession(response, request);
                     cookie.setMaxAge(0);
                     cookie.setPath("/");
                     response.addCookie(cookie);

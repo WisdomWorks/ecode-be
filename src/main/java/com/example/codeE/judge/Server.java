@@ -11,8 +11,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.codec.compression.ZlibCodecFactory;
-import io.netty.handler.codec.compression.ZlibWrapper;
 
 import java.net.InetSocketAddress;
 
@@ -40,7 +38,7 @@ public class Server {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().
-//                                    addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)).
+                                    addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)).
                                     addLast(new LengthFieldPrepender(4)).
 //                                    addLast(ZlibCodecFactory.newZlibEncoder(ZlibWrapper.ZLIB)).
 //                                    addLast(ZlibCodecFactory.newZlibDecoder(ZlibWrapper.ZLIB)).

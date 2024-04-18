@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,9 @@ public class CreateUserRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
-
     @Column(name = "username")
     @NotBlank(message = "Username is required")
+    @Size(min = 8, max = 8, message = "Username should be 8 characters")
     private String username;
     @Column(name = "role")
     @NotBlank(message = "Role is required")

@@ -9,10 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.text.SimpleDateFormat;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +33,7 @@ public class QuizDetailResponse {
     private String exerciseDescription;
     private List<QuizQuestionResponse> questions;
 
-    public QuizDetailResponse(QuizExercise quizExercise) {
+    public QuizDetailResponse(QuizExercise quizExercise, Date timeDoExercise) {
         this.exerciseId = quizExercise.getExerciseId();
         this.exerciseName = quizExercise.getExerciseName();
         this.topicId = quizExercise.getTopicId();
@@ -46,23 +42,25 @@ public class QuizDetailResponse {
         this.durationTime = quizExercise.getDurationTime();
         this.reAttempt = quizExercise.getReAttempt();
         this.type = quizExercise.getType();
-        this.timeLess = GetTimeLess(quizExercise.getStartTime(), quizExercise.getEndTime(), quizExercise.getDurationTime());
+        this.timeLess = GetTimeLess(quizExercise.getStartTime(), quizExercise.getEndTime(), quizExercise.getDurationTime(), timeDoExercise);
         this.exerciseDescription = quizExercise.getExerciseDescription();
         this.questions = convertQuestion(quizExercise.getQuestions());
     }
 
-    private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
+    private Date GetTimeLess(Date startTime, Date endTime, int durationTime,Date timeDoExercise) {
         if(startTime == endTime){
             return new Date(0);
         }
-        var current = new Date().getTime();
-        if(current > endTime.getTime()){
+        var currentStart = timeDoExercise.getTime();
+        var timeNow = new Date().getTime();
+        if(timeNow > endTime.getTime()){
             return new Date(0);
         }
-        if (current + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
-            return new Date((long) durationTime * 60 * 1000);
+        if (currentStart + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
+            var a = currentStart + ((long) durationTime * 60 * 1000);
+            return new Date((long) a - timeNow);
         } else {
-            return new Date((long) endTime.getTime() - current);
+            return new Date((long) endTime.getTime() - timeNow);
         }
     }
     private List<QuizQuestionResponse> convertQuestion(List<QuizQuestion> questions){

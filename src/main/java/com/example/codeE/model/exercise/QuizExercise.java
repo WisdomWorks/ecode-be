@@ -1,6 +1,7 @@
 package com.example.codeE.model.exercise;
 
 import com.example.codeE.model.exercise.common.QuizQuestion;
+import com.example.codeE.request.exercise.quiz.CreateQuizExerciseByExcelRequest;
 import com.example.codeE.request.exercise.quiz.CreateQuizExerciseRequest;
 import com.example.codeE.request.exercise.quiz.UpdateQuizExerciseRequest;
 import jakarta.validation.constraints.NotNull;
@@ -42,6 +43,21 @@ public class QuizExercise extends Exercise {
                 false,
                 new ArrayList<String>());
         this.questions = request.getQuestions();
+    }
+
+    public QuizExercise(CreateQuizExerciseByExcelRequest request, List<QuizQuestion> questions){
+        super(request.getTopicId(),
+                request.getExerciseName(),
+                request.getKey(),
+                request.getStartTime(),
+                request.getEndTime(),
+                request.getDurationTime(),
+                request.getReAttempt(),
+                "quiz",
+                request.getExerciseDescription(),
+                false,
+                new ArrayList<String>());
+        this.questions = questions;
     }
     public QuizExercise(String exerciseId,UpdateQuizExerciseRequest request, boolean isShowAll, List<String> publicGroup){
         super(exerciseId,

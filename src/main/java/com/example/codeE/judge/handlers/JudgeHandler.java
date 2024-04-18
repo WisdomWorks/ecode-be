@@ -229,8 +229,8 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
 
         ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.put("name", "handshake-success");
-//        pingThread = new Thread(this::pingThread, "PingThread");
-//        pingThread.start();
+        pingThread = new Thread(this::pingThread, "PingThread");
+        pingThread.start();
 
         connected();
         return response;
@@ -249,10 +249,10 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.put("source", source);
             response.put("time-limit", data.time);
             response.put("memory-limit", data.memory);
-            response.put("short-circuit", data.shortCircuit);
+            response.put("short-circuit", false);
 
             ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
-            metaNode.put("pretests-only", true);
+            metaNode.put("pretests-only", data.pretests_only);
             metaNode.put("in-contest", false);
             metaNode.put("attempt-no", 1);
             metaNode.put("user","id");
@@ -280,7 +280,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             String problemId = submission.getExerciseId();
             Double timeLimit = problem.getTimeLimit();
             Integer memoryLimit = problem.getMemoryLimit();
-            Boolean shortCircuit = problem.getShortCircuit();
+            Boolean shortCircuit = false;
             String languageId = submission.getLanguageId();
             Boolean isPretested = submission.isPretested();
 
@@ -414,6 +414,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         total = (double) Math.round(total * 10) / 10;
 
         codeSubmission.setCasePoints(points);
+        codeSubmission.setScore(points.floatValue());
         codeSubmission.setCaseTotal(total);
 
         String problemId = codeSubmission.getExerciseId();
@@ -431,19 +432,27 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         codeSubmission.setTime(time);
         codeSubmission.setMemory(memory);
         codeSubmission.setCasePoints(points);
+        codeSubmission.setScore(points.floatValue());
         codeSubmission.setResult(statusCodes.get(status));
 
         codeSubmissionService.updateCodeSubmission(codeSubmission);
+        if (problem.isUsingAiGrading() && !codeSubmission.isPretested()){
+            codeSubmissionService.overriedByAiGrader(codeSubmission.getSubmissionId(), codeSubmission.getExerciseId());
+        }
         return null;
     }
 
     public  ObjectNode onCompileError(ObjectNode packet) {
         String submissionId = packet.get("submission-id").asText();
-//            String log = packet.get("log").asText();
+        String log = packet.get("log").asText();
 
         LoggerHelper.logInfo(JudgeHandlerVariables.name + ": Submission failed to compile: " + submissionId);
-        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-            codeSubmissionService.updateStatusAndResult(submissionId, "CE", "CE");
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if (codeSubmission != null) {
+            codeSubmission.setStatus("CE");
+            codeSubmission.setResult("CE");
+            codeSubmission.setError(log);
+            codeSubmissionService.updateCodeSubmission(codeSubmission);
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
@@ -475,8 +484,12 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             LoggerHelper.logError("Judge " + JudgeHandlerVariables.name + " failed while handling submission " + submissionId, e);
         }
-        if (codeSubmissionService.getCodeSubmissionById(submissionId) != null) {
-            codeSubmissionService.updateStatusAndResult(submissionId, "IE", "IE");
+        CodeSubmission codeSubmission = codeSubmissionService.getCodeSubmissionById(submissionId);
+        if (codeSubmission != null) {
+            codeSubmission.setStatus("IE");
+            codeSubmission.setResult("IE");
+            codeSubmission.setError(message);
+            codeSubmissionService.updateCodeSubmission(codeSubmission);
         } else {
             LoggerHelper.logError("Unknown submission: " + submissionId);
         }
@@ -643,7 +656,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         byte[] compressedData = new byte[buf2.readableBytes()];
         buf2.readBytes(compressedData);
 
-        String decompressedData = ZlibCompression.dezlibify(compressedData);
+        String decompressedData = ZlibCompression.dezlibify(compressedData, true);
         System.out.println("Received from client: " + decompressedData);
 //        System.out.println("Received from client: " + ((ByteBuf) msg).toString(CharsetUtil.UTF_8));
         try {
@@ -657,7 +670,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             result = JsonNodeFactory.instance.objectNode();
-            result.put("name", "bad-request");
+            result = null;
         } finally {
             if (result == null) {
                 return;

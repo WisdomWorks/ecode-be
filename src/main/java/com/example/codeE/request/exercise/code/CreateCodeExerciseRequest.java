@@ -36,22 +36,17 @@ public class CreateCodeExerciseRequest {
     @NotNull(message = "Duration time is required")
     private int durationTime;
 
-    private boolean isShowAll;
-
     @NotNull(message = "Re-Attempt is required")
     private int reAttempt;
-
-    @NotNull(message = "Exercise public option is required")
-    private List<String> publicGroupIds;
 
     @NotNull(message = "Exercise description is required")
     private String description;
 
-    @NotNull(message = "Time limit is required")
-    private Double timeLimit;
-
-    @NotNull(message = "Memory limit is required")
-    private Integer memoryLimit;
+//    @NotNull(message = "Time limit is required")
+//    private Double timeLimit;
+//
+//    @NotNull(message = "Memory limit is required")
+//    private Integer memoryLimit;
 
     @NotNull(message = "Allowed language Ids is required")
     private List<String> allowedLanguageIds;
@@ -60,7 +55,9 @@ public class CreateCodeExerciseRequest {
     private Double points;
 
     @NotNull(message = "Exercise testcase is required")
-    private List<TestCase> testCaseList;
+    private List<TestCase> testCases;
 
     private String template;
+
+    private boolean isUsingAiGrading = false;
 }

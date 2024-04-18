@@ -1,24 +1,18 @@
 package com.example.codeE.helper;
 
+import com.example.codeE.constant.Constant;
+import com.example.codeE.model.exercise.common.QuizChoice;
+import com.example.codeE.model.exercise.common.QuizQuestion;
+import com.example.codeE.request.exercise.quiz.ExcelResult;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.example.codeE.constant.Constant;
+import java.util.*;
 
 public class ExcelHelper {
     public static boolean isValidExcelFile(MultipartFile file) {
@@ -132,10 +126,90 @@ public class ExcelHelper {
     }
 
     private static Boolean isDisplayColumn(Field field) {
-        if (field.getName().equalsIgnoreCase("password")) {
-            return false;
-        }
+        return !field.getName().equalsIgnoreCase("password");
         //can add more fields to ignore
-        return true;
+    }
+
+    public static ExcelResult readQuizQuestionsFromExcel(MultipartFile file) throws IOException {
+        List<QuizQuestion> questions = new ArrayList<>();
+        List<Integer> failedRows = new ArrayList<>();
+
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0); // Read the first sheet
+
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) {
+                    continue; // Skip the header row
+                }
+
+                try {
+                    String questionTitle = row.getCell(0).getStringCellValue();
+                    String questionDescription = ""; // You can add description if needed
+
+                    List<QuizChoice> choices = new ArrayList<>();
+                    Set<String> uniqueChoices = new HashSet<>();
+                    for (int i = 1; i <= 4; i++) {
+                        Cell choiceCell = row.getCell(i);
+                        if (choiceCell == null || choiceCell.getCellType() != CellType.STRING || choiceCell.getStringCellValue().isEmpty()) {
+                            throw new IllegalArgumentException("All choice columns must be filled.");
+                        }
+                        String choiceContent = choiceCell.getStringCellValue();
+                        if (uniqueChoices.contains(choiceContent)) {
+                            throw new IllegalArgumentException("Duplicate choices are not allowed.");
+                        }
+                        uniqueChoices.add(choiceContent);
+                        choices.add(new QuizChoice(choiceContent));
+                    }
+
+                    String answerString = row.getCell(5).getStringCellValue();
+                    List<QuizChoice> answers = new ArrayList<>();
+
+                    if (answerString.contains(",")) {
+                        // Multiple-choice question
+                        String[] answerOptions = answerString.split(",");
+                        for (String option : answerOptions) {
+                            option = option.trim();
+                            if (!option.isEmpty() && isValidOption(option)) {
+                                answers.add(getChoiceByOption(choices, option));
+                            }
+                        }
+                    } else {
+                        // Single-choice question
+                        if (isValidOption(answerString)) {
+                            answers.add(getChoiceByOption(choices, answerString));
+                        }
+                    }
+
+                    if (answers.isEmpty()) {
+                        throw new IllegalArgumentException("Invalid answer options for the question.");
+                    }
+
+                    QuizQuestion question = new QuizQuestion();
+                    question.setTitle(questionTitle);
+                    question.setDescription(questionDescription);
+                    question.setChoices(choices);
+                    question.setAnswers(answers);
+
+                    questions.add(question);
+                } catch (Exception e) {
+                    failedRows.add(row.getRowNum() + 1); // Add 1 to display 1-based index to the user
+                }
+            }
+        }
+
+        return new ExcelResult(questions, failedRows);
+    }
+
+    private static boolean isValidOption(String option) {
+        return option.equalsIgnoreCase("A") || option.equalsIgnoreCase("B") ||
+                option.equalsIgnoreCase("C") || option.equalsIgnoreCase("D");
+    }
+
+    private static QuizChoice getChoiceByOption(List<QuizChoice> choices, String option) {
+        int index = option.toUpperCase().charAt(0) - 'A';
+        if (index >= 0 && index < choices.size()) {
+            return choices.get(index);
+        }
+        throw new IllegalArgumentException("Invalid answer option: " + option);
     }
 }

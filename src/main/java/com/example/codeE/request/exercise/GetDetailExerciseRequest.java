@@ -17,5 +17,6 @@ public class GetDetailExerciseRequest {
     private String studentId;
     @NotNull(message = "Exercise key is required")
     private String key;
-
+    @NotNull(message = "User urgent is request is required")
+    private String userUrgent;
 }

@@ -1,8 +1,6 @@
 package com.example.codeE.request.topic;
 
 import com.example.codeE.constant.Constant;
-import com.example.codeE.model.exercise.Exercise;
-import com.example.codeE.model.material.Material;
 import com.example.codeE.model.topic.Topic;
 import com.example.codeE.request.exercise.ExerciseResponse;
 import com.example.codeE.request.group.GroupTopicResponse;

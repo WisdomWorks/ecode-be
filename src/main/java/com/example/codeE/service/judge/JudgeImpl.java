@@ -20,10 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.Connection;
 import reactor.netty.tcp.TcpClient;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 import java.time.LocalDateTime;
 import java.util.zip.DataFormatException;
 
@@ -118,8 +115,8 @@ public class JudgeImpl implements JudgeService {
                 .doOnTerminate(connection::dispose) // Dispose the connection after receiving the response
                 .map(response -> {
                     try {
-                        System.out.println("Received data from server: " + ZlibCompression.dezlibify(response));
-                        return ZlibCompression.dezlibify(response);
+                        System.out.println("Received data from server: " + ZlibCompression.dezlibify(response, false));
+                        return ZlibCompression.dezlibify(response, false);
                     } catch (DataFormatException | IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -136,11 +133,11 @@ public class JudgeImpl implements JudgeService {
         updates.setScore(null);
         updates.setResult(null);
         updates.setCasePoints(0.0);
+        updates.setScore(0.0F);
         updates.setCaseTotal(0.0);
         updates.setError(null);
         updates.setDateGrade(rejudge ? DateTimeUtil.format(LocalDateTime.now()) : null);
         updates.setStatus("QU");
-        updates.setPretested(true);
 
         int priority = Constant.DEFAULT_PRIORITY;
 
