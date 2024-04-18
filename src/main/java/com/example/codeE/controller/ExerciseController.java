@@ -143,23 +143,25 @@ public class ExerciseController {
     @PostMapping
     @RequestMapping(value = "quiz/excel", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> createQuizFromExcel(@Valid @ModelAttribute CreateQuizExerciseByExcelRequest request, @RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
         try {
             ExcelResult excelResult = ExcelHelper.readQuizQuestionsFromExcel(file);
-            List<QuizQuestion> questions = excelResult.getQuestions();
-            List<Integer> failedRows = excelResult.getFailedRows();
-
-            // Save the questions using the quizExerciseService
-            QuizExercise quizExercise = new QuizExercise(request, questions);
-            quizExerciseService.createQuizExercise(quizExercise);
-            exerciseService.saveQuizExercise(quizExercise);
-            // Create the JSON response
-            Map<String, Object> response = new HashMap<>();
-            response.put("quizExercise", quizExercise);
-            response.put("failedRows", failedRows);
-
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            if (excelResult.getFailedRows().isEmpty()) {
+                List<QuizQuestion> questions = excelResult.getQuestions();
+                QuizExercise quizExercise = new QuizExercise(request, questions);
+                quizExerciseService.createQuizExercise(quizExercise);
+                exerciseService.saveQuizExercise(quizExercise);
+                response.put("message", "Quiz exercise created successfully");
+                return ResponseEntity.ok().body(response);
+            } else {
+                List<Integer> failedRows = excelResult.getFailedRows();
+                response.put("message", "Failed rows found");
+                response.put("failedRows", failedRows);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating quiz from Excel file: " + e.getMessage());
+            response.put("message", "Error creating quiz from Excel file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
@@ -491,13 +493,13 @@ public class ExerciseController {
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             String errorMessage = "Error occurred while exporting scores: " + e.getMessage();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", errorMessage));
         } catch (IllegalArgumentException e) {
             String errorMessage = "Invalid request: " + e.getMessage();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("message", errorMessage));
         } catch (Exception e) {
             String errorMessage = "An unexpected error occurred: " + e.getMessage();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", errorMessage));
         }
     }
 }
