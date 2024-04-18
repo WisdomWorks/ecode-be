@@ -79,8 +79,8 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://localhost:4000");
         config.addAllowedOrigin("http://localhost:4001");
-//        config.addAllowedOrigin(environment.getProperty("url.admin.ui"));
-//        config.addAllowedOrigin(environment.getProperty("url.user.ui"));
+        config.addAllowedOrigin(environment.getProperty("url.admin.ui"));
+        config.addAllowedOrigin(environment.getProperty("url.user.ui"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
