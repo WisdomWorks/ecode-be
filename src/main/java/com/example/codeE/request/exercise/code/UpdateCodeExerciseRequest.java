@@ -1,8 +1,6 @@
 package com.example.codeE.request.exercise.code;
 
-import com.example.codeE.constant.Constant;
 import com.example.codeE.model.exercise.common.problem.TestCase;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -56,4 +54,5 @@ public class UpdateCodeExerciseRequest {
     private String template;
 
     private List<TestCase> testCases;
+    private boolean isUsingAiGrading = false;
 }

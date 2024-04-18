@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class ExistingIdValidator implements ConstraintValidator<ExistingId, Object> {
 
-    @Autowired
-    private ExerciseRepository exerciseRepository;
 
     @Autowired
     private UserRepository userRepository;

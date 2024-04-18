@@ -8,8 +8,6 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -29,5 +27,5 @@ public class TestCase {
     private String output;
 
     @Field
-    private int points;
+    private Double points;
 }

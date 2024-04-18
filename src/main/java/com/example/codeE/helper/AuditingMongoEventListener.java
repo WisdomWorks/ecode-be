@@ -18,14 +18,14 @@ public class AuditingMongoEventListener extends AbstractMongoEventListener<Objec
 
         if (source instanceof Exercise) {
             Exercise exercise = (Exercise) source;
-            exercise.setCreatedDate(DateTimeUtil.format(LocalDateTime.now()));
-            exercise.setUpdatedDate(DateTimeUtil.format(LocalDateTime.now()));
+            exercise.setCreatedDate(DateTimeUtil.formatToIso(LocalDateTime.now()));
+            exercise.setUpdatedDate(DateTimeUtil.formatToIso(LocalDateTime.now()));
         }
 
         if (source instanceof Submission) {
             Submission submission = (Submission) source;
-            submission.setDateSubmit(DateTimeUtil.format(LocalDateTime.now()));
-            submission.setDateGrade(DateTimeUtil.format(LocalDateTime.now()));
+            submission.setDateSubmit(DateTimeUtil.formatToIso(LocalDateTime.now()));
+            submission.setDateGrade(DateTimeUtil.formatToIso(LocalDateTime.now()));
         }
     }
 }

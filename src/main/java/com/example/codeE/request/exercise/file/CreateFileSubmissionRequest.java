@@ -15,5 +15,4 @@ public class CreateFileSubmissionRequest {
     private String studentId;
     @NotNull(message = "Exercise Id is required")
     private String exerciseId;
-    private String url;
 }

@@ -249,7 +249,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             response.put("source", source);
             response.put("time-limit", data.time);
             response.put("memory-limit", data.memory);
-            response.put("short-circuit", data.shortCircuit);
+            response.put("short-circuit", false);
 
             ObjectNode metaNode = JsonNodeFactory.instance.objectNode();
             metaNode.put("pretests-only", data.pretests_only);
@@ -280,7 +280,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
             String problemId = submission.getExerciseId();
             Double timeLimit = problem.getTimeLimit();
             Integer memoryLimit = problem.getMemoryLimit();
-            Boolean shortCircuit = problem.getShortCircuit();
+            Boolean shortCircuit = false;
             String languageId = submission.getLanguageId();
             Boolean isPretested = submission.isPretested();
 
@@ -414,6 +414,7 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         total = (double) Math.round(total * 10) / 10;
 
         codeSubmission.setCasePoints(points);
+        codeSubmission.setScore(points.floatValue());
         codeSubmission.setCaseTotal(total);
 
         String problemId = codeSubmission.getExerciseId();
@@ -431,9 +432,13 @@ public class JudgeHandler extends ChannelInboundHandlerAdapter {
         codeSubmission.setTime(time);
         codeSubmission.setMemory(memory);
         codeSubmission.setCasePoints(points);
+        codeSubmission.setScore(points.floatValue());
         codeSubmission.setResult(statusCodes.get(status));
 
         codeSubmissionService.updateCodeSubmission(codeSubmission);
+        if (problem.isUsingAiGrading() && !codeSubmission.isPretested()){
+            codeSubmissionService.overriedByAiGrader(codeSubmission.getSubmissionId(), codeSubmission.getExerciseId());
+        }
         return null;
     }
 

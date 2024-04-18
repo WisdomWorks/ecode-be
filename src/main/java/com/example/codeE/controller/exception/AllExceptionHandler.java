@@ -1,7 +1,6 @@
 package com.example.codeE.controller.exception;
 
 import jakarta.validation.ConstraintViolationException;
-import javassist.NotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

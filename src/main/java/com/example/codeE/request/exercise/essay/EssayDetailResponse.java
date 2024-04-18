@@ -8,13 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.TimeZone;
 
 @Getter
 @Setter
@@ -35,9 +29,9 @@ public class EssayDetailResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constant.TIME_FORMAT)
     private Date timeLess;
     private String question;
+    private boolean isUsingAiGrading = false;
 
-    public EssayDetailResponse(EssayExercise essayExercise){
-        TimeZone tz = TimeZone.getTimeZone("UTC");
+    public EssayDetailResponse(EssayExercise essayExercise, Date timeDoExercise){
         this.exerciseId = essayExercise.getExerciseId();
         this.exerciseName = essayExercise.getExerciseName();
         this.topicId = essayExercise.getTopicId();
@@ -47,21 +41,24 @@ public class EssayDetailResponse {
         this.reAttempt = essayExercise.getReAttempt();
         this.type = essayExercise.getType();
         this.exerciseDescription = essayExercise.getExerciseDescription();
-        this.timeLess = GetTimeLess(essayExercise.getStartTime(), essayExercise.getEndTime(), essayExercise.getDurationTime());
+        this.timeLess = GetTimeLess(essayExercise.getStartTime(), essayExercise.getEndTime(), essayExercise.getDurationTime(), timeDoExercise);
         this.question = essayExercise.getQuestion();
+        this.isUsingAiGrading = essayExercise.isUsingAiGrading();
     }
-    private Date GetTimeLess(Date startTime, Date endTime, int durationTime) {
+    private Date GetTimeLess(Date startTime, Date endTime, int durationTime,Date timeDoExercise) {
         if(startTime == endTime){
             return new Date(0);
         }
-        var current = new Date().getTime();
-        if(current > endTime.getTime()){
+        var currentStart = timeDoExercise.getTime();
+        var timeNow = new Date().getTime();
+        if(timeNow > endTime.getTime()){
             return new Date(0);
         }
-        if (current + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
-            return new Date((long) durationTime * 60 * 1000);
+        if (currentStart + ((long) durationTime * 60 * 1000) < endTime.getTime()) {
+            var a = currentStart + ((long) durationTime * 60 * 1000);
+            return new Date((long) a - timeNow);
         } else {
-            return new Date((long) endTime.getTime() - current);
+            return new Date((long) endTime.getTime() - timeNow);
         }
     }
 }

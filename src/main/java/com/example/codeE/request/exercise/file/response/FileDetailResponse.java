@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.TimeZone;
 
 @Getter
 @Setter
@@ -32,7 +31,6 @@ public class FileDetailResponse {
     private String question;
 
     public FileDetailResponse(FileExercise fileExercise){
-        TimeZone tz = TimeZone.getTimeZone("UTC");
         this.exerciseId = fileExercise.getExerciseId();
         this.exerciseName = fileExercise.getExerciseName();
         this.topicId = fileExercise.getTopicId();
