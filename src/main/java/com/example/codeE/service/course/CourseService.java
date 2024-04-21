@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface CourseService extends CommonService<CourseResponse, CreateCourseRequest> {
     Course updateById(String id, UpdateCourseRequest update);
-    ResponseEntity<Map<String, String>> importByExcel(MultipartFile file);
+    ResponseEntity<Map<String, Object>> importByExcel(MultipartFile file);
     Boolean checkCourseExistById(String groupId);
     CourseEnrollmentResponse<CourseTeacherResponse> enrollStudentToCourse(CourseEnrollmentRequest request);
     void unEnrollUserInCourse(String userId, String courseId);

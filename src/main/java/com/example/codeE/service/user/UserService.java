@@ -16,7 +16,7 @@ public interface UserService extends CommonService<User, CreateUserRequest> {
     List<User> getUsersByRoleOrAll(String role);
     List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
-    ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file);
+    ResponseEntity<Map<String, Object>> saveUserToDatabase(MultipartFile file);
     // boolean exportExcel();
     User updateById(String userId, UpdateUserRequest updatedUser);
     User getUserByUserName(String role, String userName);

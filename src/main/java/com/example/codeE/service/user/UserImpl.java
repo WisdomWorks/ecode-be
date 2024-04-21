@@ -162,33 +162,43 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> saveUserToDatabase(MultipartFile file) {
         String passwordHash = BCryptPassword.generateRandomPassword();
-        Map<String, String> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
                 List<User> users = new ArrayList<>();
-                List<String> unsuccessfulUsers = new ArrayList<>();
+                List<Integer> unsuccessfulRowNumbers = new ArrayList<>();
                 List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(),
                         UserFromExcel.class);
-                for (UserFromExcel excelUser : importedUsers) {
+                for (int i = 0; i < importedUsers.size(); i++) {
+                    UserFromExcel excelUser = importedUsers.get(i);
                     try {
                         excelUser.setRole(excelUser.getRole().toLowerCase());
                         users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
                         User user = userRepository.save(users.get(users.size() - 1));
 
-                        String messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),
-                                user.getUsername(), passwordHash);
-                        EmailHelper emailHelper = new EmailHelper();
-                        emailHelper.sendMail(
-                                "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail());
                     } catch (Exception ex) {
-                        unsuccessfulUsers.add(excelUser.getUsername());
+                        unsuccessfulRowNumbers.add(i + 2);
                         logger.error("Error saving user to database", ex);
                     }
                 }
+                if (!unsuccessfulRowNumbers.isEmpty()) {
+                    // Delete all the records that were saved to the database
+                    userRepository.deleteAll(users);
+
+                    response.put("message", "Some users could not be saved. All changes have been rolled back.");
+                    response.put("failedRows: ", unsuccessfulRowNumbers);
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                }
+
+                for (User user : users) {
+                    String messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),
+                            user.getUsername(), passwordHash);
+                    EmailHelper emailHelper = new EmailHelper();
+                    emailHelper.sendMail("PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail());
+                }
                 response.put("message", "Users saved successfully");
-                response.put("unsuccessfulUsers", unsuccessfulUsers.toString());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } catch (IOException e) {
                 logger.error("Error processing the file", e);
