@@ -13,11 +13,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NonNull;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,6 +44,7 @@ public class User implements UserDetails {
 
     @Column(name = "username")
     @NotBlank(message = "Username is required")
+    @Size(min = 8, max = 8, message = "Username should be 8 characters")
     private String username;
 
     @JsonIgnore
