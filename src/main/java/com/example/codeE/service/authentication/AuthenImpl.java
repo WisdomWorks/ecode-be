@@ -140,8 +140,7 @@ public class AuthenImpl implements  AuthenService{
     @Override
     public void SendForgetPasswordOTP(String userName, HttpServletResponse response) throws NoSuchMethodException {
         var user = this.userRepository.findUserByUserName(userName);
-        System.out.println(user.getEmail());
-        if (user == null) throw new NoSuchMethodException("No user found by: " + userName);
+        if (user == null) throw new NoSuchMethodException("No user found by user name: " + userName);
         String OTP = RandomNumberGenerator();
         try {
             String messageContent = String.format(Constant.SEND_OTP_MAIL_TEMPLATE, user.getName(), OTP);
