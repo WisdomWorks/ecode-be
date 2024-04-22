@@ -113,13 +113,14 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     public AllSubmissionResponse<CodeSubmissionDetail> getCodeSubmissionsByExerciseId(String exerciseId) {
         var exercise = this.exerciseRepository.findById(exerciseId).orElseThrow(() -> new NoSuchElementException("No exercise found"));
         List<CodeSubmission> submissions = codeSubmissionRepository.getCodeSubmissionByExerciseId(exerciseId);
+        var topic = this.topicRepository.findById(exercise.getTopicId()).get();
         var listSubmissions = new ArrayList<CodeSubmissionDetail>();
         for (var item : submissions) {
             if (!item.getSubmissionId().equals("code_submission")){
                 if (!item.isPretested()) {
                     var student = this.userRepository.findById(item.getStudentId()).orElseThrow(() -> new NoSuchElementException("No student found by id: " + item.getStudentId()));
                     List<SubmissionTestCase> testCases = this.submissionTestCaseService.getAllTcBySubmissionId(item.getSubmissionId());
-                    List<GroupTopicResponse> returnedGroups = this.userService.getAllGroupsByUserId(student.getUserId());
+                    List<GroupTopicResponse> returnedGroups = this.userService.getAllGroupsByUserId(student.getUserId(), topic.getCourseId());
                     listSubmissions.add(new CodeSubmissionDetail(student, item, returnedGroups, testCases));
                 }
             }

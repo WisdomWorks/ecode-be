@@ -14,6 +14,7 @@ import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.security.BCryptPassword;
+import com.example.codeE.service.course.CourseService;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ public class UserImpl implements UserService, UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CourseService courseService;
 
     @Override
     public User getById(@NotBlank String userId) {
@@ -126,15 +129,18 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public List<GroupTopicResponse> getAllGroupsByUserId(String userId) {
+    public List<GroupTopicResponse> getAllGroupsByUserId(String userId, String courseId) {
         List<GroupStudent> groupStudents = this.userRepository.findUserByUserId(userId).getGroupStudents();
         List<GroupTopicResponse> groupTopicResponses = new ArrayList<>();
+        var course = this.courseService.getById(courseId);
         for(GroupStudent groupStudent: groupStudents){
             Group group = groupStudent.getGroup();
-            GroupTopicResponse groupTopicRes = new GroupTopicResponse();
-            groupTopicRes.setGroupId(group.getGroupId());
-            groupTopicRes.setGroupName(group.getGroupName());
-            groupTopicResponses.add(groupTopicRes);
+            if(group.getCourseId().equals(courseId)){
+                GroupTopicResponse groupTopicRes = new GroupTopicResponse();
+                groupTopicRes.setGroupId(group.getGroupId());
+                groupTopicRes.setGroupName(group.getGroupName());
+                groupTopicResponses.add(groupTopicRes);
+            }
         }
         return groupTopicResponses;
     }

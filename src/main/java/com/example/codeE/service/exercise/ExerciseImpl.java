@@ -180,23 +180,23 @@ public class ExerciseImpl implements ExerciseService {
             } else {
                 var session = sessionExercises.get(0);
                 if (session.getLoginId().equals(loginId) && session.getStudentId().equals(studentId)) {
+                    Date timeStart = new Date();
+                    try {
+                        var timeString = session.getTimeStart();
+                        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
+                        timeStart = sdf.parse(timeString);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    Date now = new Date();
+                    if ((long) exercise.getDurationTime() * 1000 * 60 + timeStart.getTime() < now.getTime()) {
+                        this.sessionExerciseService.removeSession(response, request);
+                        LocalDateTime dateNow = LocalDateTime.now();
+                        //user Urgent ?
+                        session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
+                        sessionExerciseRepository.save(session);
+                    }
                     if (session.getExerciseId().equals(exerciseId)) {
-                        Date timeStart = new Date();
-                        try {
-                            var timeString = session.getTimeStart();
-                            SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
-                            timeStart = sdf.parse(timeString);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        Date now = new Date();
-                        if ((long) exercise.getDurationTime() * 1000 * 60 + timeStart.getTime() < now.getTime()) {
-                            this.sessionExerciseService.removeSession(response, request);
-                            LocalDateTime dateNow = LocalDateTime.now();
-                            //user Urgent ?
-                            session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
-                            sessionExerciseRepository.save(session);
-                        }
                         return exercise;
                         //after return, system need to calculate a time left
                     } else {

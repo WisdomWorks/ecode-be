@@ -85,6 +85,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseResult);
             }
             var responseResult = this.authenService.createNewSessionUser(token, response);
+            this.createNewLoginSession(request, response);
             return ResponseEntity.status(HttpStatus.OK).body(responseResult);
         }else {
             var responseResult = new UserAuthenRequest();
@@ -205,6 +206,19 @@ public class AuthController {
                 if ("LoginSessionId".equals(cookie.getName())) {
                     this.SessionExerciseService.removeSession(response, request);
                     cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+            }
+        }
+    }
+    private void createNewLoginSession(HttpServletRequest request, HttpServletResponse response){
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("LoginSessionId".equals(cookie.getName())) {
+                    this.SessionExerciseService.removeSession(response, request);
+                    cookie.setMaxAge(3600 * 6);
                     cookie.setPath("/");
                     response.addCookie(cookie);
                 }
