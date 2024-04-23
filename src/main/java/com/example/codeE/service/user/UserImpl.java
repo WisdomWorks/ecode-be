@@ -14,6 +14,7 @@ import com.example.codeE.request.user.CreateUserRequest;
 import com.example.codeE.request.user.GetUsersRequest;
 import com.example.codeE.request.user.UpdateUserRequest;
 import com.example.codeE.security.BCryptPassword;
+import com.example.codeE.service.course.CourseService;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ public class UserImpl implements UserService, UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CourseService courseService;
 
     @Override
     public User getById(@NotBlank String userId) {
@@ -81,8 +84,12 @@ public class UserImpl implements UserService, UserDetailsService {
                     "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail());
             return this.userRepository.save(user);
         } catch (Exception e) {
-            LoggerHelper.logError("Create Error", e);
-            throw new RuntimeException("User create request is not valid");
+            LoggerHelper.logError(e.getMessage());
+            if (e.getMessage().equals("could not execute statement [Duplicate entry '" + userRequest.getUsername() + "' for key 'user.username'] [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; SQL [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; constraint [user.username]"))
+                throw new RuntimeException("User Name can not duplicate");
+            if (e.getMessage().equals("could not execute statement [Duplicate entry '" + userRequest.getEmail() + "' for key 'user.username'] [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; SQL [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; constraint [user.username]"))
+                throw new RuntimeException("Email can not duplicate");
+            throw new RuntimeException("Something wrong when create user");
         }
     }
 
@@ -126,15 +133,18 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public List<GroupTopicResponse> getAllGroupsByUserId(String userId) {
+    public List<GroupTopicResponse> getAllGroupsByUserId(String userId, String courseId) {
         List<GroupStudent> groupStudents = this.userRepository.findUserByUserId(userId).getGroupStudents();
         List<GroupTopicResponse> groupTopicResponses = new ArrayList<>();
+        var course = this.courseService.getById(courseId);
         for(GroupStudent groupStudent: groupStudents){
             Group group = groupStudent.getGroup();
-            GroupTopicResponse groupTopicRes = new GroupTopicResponse();
-            groupTopicRes.setGroupId(group.getGroupId());
-            groupTopicRes.setGroupName(group.getGroupName());
-            groupTopicResponses.add(groupTopicRes);
+            if(group.getCourseId().equals(courseId)){
+                GroupTopicResponse groupTopicRes = new GroupTopicResponse();
+                groupTopicRes.setGroupId(group.getGroupId());
+                groupTopicRes.setGroupName(group.getGroupName());
+                groupTopicResponses.add(groupTopicRes);
+            }
         }
         return groupTopicResponses;
     }
@@ -162,33 +172,43 @@ public class UserImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> saveUserToDatabase(MultipartFile file) {
         String passwordHash = BCryptPassword.generateRandomPassword();
-        Map<String, String> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
                 List<User> users = new ArrayList<>();
-                List<String> unsuccessfulUsers = new ArrayList<>();
+                List<Integer> unsuccessfulRowNumbers = new ArrayList<>();
                 List<UserFromExcel> importedUsers = ExcelHelper.importFromExcel(file.getInputStream(),
                         UserFromExcel.class);
-                for (UserFromExcel excelUser : importedUsers) {
+                for (int i = 0; i < importedUsers.size(); i++) {
+                    UserFromExcel excelUser = importedUsers.get(i);
                     try {
                         excelUser.setRole(excelUser.getRole().toLowerCase());
                         users.add(new User(excelUser, BCryptPassword.passwordEncoder(passwordHash)));
                         User user = userRepository.save(users.get(users.size() - 1));
 
-                        String messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),
-                                user.getUsername(), passwordHash);
-                        EmailHelper emailHelper = new EmailHelper();
-                        emailHelper.sendMail(
-                                "PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail());
                     } catch (Exception ex) {
-                        unsuccessfulUsers.add(excelUser.getUsername());
+                        unsuccessfulRowNumbers.add(i + 2);
                         logger.error("Error saving user to database", ex);
                     }
                 }
+                if (!unsuccessfulRowNumbers.isEmpty()) {
+                    // Delete all the records that were saved to the database
+                    userRepository.deleteAll(users);
+
+                    response.put("message", "Some users could not be saved. All changes have been rolled back.");
+                    response.put("failedRows: ", unsuccessfulRowNumbers);
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                }
+
+                for (User user : users) {
+                    String messageContent = String.format(Constant.MAIL_TEMPLATE, user.getName(),
+                            user.getUsername(), passwordHash);
+                    EmailHelper emailHelper = new EmailHelper();
+                    emailHelper.sendMail("PASSWORD FOR CODEE SYSTEM", messageContent, user.getEmail());
+                }
                 response.put("message", "Users saved successfully");
-                response.put("unsuccessfulUsers", unsuccessfulUsers.toString());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } catch (IOException e) {
                 logger.error("Error processing the file", e);

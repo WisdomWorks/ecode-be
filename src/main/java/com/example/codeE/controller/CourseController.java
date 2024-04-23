@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -48,9 +49,8 @@ public class CourseController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
-        ResponseEntity<Map<String, String>> result = this.courseService.importByExcel(file);
 
-        return result;
+        return this.courseService.importByExcel(file);
     }
 
     @PutMapping
@@ -93,12 +93,12 @@ public class CourseController {
         if (request.getFile().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
         }
-        List<String> result = courseStudentService.importStudentsToCourse(request);
+        List<Integer> result = courseStudentService.importStudentsToCourse(request);
         if (result.isEmpty()) {
             return ResponseEntity.ok(Map.of("message", "Import students to course successfully"));
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Fail to add these students in course: " + result);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("failedRows", result));
     }
 
     @DeleteMapping

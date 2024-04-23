@@ -105,27 +105,42 @@ public class CourseImpl implements CourseService {
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> importByExcel(MultipartFile file) {
-        Map<String, String> response = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> importByExcel(MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            List<Course> courses = new ArrayList<>();
-            List<String> unsuccessfulCourses = new ArrayList<>();
             List<CourseFromExcel> importedCourses = ExcelHelper.importFromExcel(file.getInputStream(), CourseFromExcel.class);
-            for (CourseFromExcel excelCourse : importedCourses) {
+            List<Integer> failedRowNumbers = new ArrayList<>();
+            List<Course> savedCourses = new ArrayList<>();
+
+            for (int i = 0; i < importedCourses.size(); i++) {
+                CourseFromExcel excelCourse = importedCourses.get(i);
                 try {
-                    courses.add(new Course(excelCourse));
-                    courseRepository.save(courses.get(courses.size() - 1));
+                    Course course = new Course(excelCourse);
+                    courseRepository.save(course);
+                    savedCourses.add(course);
                 } catch (Exception ex) {
-                    unsuccessfulCourses.add(excelCourse.getCourseName());
+                    failedRowNumbers.add(i + 2); // Adding 2 to account for the header row and 0-based index
                     LoggerHelper.logError("Error saving course to database", ex);
                 }
             }
-            response.put("message", "Courses saved successfully");
-            response.put("unsuccessfulCourses", unsuccessfulCourses.toString());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+
+            if (failedRowNumbers.isEmpty()) {
+                response.put("message", "Courses saved successfully");
+                response.put("status", HttpStatus.OK.value());
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                // Delete all saved courses if there are failed rows
+                courseRepository.deleteAll(savedCourses);
+
+                response.put("message", "Failed to save some courses. All changes have been rolled back.");
+                response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+                response.put("failedRows", failedRowNumbers);
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } catch (IOException e) {
             LoggerHelper.logError("Error processing the file", e);
             response.put("message", e.getMessage());
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

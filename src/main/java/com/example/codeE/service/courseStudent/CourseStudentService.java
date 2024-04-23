@@ -11,7 +11,7 @@ import java.util.List;
 public interface CourseStudentService {
     List<CourseStudent> addStudentToCourse(AddStudentToCourseRequest request);
     List<CourseStudent> updateStudentsInCourse(UpdateStudentsToCourseRequest request);
-    List<String> importStudentsToCourse(ImportStudentToCourseRequest request);
+    List<Integer> importStudentsToCourse(ImportStudentToCourseRequest request);
     Boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request);
     Boolean checkStudentInCourse(String studentId, String courseId);
 }

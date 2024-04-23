@@ -179,37 +179,37 @@ public class ExerciseImpl implements ExerciseService {
                 return exercise;
             } else {
                 var session = sessionExercises.get(0);
-                if (session.getLoginId().equals(loginId) && session.getStudentId().equals(studentId)) {
+                Date timeStart = new Date();
+                try {
+                    var timeString = session.getTimeStart();
+                    SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
+                    timeStart = sdf.parse(timeString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Date now = new Date();
+                if ((long) exercise.getDurationTime() * 1000 * 60 + timeStart.getTime() < now.getTime()) {
+                    this.sessionExerciseRepository.deleteById(session.getSessionId());
+                    LocalDateTime dateNow = LocalDateTime.now();
+                    //user Urgent ?
+                    session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
+                    sessionExerciseRepository.save(session);
+                }
+                if (session.getLoginId().equals(loginId)) {
                     if (session.getExerciseId().equals(exerciseId)) {
-                        Date timeStart = new Date();
-                        try {
-                            var timeString = session.getTimeStart();
-                            SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_TIME_ISO_FORMAT);
-                            timeStart = sdf.parse(timeString);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        Date now = new Date();
-                        if ((long) exercise.getDurationTime() * 1000 * 60 + timeStart.getTime() < now.getTime()) {
-                            this.sessionExerciseService.removeSession(response, request);
-                            LocalDateTime dateNow = LocalDateTime.now();
-                            //user Urgent ?
-                            session = new SessionExercise(loginId, studentId, exerciseId, DateTimeUtil.formatToIso(dateNow), "");
-                            sessionExerciseRepository.save(session);
-                        }
                         return exercise;
-                        //after return, system need to calculate a time left
                     } else {
-                        //student has joined another exercise
                         throw new IllegalArgumentException("Student need to complete another current exercise before participating in a new one.");
                     }
                 } else {
                     throw new IllegalArgumentException("Student is using another browser to take an exercise.");
                 }
-            }
+                }
+
         } else
             throw new IllegalArgumentException("Failed to retrieve exercise information.");
     }
+
 
     private boolean isReTemp(String exerciseId, String userId, String type, int reTemp) {
         switch (type) {
