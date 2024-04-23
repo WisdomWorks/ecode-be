@@ -10,11 +10,7 @@ import com.example.codeE.request.course.AddStudentToCourseRequest;
 import com.example.codeE.request.course.ImportStudentToCourseRequest;
 import com.example.codeE.request.course.RemoveStudentFromCourseRequest;
 import com.example.codeE.request.course.UpdateStudentsToCourseRequest;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,34 +60,36 @@ public class CourseStudentImpl implements CourseStudentService {
         }
     }
 
-
     @Override
-    public List<String> importStudentsToCourse(ImportStudentToCourseRequest request) {
-
+    public List<Integer> importStudentsToCourse(ImportStudentToCourseRequest request) {
         MultipartFile file = request.getFile();
-        List<String> result = new ArrayList<>();
+        List<Integer> failedRows = new ArrayList<>();
 
         if (ExcelHelper.isValidExcelFile(file)) {
             try {
-                List<CourseStudent> list = new ArrayList<>();
                 List<String> importedStudentsName = getAllNamesFromExcel(file.getInputStream());
                 LoggerHelper.logInfo("Number of imported students: " + importedStudentsName.size());
 
                 for (String excelStudent : importedStudentsName) {
-                    System.out.println(excelStudent.toString());
+                    System.out.println(excelStudent);
                 }
-                for (String excelStudentName : importedStudentsName) {
+                for (int i = 0; i < importedStudentsName.size(); i++) {
+                    String excelStudentName = importedStudentsName.get(i);
                     User student = userRepository.findUserByRoleAndUserName("student", excelStudentName);
-                    if (student != null) {
-                        list.add(new CourseStudent(student.getUserId(), request.getCourseId()));
-                    } else {
-                        // Log the error and continue processing
-                        result.add(excelStudentName);
+                    if (student == null) {
+                        failedRows.add(i + 2); // Adding 2 to account for the header row and 0-based index
                         LoggerHelper.logError("Student not found for username: " + excelStudentName);
                     }
                 }
-                this.courseStudentRepository.saveAll(list);
-                return result;
+                if (failedRows.isEmpty()) {
+                    List<CourseStudent> list = new ArrayList<>();
+                    for (String excelStudentName : importedStudentsName) {
+                        User student = userRepository.findUserByRoleAndUserName("student", excelStudentName);
+                        CourseStudent courseStudent = new CourseStudent(student.getUserId(), request.getCourseId());
+                        list.add(courseStudent);
+                    }
+                    this.courseStudentRepository.saveAll(list);
+                }
             } catch (IOException e) {
                 LoggerHelper.logError("IOException is found: " + e.getMessage());
             } catch (Exception ex) {
@@ -99,9 +97,8 @@ public class CourseStudentImpl implements CourseStudentService {
                 LoggerHelper.logInfo("Fail to add student into the course.");
             }
         }
-        return result;
+        return failedRows;
     }
-
 
     @Override
     public Boolean deleteStudentInCourse(RemoveStudentFromCourseRequest request) {
@@ -138,10 +135,8 @@ public class CourseStudentImpl implements CourseStudentService {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerHelper.logError("IOException is found: " + e.getMessage());
         }
         return names;
     }
-
-
 }

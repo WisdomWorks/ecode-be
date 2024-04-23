@@ -57,14 +57,14 @@ public class AuthenImpl implements  AuthenService{
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .maxAge(3600 * 4)
+                    .maxAge(3600 * 6)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
             cookie = ResponseCookie.from("LoginSessionId", UUID.randomUUID().toString())
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .maxAge(3600 * 4)
+                    .maxAge(3600 * 6)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
@@ -121,7 +121,7 @@ public class AuthenImpl implements  AuthenService{
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .maxAge(3600)
+                    .maxAge(3600 * 6)
                     .build();
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         }catch (Exception e){
@@ -140,8 +140,7 @@ public class AuthenImpl implements  AuthenService{
     @Override
     public void SendForgetPasswordOTP(String userName, HttpServletResponse response) throws NoSuchMethodException {
         var user = this.userRepository.findUserByUserName(userName);
-        System.out.println(user.getEmail());
-        if (user == null) throw new NoSuchMethodException("No user found by: " + userName);
+        if (user == null) throw new NoSuchMethodException("No user found by user name: " + userName);
         String OTP = RandomNumberGenerator();
         try {
             String messageContent = String.format(Constant.SEND_OTP_MAIL_TEMPLATE, user.getName(), OTP);

@@ -16,13 +16,12 @@ public interface UserService extends CommonService<User, CreateUserRequest> {
     List<User> getUsersByRoleOrAll(String role);
     List<User> getUsersByRoleAndSearchKeyword(GetUsersRequest getUsersRequest);
     List<User> paginateUsers(GetUsersRequest getUsersRequest);
-    ResponseEntity<Map<String, String>> saveUserToDatabase(MultipartFile file);
+    ResponseEntity<Map<String, Object>> saveUserToDatabase(MultipartFile file);
     // boolean exportExcel();
     User updateById(String userId, UpdateUserRequest updatedUser);
     User getUserByUserName(String role, String userName);
     User ChangePassword(String userId, String newPassword, String oldPassword);
 
-    List<GroupTopicResponse> getAllGroupsByUserId(String userId);
-
+    List<GroupTopicResponse> getAllGroupsByUserId(String userId, String courseId);
     User getUserByUserId(String userId);
 }
