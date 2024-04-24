@@ -43,7 +43,7 @@ public class Course {
     private String courseName;
 
     @Column(name = "semester")
-    @Size(max = 4, message = "Semester cannot exceed 4 characters")
+    @Size(min= 4, max = 4, message = "Semester cannot exceed 4 characters")
     private String semester;
 
     @Column(name = "enroll_key")
