@@ -198,7 +198,7 @@ public class UserImpl implements UserService, UserDetailsService {
                     userRepository.deleteAll(users);
 
                     response.put("message", "Some users could not be saved. All changes have been rolled back.");
-                    response.put("failedRows: ", unsuccessfulRowNumbers);
+                    response.put("failedRows", unsuccessfulRowNumbers);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
 
