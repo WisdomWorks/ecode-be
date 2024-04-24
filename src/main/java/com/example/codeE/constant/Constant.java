@@ -191,7 +191,7 @@ public class Constant {
             "<STUDENT-SUBMISSION>\n" +
             "{Student Submission}\n" +
             "</STUDENT-SUBMISSION>\n" +
-            "After reviewing the problem and submission, output your evaluation using this JSON format, with no additional text besides the JSON:\n" +
+            "After reviewing the problem and submission, output your evaluation using this JSON format, with no additional text besides the JSON (NOTE: PLEASE DO NOT INCLUDE the symbol \" IN THE COMMENT OR THE JSON FORMAT PARSING WILL FAIL!):\n" +
             "\n" +
             "{\"score\": [numeric score], \"comment\": \"[explanation for assigned score]\"}\n" +
             "\n" +
@@ -238,7 +238,7 @@ public class Constant {
                     "\n" +
                     "In addition to assigning a numeric score, please provide a clear, detailed comment explaining your reasoning behind the grade. The comment should offer a comprehensive rationale for the score, highlighting both strengths and weaknesses in the student's work as applicable.\n" +
                     "\n" +
-                    "The relevant assignment problem, the student's submitted solution, judge message, and test cases will be provided in the following format. After reviewing the problem, submission, judge message, and test cases, output your evaluation using this JSON format with no additional text besides the JSON:\n" +
+                    "The relevant assignment problem, the student's submitted solution, judge message, and test cases will be provided in the following format. After reviewing the problem, submission, judge message, and test cases, output your evaluation using this JSON format with no additional text besides the JSON (NOTE: PLEASE DO NOT INCLUDE the symbol \" IN THE COMMENT OR THE JSON FORMAT PARSING WILL FAIL!):\n" +
                     "\n" +
                     "<PROBLEM>\n" +
                     "{Problem description}\n" +
