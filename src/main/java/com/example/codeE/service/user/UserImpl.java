@@ -87,7 +87,7 @@ public class UserImpl implements UserService, UserDetailsService {
             LoggerHelper.logError(e.getMessage());
             if (e.getMessage().equals("could not execute statement [Duplicate entry '" + userRequest.getUsername() + "' for key 'user.username'] [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; SQL [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; constraint [user.username]"))
                 throw new RuntimeException("User Name can not duplicate");
-            if (e.getMessage().equals("could not execute statement [Duplicate entry '" + userRequest.getEmail() + "' for key 'user.username'] [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; SQL [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; constraint [user.username]"))
+            if (e.getMessage().equals("could not execute statement [Duplicate entry '" + userRequest.getEmail() + "' for key 'user.email'] [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; SQL [insert into user (created_date,email,name,password,role,updated_date,username,user_id) values (?,?,?,?,?,?,?,?)]; constraint [user.email]"))
                 throw new RuntimeException("Email can not duplicate");
             throw new RuntimeException("Something wrong when create user");
         }
