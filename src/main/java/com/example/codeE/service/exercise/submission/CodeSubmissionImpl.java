@@ -203,7 +203,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
     }
 
     @Override
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 100))
+    @Retryable(retryFor = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000))
     public void overriedByAiGrader(String submissionId, String exerciseId) {
         CodeExercise exercise = codeExerciseRepository.findById(exerciseId).get();
         CodeSubmission submission = codeSubmissionRepository.findById(submissionId).get();
@@ -228,7 +228,7 @@ public class CodeSubmissionImpl implements CodeSubmissionService{
             submission.setTeacherComment(response.getComment());
             codeSubmissionRepository.save(submission);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
